@@ -13,6 +13,9 @@ MENTION = re.compile(
     r'(?<![A-Za-z0-9_-])(?:XADR-[A-Z][A-Z0-9-]*-[0-9]+|'
     r'(?:PRIN|D|REQ|US|OUT|SYS|DES|RISK|TEST|S|C|ADR)-[0-9]+)'
     r'(?![A-Za-z0-9_-])')
+# Downward decomposition edges land one V level per PR, so they are required
+# only once a node is past `proposed` (always under --strict).
+DOWNWARD = {'decomposes_into', 'realised_by'}
 PAIRS = {
     'decomposes_into': ({'REQ'}, {'SYS'}),
     'realised_by': ({'SYS'}, {'DES'}),
@@ -265,9 +268,11 @@ def check(docs, strict=False):
     for ident, node in by_id.items():
         required = {'REQ': ('decomposes_into', 'verified_by'),
                     'SYS': ('realised_by', 'verified_by'), 'RISK': ('mitigated_by',)}.get(node['kind'], ())
+        staged = node['status'] == 'proposed' and not strict
         for kind in required:
-            if kind not in outgoing[ident]:
-                errors.append(f'{ident}: missing {kind}')
+            if kind in outgoing[ident] or (kind in DOWNWARD and staged):
+                continue
+            errors.append(f'{ident}: missing {kind}')
         if (strict or node['status'] != 'proposed') and 'delivered_by' not in outgoing[ident]:
             errors.append(f'{ident}: missing delivered_by')
     for file in sorted(docs.rglob('*.md')):
@@ -297,7 +302,8 @@ def check(docs, strict=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('docs', type=Path, help='documentation root')
-    parser.add_argument('--strict', action='store_true', help='require delivered_by also for proposed nodes')
+    parser.add_argument('--strict', action='store_true',
+                        help='require delivered_by, decomposes_into and realised_by also for proposed nodes')
     args = parser.parse_args()
     if not args.docs.is_dir():
         print(f'{args.docs}: docs root is not a directory', file=sys.stderr)

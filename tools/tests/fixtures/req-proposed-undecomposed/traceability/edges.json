@@ -1,0 +1,19 @@
+{
+  "edges": [
+    {
+      "from": "REQ-001",
+      "to": "TEST-001",
+      "kind": "verified_by"
+    },
+    {
+      "from": "REQ-001",
+      "to": "nerdmachines/scitadel-hub#3",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-001",
+      "to": "nerdmachines/scitadel-hub#3",
+      "kind": "delivered_by"
+    }
+  ]
+}

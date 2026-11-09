@@ -1,0 +1,34 @@
+{
+  "edges": [
+    {
+      "from": "REQ-001",
+      "to": "SYS-001",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-001",
+      "to": "TEST-001",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-001",
+      "to": "TEST-001",
+      "kind": "verified_by"
+    },
+    {
+      "from": "REQ-001",
+      "to": "nerdmachines/scitadel-hub#3",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-001",
+      "to": "nerdmachines/scitadel-hub#3",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-001",
+      "to": "nerdmachines/scitadel-hub#3",
+      "kind": "delivered_by"
+    }
+  ]
+}

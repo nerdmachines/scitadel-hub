@@ -16,19 +16,19 @@
       "kind": "verified_by"
     },
     {
-      "from": "DES-001",
-      "to": "TEST-001",
-      "kind": "verified_by"
+      "from": "REQ-001",
+      "to": "nerdmachines/scitadel-hub#3",
+      "kind": "delivered_by"
     },
     {
-      "from": "ADR-0001",
-      "to": "DES-001",
-      "kind": "justifies"
+      "from": "SYS-001",
+      "to": "nerdmachines/scitadel-hub#3",
+      "kind": "delivered_by"
     },
     {
-      "from": "RISK-001",
-      "to": "DES-001",
-      "kind": "mitigated_by"
+      "from": "TEST-001",
+      "to": "nerdmachines/scitadel-hub#3",
+      "kind": "delivered_by"
     }
   ]
 }

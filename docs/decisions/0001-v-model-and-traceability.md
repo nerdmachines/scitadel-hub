@@ -43,7 +43,7 @@ silently skipped. Every node has `id`, `kind`, `title`, `status` and `source`.
 `source` is a provenance string; it may be empty except for external ADRs. Designs also declare
 `level` (`L3` or `L4`); tests declare `test_kind` (`acceptance`, `system`,
 `integration`, `unit`). The test classification is separate from node `kind`.
-The optional `example: true` marks temporary examples. Every edge has `from`,
+The optional `example: true` marks temporary examples; none remain after #3. Every edge has `from`,
 `to` and `kind`.
 
 | Edge kind | From | To |
@@ -63,6 +63,19 @@ A node at `planned` or later must have a `delivered_by` edge. `--strict` require
 that edge for all nodes; [#6](https://github.com/nerdmachines/scitadel-hub/issues/6)
 will enable strict mode later. Issue targets are external references, not nodes.
 
+**Amendment (#3): downward decomposition is staged by status.** The V lands top-down,
+one level per PR: L1 ([#3](https://github.com/nerdmachines/scitadel-hub/issues/3)),
+then L2 ([#4](https://github.com/nerdmachines/scitadel-hub/issues/4)), then L3 and L4
+([#5](https://github.com/nerdmachines/scitadel-hub/issues/5)). An always-required
+`REQ --decomposes_into--> SYS` or `SYS --realised_by--> DES` edge would leave the
+graph red until the level below exists, so the plan could never be green level by
+level. The two downward edges therefore follow the same rule as `delivered_by`: they
+are required when the node's status is past `proposed`, and always under `--strict`.
+`verified_by` (every `REQ` and `SYS`) and `mitigated_by` (every `RISK`) stay required at
+every status, so each level ships with its own acceptance or system `TEST` stubs.
+Issue [#6](https://github.com/nerdmachines/scitadel-hub/issues/6) switches CI to
+`--strict`, so the milestone cannot close with an undecomposed requirement.
+
 The executable `tools/trace-check <docs-root>` uses Python 3.11 or later and only
 the standard library. It validates the schema's supported keywords, ID formats,
 unique IDs, edge endpoints and allowed kinds, local ADR files/status, external
@@ -71,16 +84,17 @@ Markdown scanning recognizes only `PRIN`, `D`, `REQ`, `US`, `OUT`, `SYS`, `DES`,
 `RISK`, `TEST`, `S`, `C`, `ADR` and `XADR` numeric identifiers. Unrelated names
 such as UTF-8 and SHA-256 are ignored.
 The graph must contain at least one `REQ` node; an empty graph fails explicitly.
-It also rejects an orphan requirement, a requirement or system node without verification,
-a system node without design, a risk without mitigation, and missing delivery
-edges at the applicable statuses. Each violation is one stderr line, with a
+It also rejects a requirement or system node without verification, a risk without
+mitigation, and missing delivery edges at the applicable statuses. A requirement
+without a system node, or a system node without a design, is rejected once its
+status is past `proposed`, and always under `--strict`. Each violation is one stderr line, with a
 nonzero exit code. Coverage on stdout counts nodes, nodes with verification and
 nodes with delivery per level; it describes graph links, not executed tests.
 
 Seeded fixtures prove each failure mode. CI runs the unit tests and gate on PRs
 into `dev` and pushes to `dev`, and checks Markdown links with a pinned action.
-The five content nodes in the initial graph are examples to be replaced by
-[#3](https://github.com/nerdmachines/scitadel-hub/issues/3); this ADR is a real node.
+The temporary example nodes of the initial graph were replaced by the L0 and L1
+content of [#3](https://github.com/nerdmachines/scitadel-hub/issues/3); this ADR is a real node.
 
 ## Rationale
 
@@ -96,6 +110,8 @@ package installation or language build.
 | Trace links only in Markdown | No single machine-checkable graph or completeness gate |
 | Introduce cx runtime now | Adds infrastructure before the initial plan exists |
 | Require delivery for all proposed nodes immediately | Conflicts with the staged issue-backfill slice |
+| Always require `decomposes_into` and `realised_by` | The V lands one level per PR, so the level above could never be green until the level below exists |
+| Drop the downward edges from the gate | Lets a requirement stay undecomposed unnoticed; the status rule and `--strict` keep the check |
 
 ## Consequences
 

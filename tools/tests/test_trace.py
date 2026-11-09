@@ -28,10 +28,8 @@ FAILURES = {
     'duplicate-id': 'duplicate ID: PRIN-001',
     'dangling-target': 'dangling edge: DES-001 --refines--> DES-999 (unknown target)',
     'dangling-source': 'dangling edge: DES-999 --refines--> DES-001 (unknown source)',
-    'orphan-req': 'REQ-001: missing decomposes_into',
     'unverified-req': 'REQ-001: missing verified_by',
     'unverified-sys': 'SYS-001: missing verified_by',
-    'unrealised-sys': 'SYS-001: missing realised_by',
     'undelivered-planned': 'PRIN-001: missing delivered_by',
     'undelivered-in-progress': 'PRIN-001: missing delivered_by',
     'undelivered-done': 'PRIN-001: missing delivered_by',
@@ -50,6 +48,16 @@ FAILURES = {
     'missing-test-kind': 'traceability/nodes.json.nodes[4]: missing test_kind',
     'missing-design-level': 'traceability/nodes.json.nodes[3]: missing level',
     'malformed-json': 'traceability/nodes.json: invalid JSON: Expecting property name enclosed in double quotes: line 2 column 1 (char 2)',
+}
+
+# Downward decomposition edges are required once a node is past `proposed`, and
+# always under --strict. Each fixture has delivery edges, so the single expected
+# violation is the missing decomposition edge itself.
+STAGED = {
+    'req-proposed-undecomposed': ('REQ-001: missing decomposes_into', False),
+    'req-planned-undecomposed': ('REQ-001: missing decomposes_into', True),
+    'sys-proposed-unrealised': ('SYS-001: missing realised_by', False),
+    'sys-planned-unrealised': ('SYS-001: missing realised_by', True),
 }
 
 
@@ -79,6 +87,17 @@ class TraceCheckTests(unittest.TestCase):
             f'{ident}: missing delivered_by' for ident in
             ('PRIN-001', 'REQ-001', 'SYS-001', 'DES-001', 'TEST-001',
              'ADR-0001', 'RISK-001', 'XADR-KIT-008')})
+
+    def test_downward_edges_are_staged_by_status(self):
+        for fixture, (violation, fails_normally) in STAGED.items():
+            with self.subTest(fixture=fixture, strict=False):
+                result = self.run_gate(fixture)
+                self.assertEqual(result.returncode, int(fails_normally), result.stderr)
+                self.assertEqual(result.stderr.splitlines(), [violation] if fails_normally else [])
+            with self.subTest(fixture=fixture, strict=True):
+                result = self.run_gate(fixture, '--strict')
+                self.assertEqual(result.returncode, 1)
+                self.assertEqual(result.stderr.splitlines(), [violation])
 
     def test_delivered_nodes_pass_normal_and_strict(self):
         for flags in ((), ('--strict',)):
@@ -172,7 +191,7 @@ class TraceCheckTests(unittest.TestCase):
 
     def test_every_fixture_is_exercised(self):
         self.assertEqual({p.name for p in FIXTURES.iterdir() if p.is_dir()},
-                         set(FAILURES) | {'clean', 'delivered', 'all-edge-kinds', 'markdown-encoding-names'})
+                         set(FAILURES) | set(STAGED) | {'clean', 'delivered', 'all-edge-kinds', 'markdown-encoding-names'})
 
 
 def failure_test(fixture, expected):

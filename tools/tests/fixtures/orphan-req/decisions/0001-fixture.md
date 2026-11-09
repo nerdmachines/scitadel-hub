@@ -1,3 +1,0 @@
-# Fixture ADR
-
-Status: proposed
