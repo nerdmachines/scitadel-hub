@@ -1,0 +1,12 @@
+{
+  "nodes": [
+    {
+      "id": "PRIN-001",
+      "kind": "PRIN",
+      "title": "Example principle \u2014 replace in #3",
+      "status": "proposed",
+      "source": "https://github.com/nerdmachines/scitadel-hub/issues/3",
+      "example": true
+    }
+  ]
+}

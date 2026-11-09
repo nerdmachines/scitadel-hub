@@ -1,0 +1,3 @@
+# Fixture ADR
+
+Status: done

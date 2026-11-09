@@ -1,0 +1,67 @@
+{
+  "nodes": [
+    {
+      "id": "PRIN-001",
+      "kind": "PRIN",
+      "title": "Example principle \u2014 replace in #3",
+      "status": "accepted",
+      "source": "https://github.com/nerdmachines/scitadel-hub/issues/3",
+      "example": true
+    },
+    {
+      "id": "REQ-001",
+      "kind": "REQ",
+      "title": "Example requirement \u2014 replace in #3",
+      "status": "proposed",
+      "source": "https://github.com/nerdmachines/scitadel-hub/issues/3",
+      "example": true
+    },
+    {
+      "id": "SYS-001",
+      "kind": "SYS",
+      "title": "Example system requirement \u2014 replace in #3",
+      "status": "proposed",
+      "source": "https://github.com/nerdmachines/scitadel-hub/issues/3",
+      "example": true
+    },
+    {
+      "id": "DES-001",
+      "kind": "DES",
+      "title": "Example design \u2014 replace in #3",
+      "status": "proposed",
+      "source": "https://github.com/nerdmachines/scitadel-hub/issues/3",
+      "example": true,
+      "level": "L3"
+    },
+    {
+      "id": "TEST-001",
+      "kind": "TEST",
+      "title": "Example verification \u2014 replace in #3",
+      "status": "proposed",
+      "source": "https://github.com/nerdmachines/scitadel-hub/issues/3",
+      "example": true,
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "ADR-0001",
+      "kind": "adr",
+      "title": "V-model and traceability",
+      "status": "proposed",
+      "source": "decisions/0001-v-model-and-traceability.md"
+    },
+    {
+      "id": "RISK-001",
+      "kind": "RISK",
+      "title": "Fixture risk",
+      "status": "proposed",
+      "source": ""
+    },
+    {
+      "id": "XADR-KIT-008",
+      "kind": "adr",
+      "title": "External ADR",
+      "status": "proposed",
+      "source": "https://github.com/nerdmachines/kit/pull/72"
+    }
+  ]
+}

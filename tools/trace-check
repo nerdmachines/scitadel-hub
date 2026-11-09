@@ -1,0 +1,314 @@
+#!/usr/bin/env python3
+"""Validate trace JSON and documentation using Python 3.11+ only."""
+import argparse
+import json
+from pathlib import Path
+import re
+import sys
+
+SCHEMA = Path(__file__).resolve().parent.parent / 'docs/traceability/schema.json'
+ADR_ID = re.compile(r'^ADR-[0-9]{4}$')
+ISSUE = re.compile(r'^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+#[1-9][0-9]*$')
+MENTION = re.compile(
+    r'(?<![A-Za-z0-9_-])(?:XADR-[A-Z][A-Z0-9-]*-[0-9]+|'
+    r'(?:PRIN|D|REQ|US|OUT|SYS|DES|RISK|TEST|S|C|ADR)-[0-9]+)'
+    r'(?![A-Za-z0-9_-])')
+PAIRS = {
+    'decomposes_into': ({'REQ'}, {'SYS'}),
+    'realised_by': ({'SYS'}, {'DES'}),
+    'refines': ({'DES'}, {'DES'}),
+    'verified_by': ({'REQ', 'US', 'SYS', 'DES'}, {'TEST'}),
+    'mitigated_by': ({'RISK'}, {'DES', 'TEST'}),
+    'justifies': ({'adr', 'D'}, {'DES'}),
+    'story_of': ({'US'}, {'REQ'}),
+    'measures': ({'OUT'}, {'REQ'}),
+}
+
+
+SUPPORTED_SCHEMA_KEYWORDS = {
+    '$schema', '$defs', '$ref', 'title', 'description', 'type', 'properties',
+    'additionalProperties', 'required', 'items', 'oneOf', 'allOf', 'if', 'then',
+    'enum', 'const', 'pattern', 'minLength',
+}
+
+
+def schema_errors(root):
+    """Reject unsupported keywords/shapes before evaluating any graph data.
+
+    This subset supports schema objects, scalar enums/constants, and acyclic
+    references to local definitions. It does not accept arbitrary JSON Schema.
+    """
+    def walk(schema, path, ancestors):
+        if not isinstance(schema, dict):
+            yield f'{path}: expected a schema object'
+            return
+        if id(schema) in ancestors:
+            yield f'{path}: recursive schema references are not supported'
+            return
+        ancestors = ancestors | {id(schema)}
+        for key in sorted(schema.keys() - SUPPORTED_SCHEMA_KEYWORDS):
+            yield f'{path}: unsupported keyword {key}'
+        if 'if' in schema and 'then' not in schema:
+            yield f'{path}: if requires then'
+        if 'then' in schema and 'if' not in schema:
+            yield f'{path}: then requires if'
+        for key, value in schema.items():
+            location = f'{path}.{key}'
+            if key in ('$defs', 'properties'):
+                if not isinstance(value, dict):
+                    yield f'{location}: expected an object'
+                else:
+                    for name, child in value.items():
+                        yield from walk(child, f'{location}.{name}', ancestors)
+            elif key in ('oneOf', 'allOf'):
+                if not isinstance(value, list) or not value:
+                    yield f'{location}: expected a nonempty array'
+                else:
+                    for i, child in enumerate(value):
+                        yield from walk(child, f'{location}[{i}]', ancestors)
+            elif key in ('items', 'if', 'then'):
+                yield from walk(value, location, ancestors)
+            elif key == '$ref':
+                if not isinstance(value, str) or not re.fullmatch(r'#/\$defs/[A-Za-z_][A-Za-z0-9_-]*', value):
+                    yield f'{location}: expected a local definition reference'
+                elif not isinstance(root.get('$defs'), dict) or value.split('/')[-1] not in root['$defs']:
+                    yield f'{location}: unresolved local definition'
+                else:
+                    yield from walk(root['$defs'][value.split('/')[-1]], location, ancestors)
+            elif key == 'type':
+                if not isinstance(value, str) or value not in ('object', 'array', 'string', 'integer'):
+                    yield f'{location}: unsupported type'
+            elif key == 'required':
+                if (not isinstance(value, list) or not all(isinstance(v, str) for v in value)
+                        or len(set(value)) != len(value)):
+                    yield f'{location}: expected an array of unique strings'
+            elif key == 'additionalProperties' and not isinstance(value, bool):
+                yield f'{location}: expected a boolean'
+            elif key == 'minLength' and (type(value) is not int or value < 0):
+                yield f'{location}: expected a nonnegative integer'
+            elif key == 'enum':
+                if not isinstance(value, list) or not value or any(isinstance(v, (dict, list)) for v in value):
+                    yield f'{location}: expected a nonempty array of scalar values'
+            elif key == 'const' and isinstance(value, (dict, list)):
+                yield f'{location}: expected a scalar value'
+            elif key == 'pattern':
+                if not isinstance(value, str):
+                    yield f'{location}: expected a string'
+                else:
+                    try:
+                        re.compile(value)
+                    except re.error:
+                        yield f'{location}: invalid regular expression'
+            elif key in ('$schema', 'title', 'description') and not isinstance(value, str):
+                yield f'{location}: expected a string'
+    yield from walk(root, 'schema', set())
+
+
+def validate(value, schema, root, path):
+    """Validate standalone data with a checked subset schema."""
+    errors = list(schema_errors(root))
+    if errors:
+        yield from errors
+        return
+    yield from _validate(value, schema, root, path)
+
+
+def _validate(value, schema, root, path):
+    """Evaluate the JSON Schema keywords used by the checked-in schema.
+
+    This is deliberately a bounded validator, not a general JSON Schema library.
+    Keep schema keyword coverage in sync with tools/tests/test_trace.py.
+    """
+    if '$ref' in schema:
+        target = root
+        for part in schema['$ref'].removeprefix('#/').split('/'):
+            target = target[part]
+        yield from _validate(value, target, root, path)
+    if 'oneOf' in schema:
+        matches = [not list(_validate(value, option, root, path)) for option in schema['oneOf']]
+        if sum(matches) != 1:
+            yield f'{path}: expected exactly one schema alternative'
+    for constraint in schema.get('allOf', []):
+        yield from _validate(value, constraint, root, path)
+    if 'if' in schema and not list(_validate(value, schema['if'], root, path)):
+        yield from _validate(value, schema['then'], root, path)
+    if 'const' in schema and value != schema['const']:
+        yield f'{path}: expected {schema["const"]!r}'
+    types = {'object': dict, 'array': list, 'string': str, 'integer': int}
+    if 'type' in schema and (not isinstance(value, types[schema['type']]) or
+                             (schema['type'] == 'integer' and isinstance(value, bool))):
+        yield f'{path}: expected {schema["type"]}'
+        return
+    if 'enum' in schema and not any(
+            value == choice and (isinstance(value, bool) == isinstance(choice, bool))
+            for choice in schema['enum']):
+        yield f'{path}: invalid value {value!r}'
+    if isinstance(value, str):
+        if len(value) < schema.get('minLength', 0):
+            yield f'{path}: must not be empty'
+        if 'pattern' in schema and not re.search(schema['pattern'], value):
+            yield f'{path}: invalid format {value!r}'
+    if isinstance(value, dict):
+        for key in schema.get('required', []):
+            if key not in value:
+                yield f'{path}: missing {key}'
+        props = schema.get('properties', {})
+        for key, item in value.items():
+            if key in props:
+                yield from _validate(item, props[key], root, f'{path}.{key}')
+            elif schema.get('additionalProperties') is False:
+                yield f'{path}: unknown field {key}'
+    if isinstance(value, list) and 'items' in schema:
+        for i, item in enumerate(value):
+            yield from _validate(item, schema['items'], root, f'{path}[{i}]')
+
+
+def adr_status(content):
+    fence = None
+    statuses = []
+    for line in content.splitlines():
+        if fence:
+            if re.fullmatch(r' {0,3}' + re.escape(fence[0]) + '{' + str(fence[1]) + r',}[ \t]*', line):
+                fence = None
+            continue
+        opening = re.match(r' {0,3}(`{3,}|~{3,})(.*)$', line)
+        if opening and not (opening[1][0] == '`' and '`' in opening[2]):
+            fence = (opening[1][0], len(opening[1]))
+            continue
+        status = re.fullmatch(r'Status: (\S+)', line)
+        if status:
+            statuses.append(status[1])
+    return statuses[0] if len(statuses) == 1 else None
+
+
+def check(docs, strict=False):
+    errors = []
+    try:
+        schema = json.loads(SCHEMA.read_text())
+    except (OSError, ValueError) as exc:
+        return [f'schema: {exc}'], []
+    errors.extend(schema_errors(schema))
+    if errors:
+        return errors, []
+    nodes, edges = [], []
+    trace = docs / 'traceability'
+    files = []
+    if trace.is_dir():
+        for entry in sorted(trace.iterdir()):
+            name = entry.relative_to(docs).as_posix()
+            if entry.is_dir():
+                errors.append(f'{name}: unexpected entry (subdirectories are not supported)')
+            elif not entry.is_file() or (entry.name not in ('README.md', 'schema.json') and entry.suffix != '.json'):
+                errors.append(f'{name}: unexpected file (only README.md, schema.json and *.json are allowed)')
+            elif entry.suffix == '.json' and entry.name != 'schema.json':
+                files.append(entry)
+    if not files:
+        errors.append('traceability: no node or edge files')
+    seen_types = set()
+    for file in files:
+        name = file.relative_to(docs).as_posix()
+        try:
+            data = json.loads(file.read_text())
+        except (OSError, ValueError, UnicodeError) as exc:
+            errors.append(f'{name}: invalid JSON: {str(exc).splitlines()[0]}')
+            continue
+        failures = list(_validate(data, schema, schema, name))
+        if failures:
+            errors.extend(failures)
+            continue
+        key = 'nodes' if 'nodes' in data else 'edges'
+        seen_types.add(key)
+        (nodes if key == 'nodes' else edges).extend(data[key])
+    for key in ('nodes', 'edges'):
+        if key not in seen_types:
+            errors.append(f'traceability: missing valid {key} document')
+    if not any(node['kind'] == 'REQ' for node in nodes):
+        errors.append('traceability: graph must contain at least one REQ node')
+    by_id = {}
+    for node in nodes:
+        ident = node['id']
+        if ident in by_id:
+            errors.append(f'duplicate ID: {ident}')
+            continue
+        by_id[ident] = node
+        if ADR_ID.fullmatch(ident):
+            matches = sorted((docs / 'decisions').glob(f'{ident[4:]}-*.md'))
+            if len(matches) != 1:
+                errors.append(f'{ident}: expected one local ADR file, found {len(matches)}')
+            else:
+                try:
+                    content = matches[0].read_text()
+                except (OSError, UnicodeError) as exc:
+                    errors.append(f'{ident}: cannot read local ADR: {str(exc).splitlines()[0]}')
+                    continue
+                if adr_status(content) != node['status']:
+                    errors.append(f'{ident}: ADR Status must match node status {node["status"]}')
+    outgoing = {ident: set() for ident in by_id}
+    for edge in edges:
+        source, target, kind = edge['from'], edge['to'], edge['kind']
+        if source not in by_id:
+            errors.append(f'dangling edge: {source} --{kind}--> {target} (unknown source)')
+            continue
+        if kind == 'delivered_by':
+            if not ISSUE.fullmatch(target):
+                errors.append(f'{source}: delivered_by target must be owner/repo#number: {target}')
+                continue
+        else:
+            if target not in by_id:
+                errors.append(f'dangling edge: {source} --{kind}--> {target} (unknown target)')
+                continue
+            left, right = PAIRS[kind]
+            if by_id[source]['kind'] not in left or by_id[target]['kind'] not in right:
+                errors.append(f'invalid edge kinds: {source} --{kind}--> {target}')
+                continue
+        outgoing[source].add(kind)
+    for ident, node in by_id.items():
+        required = {'REQ': ('decomposes_into', 'verified_by'),
+                    'SYS': ('realised_by', 'verified_by'), 'RISK': ('mitigated_by',)}.get(node['kind'], ())
+        for kind in required:
+            if kind not in outgoing[ident]:
+                errors.append(f'{ident}: missing {kind}')
+        if (strict or node['status'] != 'proposed') and 'delivered_by' not in outgoing[ident]:
+            errors.append(f'{ident}: missing delivered_by')
+    for file in sorted(docs.rglob('*.md')):
+        try:
+            content = file.read_text()
+        except (OSError, UnicodeError) as exc:
+            errors.append(f'{file.relative_to(docs)}: cannot read markdown: {str(exc).splitlines()[0]}')
+            continue
+        for number, line in enumerate(content.splitlines(), 1):
+            for ident in sorted(set(MENTION.findall(line))):
+                if ident not in by_id:
+                    errors.append(f'{file.relative_to(docs)}:{number}: undefined markdown ID {ident}')
+    levels = {'L0': [], 'L1': [], 'L2': [], 'L3': [], 'L4': [], 'risks': [], 'tests': []}
+    for node in by_id.values():
+        level = {'PRIN': 'L0', 'D': 'L0', 'adr': 'L3', 'REQ': 'L1', 'US': 'L1',
+                 'OUT': 'L1', 'SYS': 'L2', 'S': 'L4', 'C': 'L4', 'RISK': 'risks',
+                 'TEST': 'tests', 'DES': node.get('level', 'L3')}[node['kind']]
+        levels[level].append(node['id'])
+    summary = []
+    for level, ids in levels.items():
+        def count(kind):
+            return sum(kind in outgoing[i] for i in ids)
+        summary.append(f'coverage {level}: nodes={len(ids)} verified_by={count("verified_by")} delivered_by={count("delivered_by")}')
+    return errors, summary
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('docs', type=Path, help='documentation root')
+    parser.add_argument('--strict', action='store_true', help='require delivered_by also for proposed nodes')
+    args = parser.parse_args()
+    if not args.docs.is_dir():
+        print(f'{args.docs}: docs root is not a directory', file=sys.stderr)
+        return 1
+    errors, summary = check(args.docs, args.strict)
+    for line in errors:
+        print(line.replace(chr(13), r'\r').replace(chr(10), r'\n'), file=sys.stderr)
+    for line in summary:
+        print(line)
+    return int(bool(errors))
+
+
+if __name__ == '__main__':
+    sys.exit(main())

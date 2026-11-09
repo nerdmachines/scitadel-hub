@@ -1,0 +1,32 @@
+name: Traceability
+on:
+  pull_request:
+    branches: [dev]
+  push:
+    branches: [dev]
+permissions:
+  contents: read
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.11'
+      - run: python3 -m unittest discover -s tools/tests -v
+      - run: tools/trace-check docs
+  markdown-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          # Private reference ADRs cannot be fetched with this public repo's token.
+          args: >-
+            --include-fragments --no-progress --max-retries 3
+            --exclude '^https://github.com/nerdmachines/kit/'
+            './*.md' 'docs/**/*.md'
+          fail: true

@@ -1,0 +1,79 @@
+{
+  "edges": [
+    {
+      "from": "REQ-001",
+      "to": "SYS-001",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-001",
+      "to": "DES-001",
+      "kind": "realised_by"
+    },
+    {
+      "from": "REQ-001",
+      "to": "TEST-001",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-001",
+      "to": "TEST-001",
+      "kind": "verified_by"
+    },
+    {
+      "from": "DES-001",
+      "to": "TEST-001",
+      "kind": "verified_by"
+    },
+    {
+      "from": "ADR-0001",
+      "to": "DES-001",
+      "kind": "justifies"
+    },
+    {
+      "from": "RISK-001",
+      "to": "DES-001",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "PRIN-001",
+      "to": "nerdmachines/scitadel-hub#2",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-001",
+      "to": "nerdmachines/scitadel-hub#2",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-001",
+      "to": "nerdmachines/scitadel-hub#2",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "DES-001",
+      "to": "nerdmachines/scitadel-hub#2",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-001",
+      "to": "nerdmachines/scitadel-hub#2",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "ADR-0001",
+      "to": "nerdmachines/scitadel-hub#2",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "RISK-001",
+      "to": "nerdmachines/scitadel-hub#2",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "XADR-KIT-008",
+      "to": "nerdmachines/scitadel-hub#2",
+      "kind": "delivered_by"
+    }
+  ]
+}
