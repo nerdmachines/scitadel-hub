@@ -24,5 +24,6 @@ The graph needs at least one `REQ`. Keep this directory flat: only `README.md`,
 
 Local ADR nodes resolve to one decision file with a matching `Status:` line;
 external ADR nodes require a source URL. The gate checks IDs mentioned in Markdown
-and prints coverage per level. `example: true` nodes are temporary examples to be
-replaced by [#3](https://github.com/nerdmachines/scitadel-hub/issues/3).
+and prints coverage per level. The [L0](../vmodel/L0-principles.md) and
+[L1](../vmodel/L1-requirements.md) content replaced the temporary `example: true` nodes, which remain in the schema for later
+temporary examples.

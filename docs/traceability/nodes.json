@@ -3,43 +3,847 @@
     {
       "id": "PRIN-001",
       "kind": "PRIN",
-      "title": "Example principle \u2014 replace in #3",
+      "title": "Licence-clean first",
       "status": "proposed",
-      "source": "https://github.com/nerdmachines/scitadel-hub/issues/3",
-      "example": true
+      "source": "vig-os/scitadel ADR-008 §15; decisions 15 and 16 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "PRIN-002",
+      "kind": "PRIN",
+      "title": "Walled corpus, published tools",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §15 (opening); §17 (detach versus bulk export); decision 19 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "PRIN-003",
+      "kind": "PRIN",
+      "title": "Rust-native, tessera storage, no graph database",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §3; §4; decisions 3 to 5 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "PRIN-004",
+      "kind": "PRIN",
+      "title": "Originals stay out of the corpus database",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §9; §12; decisions 9 and 12 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "PRIN-005",
+      "kind": "PRIN",
+      "title": "Full provenance",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §11; decision 11 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "PRIN-006",
+      "kind": "PRIN",
+      "title": "Offline-first client",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §14 (offline mode); §17; decisions 20 and 21 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "PRIN-007",
+      "kind": "PRIN",
+      "title": "Reproducible and rebuildable",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2 (\"Derived means rebuildable\"); decision 3 (https://github.com/vig-os/scitadel/pull/317); vig-os/scitadel#314"
+    },
+    {
+      "id": "PRIN-008",
+      "kind": "PRIN",
+      "title": "Grounding first",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 Context (Positioning); §7; §15 (retraction flags) (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "PRIN-009",
+      "kind": "PRIN",
+      "title": "Quality is a growing test suite",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §13; decision 13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "PRIN-010",
+      "kind": "PRIN",
+      "title": "Serve on CPU, ingest on GPU",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §14; §8 (GPU policy); decision 14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "PRIN-011",
+      "kind": "PRIN",
+      "title": "Privacy by design",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (guardrails, GDPR); §18 (GDPR guardrails) (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "PRIN-012",
+      "kind": "PRIN",
+      "title": "Licence gating is data, not convention",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12; §15 (gated features designed but disabled); Consequences (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "PRIN-013",
+      "kind": "PRIN",
+      "title": "Commercial detail stays out of this repository",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §1 (repo split); §17 (no tier figures recorded) (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "D-001",
+      "kind": "D",
+      "title": "Dual licence: AGPL-3.0-only OR commercial (2026-11-08)",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §16; decision 18 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "D-002",
+      "kind": "D",
+      "title": "Deploy repository is private (2026-11-08)",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §1 (\"On-prem comes via the commercial grant\"); decision 1 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "D-003",
+      "kind": "D",
+      "title": "Walled corpus, published tools, no dataset release (2026-11-08)",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §15; §17; decision 19 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "D-004",
+      "kind": "D",
+      "title": "Positioning: an MCP that grounds agents against hallucination (2026-11-08)",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 Context (Positioning) (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "D-005",
+      "kind": "D",
+      "title": "Licence-clean phase 1; licence-gated features designed but disabled (2026-11-08)",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §15; decisions 15 to 17 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "D-006",
+      "kind": "D",
+      "title": "CC-BY-NC and CC-BY-ND are excluded from paid tiers (2026-11-08)",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (licence classes); Consequences (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "D-007",
+      "kind": "D",
+      "title": "No PDFs served (2026-11-08)",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318"
+    },
+    {
+      "id": "D-008",
+      "kind": "D",
+      "title": "Repository home is the nerdmachines organisation (2026-11-09)",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §1 (repository table and creation note) (https://github.com/vig-os/scitadel/pull/317)"
     },
     {
       "id": "REQ-001",
       "kind": "REQ",
-      "title": "Example requirement \u2014 replace in #3",
+      "title": "Licence-clean corpus scope",
       "status": "proposed",
-      "source": "https://github.com/nerdmachines/scitadel-hub/issues/3",
-      "example": true
+      "source": "vig-os/scitadel ADR-008 §6; §15 (https://github.com/vig-os/scitadel/pull/317)"
     },
     {
-      "id": "SYS-001",
-      "kind": "SYS",
-      "title": "Example system requirement \u2014 replace in #3",
+      "id": "REQ-002",
+      "kind": "REQ",
+      "title": "Freshness and delta lifecycle",
       "status": "proposed",
-      "source": "https://github.com/nerdmachines/scitadel-hub/issues/3",
-      "example": true
+      "source": "vig-os/scitadel ADR-008 §2; §5; §6 (https://github.com/vig-os/scitadel/pull/317)"
     },
     {
-      "id": "DES-001",
-      "kind": "DES",
-      "title": "Example design \u2014 replace in #3",
+      "id": "REQ-003",
+      "kind": "REQ",
+      "title": "Hybrid retrieval and graph neighbours",
       "status": "proposed",
-      "source": "https://github.com/nerdmachines/scitadel-hub/issues/3",
-      "example": true,
-      "level": "L3"
+      "source": "vig-os/scitadel ADR-008 §4; §7; §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-004",
+      "kind": "REQ",
+      "title": "Query-embedding contract",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §7; §14 (https://github.com/vig-os/scitadel/pull/317); vig-os/scitadel#316"
+    },
+    {
+      "id": "REQ-005",
+      "kind": "REQ",
+      "title": "Document model",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §9; §6 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-006",
+      "kind": "REQ",
+      "title": "Extraction quality",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §10; §13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-007",
+      "kind": "REQ",
+      "title": "Provenance",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §11; §7 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-008",
+      "kind": "REQ",
+      "title": "Licence classes and gating",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12; §15 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-009",
+      "kind": "REQ",
+      "title": "Retraction flags",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §15 (\"Retraction flags are a must-have\") (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-010",
+      "kind": "REQ",
+      "title": "Agent and MCP grounding surface",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 Context (Positioning); §7 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-011",
+      "kind": "REQ",
+      "title": "Protocol and fall-through",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §7; §16 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-012",
+      "kind": "REQ",
+      "title": "Layered hubs and annotations",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (clients keep annotations); §17 (personal, lab and organisation spaces); the layer model itself is new at L1 and is not specified in that record (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-013",
+      "kind": "REQ",
+      "title": "Offline use and detach",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12; §14; §17 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-014",
+      "kind": "REQ",
+      "title": "Hosted tiers",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (stages 1 and 2); §17 (tiers) (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-015",
+      "kind": "REQ",
+      "title": "On-prem deployment",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §1; §8 (on-prem) (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-016",
+      "kind": "REQ",
+      "title": "Privacy and GDPR",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (GDPR); §18 (GDPR guardrails) (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-017",
+      "kind": "REQ",
+      "title": "Text-and-data-mining compliance",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (legal basis by tier); §15 (Crossref TDM-link harvester) (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-018",
+      "kind": "REQ",
+      "title": "Operability",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2 (retention); §8 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-019",
+      "kind": "REQ",
+      "title": "Serving performance and compute placement",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (GPU policy); §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "REQ-020",
+      "kind": "REQ",
+      "title": "Licence and release hygiene",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §16 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "US-001",
+      "kind": "US",
+      "title": "Search my topics offline",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318"
+    },
+    {
+      "id": "US-002",
+      "kind": "US",
+      "title": "Take my tracked works with me",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318"
+    },
+    {
+      "id": "US-003",
+      "kind": "US",
+      "title": "Keep working when the hub is down",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316"
+    },
+    {
+      "id": "US-004",
+      "kind": "US",
+      "title": "Read a work without a PDF",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318"
+    },
+    {
+      "id": "US-005",
+      "kind": "US",
+      "title": "Share the lab's search work",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316"
+    },
+    {
+      "id": "US-006",
+      "kind": "US",
+      "title": "Report a bad extraction",
+      "status": "proposed",
+      "source": "vig-os/scitadel#324"
+    },
+    {
+      "id": "US-007",
+      "kind": "US",
+      "title": "Annotate and share with my group",
+      "status": "proposed",
+      "source": "vig-os/scitadel#325"
+    },
+    {
+      "id": "US-008",
+      "kind": "US",
+      "title": "Curate at group and organisation level",
+      "status": "proposed",
+      "source": "vig-os/scitadel#325"
+    },
+    {
+      "id": "US-009",
+      "kind": "US",
+      "title": "Stay current on the lab's topics",
+      "status": "proposed",
+      "source": "vig-os/scitadel#315"
+    },
+    {
+      "id": "US-010",
+      "kind": "US",
+      "title": "Trust that retracted work is marked",
+      "status": "proposed",
+      "source": "vig-os/scitadel#323"
+    },
+    {
+      "id": "US-011",
+      "kind": "US",
+      "title": "Audit licence classes",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318"
+    },
+    {
+      "id": "US-012",
+      "kind": "US",
+      "title": "Know the lawful basis for mining",
+      "status": "proposed",
+      "source": "vig-os/scitadel#330"
+    },
+    {
+      "id": "US-013",
+      "kind": "US",
+      "title": "Protect personal data",
+      "status": "proposed",
+      "source": "vig-os/scitadel#333"
+    },
+    {
+      "id": "US-014",
+      "kind": "US",
+      "title": "Keep usage reporting ready",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318"
+    },
+    {
+      "id": "US-015",
+      "kind": "US",
+      "title": "Ground answers in real records",
+      "status": "proposed",
+      "source": "vig-os/scitadel#329"
+    },
+    {
+      "id": "US-016",
+      "kind": "US",
+      "title": "Receive provenance and licence with every answer",
+      "status": "proposed",
+      "source": "vig-os/scitadel#329"
+    },
+    {
+      "id": "US-017",
+      "kind": "US",
+      "title": "Send query vectors safely",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316"
+    },
+    {
+      "id": "US-018",
+      "kind": "US",
+      "title": "Implement the protocol myself",
+      "status": "proposed",
+      "source": "vig-os/scitadel#331"
+    },
+    {
+      "id": "US-019",
+      "kind": "US",
+      "title": "Never see a retracted paper unmarked",
+      "status": "proposed",
+      "source": "vig-os/scitadel#329"
+    },
+    {
+      "id": "US-020",
+      "kind": "US",
+      "title": "Install the hub on our hardware",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub-deploy#2"
+    },
+    {
+      "id": "US-021",
+      "kind": "US",
+      "title": "Back up, restore and expire safely",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320"
+    },
+    {
+      "id": "US-022",
+      "kind": "US",
+      "title": "Upgrade without silent regressions",
+      "status": "proposed",
+      "source": "vig-os/scitadel#321"
+    },
+    {
+      "id": "US-023",
+      "kind": "US",
+      "title": "Build the phase-1 corpus reproducibly",
+      "status": "proposed",
+      "source": "vig-os/scitadel#314"
+    },
+    {
+      "id": "US-024",
+      "kind": "US",
+      "title": "Keep GPU use inside the queue policy",
+      "status": "proposed",
+      "source": "vig-os/scitadel#311"
+    },
+    {
+      "id": "US-025",
+      "kind": "US",
+      "title": "Operate one stage at a time",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#1363"
+    },
+    {
+      "id": "US-026",
+      "kind": "US",
+      "title": "Isolate and meter tenants",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub-deploy#1"
+    },
+    {
+      "id": "US-027",
+      "kind": "US",
+      "title": "Re-check opt-outs on every ingest",
+      "status": "proposed",
+      "source": "vig-os/scitadel#330"
+    },
+    {
+      "id": "US-028",
+      "kind": "US",
+      "title": "Ship licence-clean releases",
+      "status": "proposed",
+      "source": "vig-os/scitadel#333"
+    },
+    {
+      "id": "US-029",
+      "kind": "US",
+      "title": "Keep a trail for every row",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319"
+    },
+    {
+      "id": "US-030",
+      "kind": "US",
+      "title": "Search patent full text with claims",
+      "status": "proposed",
+      "source": "vig-os/scitadel#314"
+    },
+    {
+      "id": "US-031",
+      "kind": "US",
+      "title": "Follow citations between patents and papers",
+      "status": "proposed",
+      "source": "vig-os/scitadel#314"
+    },
+    {
+      "id": "US-032",
+      "kind": "US",
+      "title": "See new grants weekly",
+      "status": "proposed",
+      "source": "vig-os/scitadel#314"
+    },
+    {
+      "id": "US-033",
+      "kind": "US",
+      "title": "Know the source of every passage",
+      "status": "proposed",
+      "source": "vig-os/scitadel#314"
+    },
+    {
+      "id": "OUT-001",
+      "kind": "OUT",
+      "title": "Citation-existence rate of grounded answers",
+      "status": "proposed",
+      "source": "vig-os/scitadel#332"
+    },
+    {
+      "id": "OUT-002",
+      "kind": "OUT",
+      "title": "Citation support rate",
+      "status": "proposed",
+      "source": "vig-os/scitadel#332"
+    },
+    {
+      "id": "OUT-003",
+      "kind": "OUT",
+      "title": "Licence correctness",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318"
+    },
+    {
+      "id": "OUT-004",
+      "kind": "OUT",
+      "title": "Ingest throughput per GPU-hour",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §15 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "OUT-005",
+      "kind": "OUT",
+      "title": "Query latency on CPU",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "OUT-006",
+      "kind": "OUT",
+      "title": "Delta freshness, literature",
+      "status": "proposed",
+      "source": "vig-os/scitadel#315"
+    },
+    {
+      "id": "OUT-007",
+      "kind": "OUT",
+      "title": "Delta freshness, patents",
+      "status": "proposed",
+      "source": "vig-os/scitadel#314"
+    },
+    {
+      "id": "OUT-008",
+      "kind": "OUT",
+      "title": "Free-key budget compliance",
+      "status": "proposed",
+      "source": "vig-os/scitadel#315"
+    },
+    {
+      "id": "OUT-009",
+      "kind": "OUT",
+      "title": "Extraction QC pass rate",
+      "status": "proposed",
+      "source": "vig-os/scitadel#321"
+    },
+    {
+      "id": "OUT-010",
+      "kind": "OUT",
+      "title": "Silent-error bound per batch",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "OUT-011",
+      "kind": "OUT",
+      "title": "Retrieval quality",
+      "status": "proposed",
+      "source": "vig-os/scitadel#321"
+    },
+    {
+      "id": "OUT-012",
+      "kind": "OUT",
+      "title": "Provenance completeness",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319"
+    },
+    {
+      "id": "OUT-013",
+      "kind": "OUT",
+      "title": "Retraction coverage",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §15 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "OUT-014",
+      "kind": "OUT",
+      "title": "Added latency on hub failure",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316"
+    },
+    {
+      "id": "OUT-015",
+      "kind": "OUT",
+      "title": "Offline subset size and latency",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "OUT-016",
+      "kind": "OUT",
+      "title": "Opt-out compliance",
+      "status": "proposed",
+      "source": "vig-os/scitadel#330"
+    },
+    {
+      "id": "OUT-017",
+      "kind": "OUT",
+      "title": "Recovery time",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "OUT-018",
+      "kind": "OUT",
+      "title": "Erasure turnaround",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "OUT-019",
+      "kind": "OUT",
+      "title": "On-prem time to first query",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "OUT-020",
+      "kind": "OUT",
+      "title": "Tenant isolation and metering accuracy",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "OUT-021",
+      "kind": "OUT",
+      "title": "Annotation layer isolation",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "OUT-022",
+      "kind": "OUT",
+      "title": "Release hygiene",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §16 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "OUT-023",
+      "kind": "OUT",
+      "title": "Phase-1 corpus depth",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §15 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "OUT-024",
+      "kind": "OUT",
+      "title": "Lossless figure fidelity",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §9 (https://github.com/vig-os/scitadel/pull/317)"
     },
     {
       "id": "TEST-001",
       "kind": "TEST",
-      "title": "Example verification \u2014 replace in #3",
+      "title": "Acceptance: phase-1 corpus is licence-clean per item; method: audit a random sample of 1,000 ingested items per source against upstream licence metadata, with negative fixtures (an NC item, a paywalled item) that ingest must reject",
       "status": "proposed",
-      "source": "https://github.com/nerdmachines/scitadel-hub/issues/3",
-      "example": true,
+      "source": "vig-os/scitadel#314 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-002",
+      "kind": "TEST",
+      "title": "Acceptance: deltas keep the corpus fresh within budget; method: replay a week of daily jobs against recorded API responses, including a merged and a deleted ID, asserting visibility of new works, tombstone handling, credits within the daily allowance and a correct freshness report",
+      "status": "proposed",
+      "source": "vig-os/scitadel#315 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-003",
+      "kind": "TEST",
+      "title": "Acceptance: retrieval is correct over base and deltas; method: golden-query suite over a fixed corpus asserting recall floors for BM25, vector and hybrid; a base-plus-three-deltas fixture asserting no superseded or tombstoned row is returned; a busy-queue simulation asserting reranked false",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-004",
+      "kind": "TEST",
+      "title": "Acceptance: model mismatch is explicit; method: protocol contract tests where a vector with a wrong model id, version or dimension is rejected with the documented error, a matching vector is accepted, text input is embedded hub-side, and the capabilities response matches a recorded snapshot",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-005",
+      "kind": "TEST",
+      "title": "Acceptance: the document model round-trips and holds no PDFs; method: snapshot tests of the model on golden-set fixtures from JATS, TEI, HTML, PDF and USPTO XML, a field-by-field round trip of a sample against the source, and a scan asserting no PDF bytes in any product",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-006",
+      "kind": "TEST",
+      "title": "Acceptance: extraction faults are caught and tiers are licence-gated; method: golden-set regression run with red/green fixtures, a seeded extraction fault that must be flagged and quarantined, and a gating test proving T4 is unreachable for an item outside CC-BY, CC0 and public domain",
+      "status": "proposed",
+      "source": "vig-os/scitadel#321 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-007",
+      "kind": "TEST",
+      "title": "Acceptance: provenance is complete and visible; method: a completeness check on a sealed fixture product (every input resolvable by hash and URL) plus response contract tests asserting seal or version, attribution and answered_by on every record",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-008",
+      "kind": "TEST",
+      "title": "Acceptance: only permitted classes are served and gated paths are off; method: negative tests where rows of a disallowed class are never returned by get or search, NC and ND fixtures are refused by the paid-tier build, and gated handlers are verified unreachable in the phase-1 configuration",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-009",
+      "kind": "TEST",
+      "title": "Acceptance: retracted works are flagged everywhere they are served; method: fixture records that match a retraction list by DOI and by PMID must show status and date on search and get, while non-matching records stay unflagged",
+      "status": "proposed",
+      "source": "vig-os/scitadel#323 triage",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-010",
+      "kind": "TEST",
+      "title": "Acceptance: an agent can ground answers and its citations resolve; method: an end-to-end MCP session against a mock hub over a seeded corpus asserting every cited ID resolves, untrusted-content wrapping and the presence of provenance, licence and answered_by, then the grounding benchmark on a pinned release",
+      "status": "proposed",
+      "source": "vig-os/scitadel#332 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-011",
+      "kind": "TEST",
+      "title": "Acceptance: protocol conformance and bounded fall-through; method: contract tests against recorded hub responses, fault injection (hub down, hub slow) asserting a bounded fall-through with answered_by, an unchanged client suite with no hub configured, and the conformance kit run against the reference implementation",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-012",
+      "kind": "TEST",
+      "title": "Acceptance: layers isolate and resolve correctly; method: a permission-matrix test across personal, group, organisation and global layers covering read, write and leak-upward attempts, asserting layer and author on every annotation",
+      "status": "proposed",
+      "source": "vig-os/scitadel#325 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-013",
+      "kind": "TEST",
+      "title": "Acceptance: offline search and detach work; method: detach a tracked-works fixture on a clean profile with the network disabled, verify the per-paper product with the sealed-product verifier, test local-subset routing, and assert no bulk-export endpoint exists",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-014",
+      "kind": "TEST",
+      "title": "Acceptance: tenants are isolated and usage is metered; method: tenant simulation on microVMs with two tenants, a cross-read attempt that must fail, and a metering reconciliation against generated usage",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub-deploy#1 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-015",
+      "kind": "TEST",
+      "title": "Acceptance: a clean install serves the protocol; method: install on a clean machine from the NixOS module, OCI image and Helm chart, run the protocol smoke suite, and serve one sealed shard unchanged from a hosted-stage instance and an on-prem instance",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub-deploy#2 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-016",
+      "kind": "TEST",
+      "title": "Acceptance: privacy obligations are met before launch; method: a launch-gate checklist (assessment and notice exist and are reviewed), an erasure test asserting an erased author is absent from search while the hash is retained, and a log-retention test",
+      "status": "proposed",
+      "source": "vig-os/scitadel#333 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-017",
+      "kind": "TEST",
+      "title": "Acceptance: opt-outs are honoured on every re-ingest; method: opt-out fixtures (robots.txt, TDMRep, a noai header, ai.txt) that a re-ingest must skip and record, plus a replay where an opt-out appears between two ingests and must take effect",
+      "status": "proposed",
+      "source": "vig-os/scitadel#330 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-018",
+      "kind": "TEST",
+      "title": "Acceptance: the hub can be restored and cleaned up safely; method: a restore drill from backup into an empty host, a retention-policy test (an old base expires by policy, never by ad-hoc delete), a log scan asserting no secret appears, and a budget-cap test asserting work queues rather than skips",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-019",
+      "kind": "TEST",
+      "title": "Acceptance: serving is CPU-only and GPU use obeys the queue policy; method: a lab-scale load test (twenty simulated users) on a CPU-only host recording p95 per step, plus a lint asserting every GPU submission declares VRAM, a checkpoint and a new output directory",
+      "status": "proposed",
+      "source": "vig-os/scitadel#314 acceptance",
+      "test_kind": "acceptance"
+    },
+    {
+      "id": "TEST-020",
+      "kind": "TEST",
+      "title": "Acceptance: every release is licence-clean; method: release-checklist automation asserting SPDX expressions and licence files are present, NOTICE and SBOM are generated, the dependency licence check passes and no model weights sit in the image layers",
+      "status": "proposed",
+      "source": "vig-os/scitadel#333 acceptance",
       "test_kind": "acceptance"
     },
     {
@@ -48,6 +852,13 @@
       "title": "V-model and traceability",
       "status": "proposed",
       "source": "decisions/0001-v-model-and-traceability.md"
+    },
+    {
+      "id": "XADR-SCITADEL-008",
+      "kind": "adr",
+      "title": "scitadel-hub: a lab corpus server (vig-os/scitadel ADR-008)",
+      "status": "proposed",
+      "source": "https://github.com/vig-os/scitadel/pull/317"
     }
   ]
 }
