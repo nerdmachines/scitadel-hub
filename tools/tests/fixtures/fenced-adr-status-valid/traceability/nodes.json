@@ -46,7 +46,7 @@
       "id": "ADR-0001",
       "kind": "adr",
       "title": "V-model and traceability",
-      "status": "proposed",
+      "status": "done",
       "source": "decisions/0001-v-model-and-traceability.md"
     },
     {

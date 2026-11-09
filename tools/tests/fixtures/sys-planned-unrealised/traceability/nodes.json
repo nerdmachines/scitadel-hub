@@ -1,0 +1,26 @@
+{
+  "nodes": [
+    {
+      "id": "REQ-001",
+      "kind": "REQ",
+      "title": "Fixture req",
+      "status": "proposed",
+      "source": ""
+    },
+    {
+      "id": "SYS-001",
+      "kind": "SYS",
+      "title": "Fixture sys",
+      "status": "planned",
+      "source": ""
+    },
+    {
+      "id": "TEST-001",
+      "kind": "TEST",
+      "title": "Fixture test",
+      "status": "proposed",
+      "source": "",
+      "test_kind": "acceptance"
+    }
+  ]
+}
