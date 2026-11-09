@@ -1,0 +1,372 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "scitadel-hub trace graph document",
+  "description": "Each JSON document contains either nodes or edges. Cross-file graph rules are checked by tools/trace-check.",
+  "type": "object",
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "required": [
+        "nodes"
+      ]
+    },
+    {
+      "required": [
+        "edges"
+      ]
+    }
+  ],
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/node"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/edge"
+      }
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "title",
+        "status",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(?:(?:PRIN|D|REQ|US|OUT|SYS|DES|RISK|TEST|S|C)-[0-9]{3}|ADR-[0-9]{4}|XADR-[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-[0-9]{3})$"
+        },
+        "kind": {
+          "enum": [
+            "PRIN",
+            "D",
+            "REQ",
+            "US",
+            "OUT",
+            "SYS",
+            "DES",
+            "RISK",
+            "TEST",
+            "S",
+            "C",
+            "adr"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "proposed",
+            "planned",
+            "in-progress",
+            "done"
+          ]
+        },
+        "source": {
+          "type": "string"
+        },
+        "level": {
+          "enum": [
+            "L3",
+            "L4"
+          ]
+        },
+        "test_kind": {
+          "enum": [
+            "acceptance",
+            "system",
+            "integration",
+            "unit"
+          ]
+        },
+        "example": {
+          "enum": [
+            true
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^PRIN-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "PRIN"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^D-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "D"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^REQ-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "REQ"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^US-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "US"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^OUT-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "OUT"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^SYS-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "SYS"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^DES-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "DES"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^RISK-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "RISK"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^TEST-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "TEST"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^S-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "S"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^C-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "C"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^(?:ADR|XADR)-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "adr"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "pattern": "^XADR-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source": {
+                "pattern": "^https?://[^\\s/]+(?:/[^\\s]*)?$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "TEST"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "test_kind"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "DES"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "level"
+            ]
+          }
+        }
+      ]
+    },
+    "edge": {
+      "type": "object",
+      "required": [
+        "from",
+        "to",
+        "kind"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "type": "string",
+          "minLength": 1
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "decomposes_into",
+            "realised_by",
+            "refines",
+            "verified_by",
+            "delivered_by",
+            "mitigated_by",
+            "justifies",
+            "story_of",
+            "measures"
+          ]
+        }
+      }
+    }
+  }
+}
