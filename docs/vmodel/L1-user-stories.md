@@ -26,7 +26,7 @@ As an individual researcher (offline), I want to search a detached subset of my 
 Acceptance:
 
 - A detached subset with its own indexes answers BM25, vector and hybrid queries with the network disabled.
-- The result reports `answered_by: local-subset` and names the subset.
+- The result reports `answered_by: local-subset:<id>`, which names the subset.
 - A query outside the subset is routed to the hub when one is reachable, and is reported as not covered when not.
 
 ### US-002: Take my tracked works with me
