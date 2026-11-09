@@ -12,42 +12,64 @@ ROOT = Path(__file__).resolve().parents[2]
 GATE = Path(os.environ.get('TRACE_CHECK_GATE', ROOT / 'tools/trace-check'))
 FIXTURES = Path(__file__).parent / 'fixtures'
 
+# A rejected nodes document leaves every edge without a source and the fixture README
+# mentioning an undefined ID; the gate reports all of it.
+NODES_REJECTED = (
+    'traceability: missing valid nodes document',
+    'traceability: graph must contain at least one REQ node',
+    'dangling edge: REQ-001 --decomposes_into--> SYS-001 (unknown source)',
+    'dangling edge: SYS-001 --realised_by--> DES-001 (unknown source)',
+    'dangling edge: REQ-001 --verified_by--> TEST-001 (unknown source)',
+    'dangling edge: SYS-001 --verified_by--> TEST-001 (unknown source)',
+    'dangling edge: DES-001 --verified_by--> TEST-001 (unknown source)',
+    'dangling edge: ADR-0001 --justifies--> DES-001 (unknown source)',
+    'dangling edge: RISK-001 --mitigated_by--> DES-001 (unknown source)',
+    'README.md:1: undefined markdown ID REQ-001',
+)
+
+# Exact violation lines (compared as sorted lists) for every failing fixture.
 FAILURES = {
-    'empty-graph': 'traceability: graph must contain at least one REQ node',
-    'no-req': 'traceability: graph must contain at least one REQ node',
-    'invalid-edge-target-kind': 'invalid edge kinds: ADR-0001 --justifies--> REQ-001',
-    'invalid-justifies-source': 'invalid edge kinds: PRIN-001 --justifies--> DES-001',
-    'fenced-adr-status': 'ADR-0001: ADR Status must match node status proposed',
-    'nested-json': 'traceability/nested: unexpected entry (subdirectories are not supported)',
-    'unexpected-file': 'traceability/nodes.yml: unexpected file (only README.md, schema.json and *.json are allowed)',
-    'duplicate-across-files': 'duplicate ID: PRIN-001',
-    'wrong-container': 'traceability/nodes.json.nodes: expected array',
-    'unknown-field': 'traceability/nodes.json.nodes[0]: unknown field unexpected',
-    'invalid-external-id': "traceability/nodes.json.nodes[7].id: invalid format 'XADR-kit-008'",
-    'unknown-id': "traceability/nodes.json.nodes[8].id: invalid format 'BOGUS-001'",
-    'duplicate-id': 'duplicate ID: PRIN-001',
-    'dangling-target': 'dangling edge: DES-001 --refines--> DES-999 (unknown target)',
-    'dangling-source': 'dangling edge: DES-999 --refines--> DES-001 (unknown source)',
-    'unverified-req': 'REQ-001: missing verified_by',
-    'unverified-sys': 'SYS-001: missing verified_by',
-    'undelivered-planned': 'PRIN-001: missing delivered_by',
-    'undelivered-in-progress': 'PRIN-001: missing delivered_by',
-    'undelivered-done': 'PRIN-001: missing delivered_by',
-    'unmitigated-risk': 'RISK-001: missing mitigated_by',
-    'undefined-markdown': 'README.md:1: undefined markdown ID REQ-999',
-    'missing-local-adr': 'ADR-0001: expected one local ADR file, found 0',
-    'adr-status-mismatch': 'ADR-0001: ADR Status must match node status proposed',
-    'external-adr-without-source': 'traceability/nodes.json.nodes[7]: missing source',
-    'external-adr-bad-url': "traceability/nodes.json.nodes[7].source: invalid format 'not-a-url'",
-    'invalid-edge-kinds': 'invalid edge kinds: PRIN-001 --realised_by--> DES-001',
-    'invalid-issue': 'PRIN-001: delivered_by target must be owner/repo#number: https://github.com/owner/repo/issues/1',
-    'unknown-edge-kind': "traceability/edges.json.edges[7].kind: invalid value 'invented'",
-    'missing-field': 'traceability/nodes.json.nodes[0]: missing title',
-    'invalid-status': "traceability/nodes.json.nodes[0].status: invalid value 'accepted'",
-    'wrong-node-kind': "traceability/nodes.json.nodes[0].kind: expected 'PRIN'",
-    'missing-test-kind': 'traceability/nodes.json.nodes[4]: missing test_kind',
-    'missing-design-level': 'traceability/nodes.json.nodes[3]: missing level',
-    'malformed-json': 'traceability/nodes.json: invalid JSON: Expecting property name enclosed in double quotes: line 2 column 1 (char 2)',
+    'empty-graph': ('traceability: graph must contain at least one REQ node',),
+    'no-req': ('traceability: graph must contain at least one REQ node',),
+    'invalid-edge-target-kind': ('invalid edge kinds: ADR-0001 --justifies--> REQ-001',),
+    'invalid-justifies-source': ('invalid edge kinds: PRIN-001 --justifies--> DES-001',),
+    'fenced-adr-status': ('ADR-0001: ADR Status must match node status proposed',),
+    'nested-json': ('traceability/nested: unexpected entry (subdirectories are not supported)',),
+    'unexpected-file': ('traceability/nodes.yml: unexpected file (only README.md, schema.json and *.json are allowed)',),
+    'duplicate-across-files': ('duplicate ID: PRIN-001',),
+    'wrong-container': ('traceability/nodes.json.nodes: expected array',) + NODES_REJECTED,
+    'unknown-field': ('traceability/nodes.json.nodes[0]: unknown field unexpected',) + NODES_REJECTED,
+    'invalid-external-id': ("traceability/nodes.json.nodes[7].id: invalid format 'XADR-kit-008'",) + NODES_REJECTED,
+    'unknown-id': ("traceability/nodes.json.nodes[8].id: invalid format 'BOGUS-001'",) + NODES_REJECTED,
+    'duplicate-id': ('duplicate ID: PRIN-001',),
+    'dangling-target': ('dangling edge: DES-001 --refines--> DES-999 (unknown target)',),
+    'dangling-source': ('dangling edge: DES-999 --refines--> DES-001 (unknown source)',),
+    'unverified-req': ('REQ-001: missing verified_by',),
+    'unverified-sys': ('SYS-001: missing verified_by',),
+    'undelivered-planned': ('PRIN-001: missing delivered_by',),
+    'undelivered-in-progress': ('PRIN-001: missing delivered_by',),
+    'undelivered-done': ('PRIN-001: missing delivered_by',),
+    'unmitigated-risk': ('RISK-001: missing mitigated_by',),
+    'undefined-markdown': ('README.md:1: undefined markdown ID REQ-999',),
+    'missing-local-adr': ('ADR-0001: expected one local ADR file, found 0',),
+    'adr-status-mismatch': ('ADR-0001: ADR Status must match node status proposed',),
+    'external-adr-without-source': ('traceability/nodes.json.nodes[7]: missing source',) + NODES_REJECTED,
+    'external-adr-bad-url': ("traceability/nodes.json.nodes[7].source: invalid format 'not-a-url'",) + NODES_REJECTED,
+    'invalid-edge-kinds': ('invalid edge kinds: PRIN-001 --realised_by--> DES-001',),
+    'invalid-issue': ('PRIN-001: delivered_by target must be owner/repo#number: https://github.com/owner/repo/issues/1',),
+    'unknown-edge-kind': (
+        "traceability/edges.json.edges[7].kind: invalid value 'invented'",
+        'traceability: missing valid edges document',
+        'REQ-001: missing verified_by',
+        'SYS-001: missing verified_by',
+        'RISK-001: missing mitigated_by',
+    ),
+    'missing-field': ('traceability/nodes.json.nodes[0]: missing title',) + NODES_REJECTED,
+    'invalid-status': ("traceability/nodes.json.nodes[0].status: invalid value 'accepted'",) + NODES_REJECTED,
+    'wrong-node-kind': ("traceability/nodes.json.nodes[0].kind: expected 'PRIN'",) + NODES_REJECTED,
+    'missing-test-kind': ('traceability/nodes.json.nodes[4]: missing test_kind',) + NODES_REJECTED,
+    'missing-design-level': ('traceability/nodes.json.nodes[3]: missing level',) + NODES_REJECTED,
+    'malformed-json': ('traceability/nodes.json: invalid JSON: Expecting property name enclosed in double quotes: line 2 column 1 (char 2)',) + NODES_REJECTED,
 }
 
 # Downward decomposition edges are required once a node is past `proposed`, and
@@ -120,11 +142,18 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(undefined.stderr.splitlines(),
                          ['README.md:1: undefined markdown ID REQ-999'])
 
+    def test_fenced_status_decoys_are_ignored(self):
+        # Backtick, tilde and longer-fence decoys all say `Status: proposed`; the
+        # node is `done`, so only the one real header line can make this pass.
+        result = self.run_gate('fenced-adr-status-valid')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+
     def test_missing_root(self):
         result = self.run_gate('does-not-exist')
         self.assertEqual(result.returncode, 1)
-        self.assertIn('docs root is not a directory', result.stderr)
-        self.assertNotIn('Traceback', result.stderr)
+        self.assertEqual(result.stderr.splitlines(),
+                         [f'{FIXTURES / "does-not-exist"}: docs root is not a directory'])
 
     def test_schema_uses_only_supported_keywords(self):
         # Prevent schema changes from silently bypassing the stdlib validator.
@@ -191,14 +220,16 @@ class TraceCheckTests(unittest.TestCase):
 
     def test_every_fixture_is_exercised(self):
         self.assertEqual({p.name for p in FIXTURES.iterdir() if p.is_dir()},
-                         set(FAILURES) | set(STAGED) | {'clean', 'delivered', 'all-edge-kinds', 'markdown-encoding-names'})
+                         set(FAILURES) | set(STAGED) |
+                         {'clean', 'delivered', 'all-edge-kinds', 'markdown-encoding-names',
+                          'fenced-adr-status-valid'})
 
 
 def failure_test(fixture, expected):
     def test(self):
         result = self.run_gate(fixture)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
-        self.assertIn(expected, result.stderr.splitlines())
+        self.assertEqual(sorted(result.stderr.splitlines()), sorted(expected))
         self.assertNotIn('Traceback', result.stderr)
     return test
 
