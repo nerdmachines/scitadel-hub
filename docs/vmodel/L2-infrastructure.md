@@ -12,7 +12,7 @@ Read-only probes of anvil on 2026-11-09 (`lsblk`, `findmnt`, `df`, `btrfs filesy
 |---|---|---|
 | The KC3000 | 4 TB (3.73 TiB), on the chipset at PCIe Gen4 x4, LUKS2, then btrfs (`-d single -m dup`, label `anvil-vm`), mapped as `/dev/mapper/anvil-vm` | **Not ZFS.** Never design against a ZFS pool on anvil. ZFS exists only in the future storage host (`gerchowl/g-fleet#1363`). |
 | Mount | `/var/lib/microvms`, the pool's top level (`subvolid=5`), options `noatime,compress=zstd:1,ssd,discard=async,space_cache=v2` | Compression is pool-wide (zstd level 1). A subvolume can switch it off but cannot pick another level. |
-| Space | about 1.0 TiB used, about 2.7 TiB free (the issue's "about 2.9 TB" in decimal units) | The hub budget below is sized against this. |
+| Space | about 1.0 TiB used, about 2.7 TiB free (`df` shows 2.8 T; the issue's "about 2.9 TB" in decimal units) | The hub budget below is sized against this. |
 | Existing content | `vm-dev` and `vm-runner` directories with raw ext4 images (vm-dev `home.img` 768 GiB, `nix-rw.img` 512 GiB, both sparse), logs. **No subvolumes** below the top level; **quotas not enabled** | Everything below is new. Quotas have to be switched on first. |
 | Kernel and tools | Linux 7.2.9, btrfs-progs 7.1 | Simple quotas (squota) are available. |
 | Who else uses the pool | The g-fleet pool module watches fill at 80 % and 90 % and checks guest image budgets at boot (`storage-budget-sizematch`); `vm-storage` (versitygw) is to run on it (`gerchowl/g-fleet#1449`) and was **not deployed** on the probe date | The hub budget must be registered with that module (owner action O-4), and the bucket path is `#1449`'s to confirm (O-6). |
@@ -29,7 +29,7 @@ The `data/` directory keeps project data apart from the microVM directories that
 
 ### 2.1 Subvolumes
 
-Quotas are hard limits in GiB on the subvolume's qgroup. They sum to 1,530 GiB, which is about 1.5 TiB *(estimate)*, 55 % of the 2.7 TiB free, and leaves about 1.2 TiB for the microVM images and for growth. SYS-011 pins the sum (≤ 1,536 GiB) and the alert thresholds.
+Quotas are hard limits in GiB on the subvolume's qgroup. They sum to 1,530 GiB, which is about 1.5 TiB and 55 % of the 2.7 TiB free *(estimate)*, and leaves about 1.2 TiB for the microVM images and for growth. SYS-011 pins the sum (≤ 1,536 GiB) and the alert thresholds.
 
 | Subvolume | Path | Holds | Attributes | Quota (GiB) | Snapshots |
 |---|---|---|---|---|---|
@@ -47,14 +47,14 @@ Why these attributes:
 
 - **No compression (`+m`) on `products`, `index` and `gpu-io`.** Sealed products already carry zstd inside Vortex, embeddings are floating-point vectors, and index files are read by memory-mapped random access: a compressed btrfs extent is up to 128 KiB, so a 4 KiB random read would decompress up to 32 times what it needs. SYS-012 measures the result.
 - **Copy-on-write stays on for the indexes.** Tantivy segments and the ANN and adjacency caches are written once and never modified in place (XADR-SCITADEL-008 §4: unsealed, rebuildable, stamped with a seal). `nodatacow` would buy nothing for them and would cost checksums, so silent bit rot would go unseen, and cheap snapshots. The rule used here: **`nodatacow` only where a file is rewritten in place.**
-- **`nodatacow` on `state` only.** SQLite with a write-ahead log rewrites pages in place; on copy-on-write that fragments. The volume is small (20 GiB), loses checksums, and is protected by a nightly `PRAGMA integrity_check`, a `.backup` dump into `scitadel-hub-keep`, and the hourly snapshots. The attribute must be set while the subvolume is empty; it applies only to files created afterwards.
+- **`nodatacow` on `state` only.** SQLite with a write-ahead log rewrites pages in place; on copy-on-write that fragments. Hourly snapshots make the first write after each snapshot copy-on-write anyway, so fragmentation is reduced, not removed; that is acceptable for a volume that is small (20 GiB), loses checksums, and is protected by a nightly `PRAGMA integrity_check`, a `.backup` dump into `scitadel-hub-keep`, and the hourly snapshots. The attribute must be set while the subvolume is empty; it applies only to files created afterwards.
 - **Any later file that is rewritten in place** (an ANN cache that the L3 design updates in place, for example) goes to a dedicated small `+C` subvolume, never to `index`.
 - **Quota mode.** Simple quotas (`btrfs quota enable --simple`): low overhead on a pool that holds 800 GiB-class images and will hold many snapshots. In this mode an extent is charged to the subvolume that created it, so data pinned by a snapshot still counts against its owner until the snapshot expires. Retention deletes therefore free space only after the snapshots covering them age out; the quotas above leave room for that.
 - **Pool-wide guard.** Alerts at 80 % and 90 % of any quota and below 500 GiB of pool free space (SYS-044). Above 90 % of the pool the ingest scheduler stops submitting work and reports (a stop, never an eviction).
 
 ### 2.2 Applying it
 
-Owner action O-2, run as root on anvil. It is idempotent for existing subvolumes (limits and ownership are re-applied; `+C` affects only files created afterwards). Run it **before** the hub microVM first boots, because microvm.nix's tmpfiles rules create a missing share source as a plain directory, which would defeat the subvolume.
+Owner action O-2, run as root on anvil. It is safe to re-run (the free-space check applies to the first run only, and a path that exists but is not a subvolume aborts it). For existing subvolumes limits and ownership are re-applied and `+C` affects only files created afterwards. Run it **before** the hub microVM first boots, because microvm.nix's tmpfiles rules create a missing share source as a plain directory, which would defeat the subvolume.
 
 ```bash
 #!/usr/bin/env bash
@@ -72,9 +72,11 @@ GUARD_GIB=500
 # 1. right pool, enough room
 [[ "$(findmnt -n -o SOURCE,FSTYPE "${POOL}")" == "/dev/mapper/anvil-vm btrfs" ]] \
   || { echo "refusing: ${POOL} is not the anvil-vm btrfs pool" >&2; exit 1; }
-free_bytes="$(df -B1 --output=avail "${POOL}" | tail -n 1 | tr -d ' ')"
-(( free_bytes > (BUDGET_GIB + GUARD_GIB) * GIB )) \
-  || { echo "refusing: pool free space is below budget plus guard" >&2; exit 1; }
+if [[ ! -d "${HUB}" ]]; then   # first run only: later runs hold hub data already
+  free_bytes="$(df -B1 --output=avail "${POOL}" | tail -n 1 | tr -d ' ')"
+  (( free_bytes > (BUDGET_GIB + GUARD_GIB) * GIB )) \
+    || { echo "refusing: pool free space is below budget plus guard" >&2; exit 1; }
+fi
 
 # 2. simple quotas, once
 btrfs qgroup show "${POOL}" >/dev/null 2>&1 || btrfs quota enable --simple "${POOL}"
@@ -85,7 +87,12 @@ install -d -m 0755 "${POOL}/data" "${HUB}" "${GW}"
 # 4. subvolume helper: path, limit in GiB, attribute (m, C or -), owner, mode
 mk() {
   local path="${1}" limit="${2}" attr="${3}" owner="${4}" mode="${5}"
-  [[ -d "${path}" ]] || btrfs subvolume create "${path}"
+  if [[ -e "${path}" ]]; then
+    btrfs subvolume show "${path}" >/dev/null 2>&1 \
+      || { echo "refusing: ${path} exists but is not a subvolume" >&2; exit 1; }
+  else
+    btrfs subvolume create "${path}"
+  fi
   case "${attr}" in
     m) chattr +m "${path}" ;;
     C) chattr +C "${path}" ;;   # only effective for files created after this point
@@ -99,7 +106,7 @@ mk "${HUB}/products"  400 m microvm:kvm      0750
 mk "${HUB}/index"     350 m microvm:kvm      0750
 mk "${HUB}/staging"   150 - microvm:kvm      0750
 mk "${HUB}/state"      20 C microvm:kvm      0750
-mk "${HUB}/gpu-io"    100 m larsgerchow:users 2775   # same owner and mode as /srv/anvil/projects/*
+mk "${HUB}/gpu-io"    100 m larsgerchow:users 2775   # owned by the job user, group users, setgid
 mk "${GW}/scitadel-hub-scratch"   50 - "${GW_OWNER}" 0750
 mk "${GW}/scitadel-hub-runs"     100 - "${GW_OWNER}" 0750
 mk "${GW}/scitadel-hub-keep"     340 - "${GW_OWNER}" 0750
@@ -108,6 +115,7 @@ mk "${GW}/scitadel-hub-research"  20 - "${GW_OWNER}" 0750
 # 5. gpu-io skeleton, and the mount point for the bind mount of section 4
 install -d -o larsgerchow -g users -m 2775 "${HUB}/gpu-io/in" "${HUB}/gpu-io/out" "${HUB}/gpu-io/models"
 install -d -o larsgerchow -g users -m 2775 /srv/anvil/projects/scitadel-hub   # a NEW project directory
+chattr +i /srv/anvil/projects/scitadel-hub   # an unmounted mount point must not accept job writes (bind mount is nofail)
 
 # 6. report
 btrfs subvolume list -t "${POOL}"
@@ -142,7 +150,7 @@ vm-hub microVM (stage-0 hub, "tenant zero")            vm-storage microVM (versi
 
 | Consumer | Path | Mechanism | Rights |
 |---|---|---|---|
-| Hub service in `vm-hub` | `/var/lib/scitadel-hub/{products,index,staging,state,gpu-io}` | **one virtiofs share per subvolume**, never the parent directory (a share that crosses into a nested subvolume would present a second device and break inode numbers) | read-write |
+| Hub service in `vm-hub` | `/var/lib/scitadel-hub/{products,index,staging,state,gpu-io}` | **one virtiofs share per subvolume**, never the parent directory (a share that crosses into a nested subvolume presents a second device, and every subvolume root has the same inode number). The one exception is the gateway's share of `$GW`, whose buckets are nested subvolumes: O-6 must verify the inode behaviour there, or share the four buckets separately | read-write |
 | Hub service, object tiers | the four `scitadel-hub-*` buckets | S3 over the microVM bridge to vm-storage, with the hub's own gateway account, credentials from the hub's `sops` file | per role (section 4) |
 | GPU jobs (`gpu_submit`) | `/srv/anvil/projects/scitadel-hub/{in,models,out/<run-id>}` | bind mount of `gpu-io` onto the project path; jobs run as `bash -lc` with cwd `/` and `cd` there themselves (`docs/gpu-jobs.md`) | read `in/` and `models/`; write only a **new** `out/<run-id>/` and `$GPU_JOB_OUT` |
 | `vm-dev` | `/srv/anvil/projects/scitadel-hub` through the existing `anvil-projects` virtiofs share, if the bind mount propagates (to verify) | existing share | not a consumer; light inspection only. Note `gerchowl/g-fleet#1402`: `/srv/anvil` is exported read-write into vm-dev, so `gpu-io` is modifiable by any agent there. It holds derived, rebuildable data, and the hub's hash ledger (SYS-049) rejects anything it did not expect |
@@ -202,7 +210,7 @@ fileSystems."/srv/anvil/projects/scitadel-hub" = {
 | backup agent (restic) | none | none | read | read |
 | tenant-simulation account | own buckets only | own buckets only | own buckets only | own buckets only |
 
-No role, and no project, can overwrite a finished `research` object or read another project's bucket (SYS-013). Two points are for `#1449` to verify at the pinned versitygw source, as that issue already asks: that a pre-created subvolume directory is adopted as a bucket (otherwise the provisioner creates buckets as subvolumes instead of `mkdir`), and that a per-key rule or versioning lets the ingest role move only `current`. If a per-key rule is missing, `current` becomes a sequence of pointer objects with the newest winning, which needs no overwrite.
+No role, and no project, can overwrite a finished `research` object or read another project's bucket (SYS-013). Two points are for `#1449` to verify at the pinned versitygw source, as that issue already asks: that a pre-created subvolume directory is adopted as a bucket (otherwise the provisioner creates buckets as subvolumes instead of `mkdir`), that a per-key rule or versioning lets the ingest role move only `current`, and where the gateway keeps object versions (a separate versioning directory would escape the `research` quota, its snapshots and the backup set). If a per-key rule is missing, `current` becomes a sequence of pointer objects with the newest winning, which needs no overwrite.
 
 ## 5. Where each kind of data goes
 
