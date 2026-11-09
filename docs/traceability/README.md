@@ -3,6 +3,9 @@
 [ADR-0001](../decisions/0001-v-model-and-traceability.md) defines levels, identifiers
 and edge kinds; [schema.json](schema.json) defines the JSON shape.
 
+The graph needs at least one `REQ`. Keep this directory flat: only `README.md`,
+`schema.json` and `*.json` are allowed; subdirectories and other files fail.
+
 1. Add a node to [nodes.json](nodes.json) with a unique ID, `kind`, `title`,
    `status` and `source`. Use `proposed` initially. Designs need `level` (`L3` or
    `L4`); tests need `test_kind` (`acceptance`, `system`, `integration`, `unit`).

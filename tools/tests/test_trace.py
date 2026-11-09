@@ -1,14 +1,25 @@
 """Seeded fixtures exercise the public executable and exact diagnostic lines."""
 import json
+import os
 from pathlib import Path
+import re
+import runpy
 import subprocess
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
-GATE = ROOT / 'tools/trace-check'
+GATE = Path(os.environ.get('TRACE_CHECK_GATE', ROOT / 'tools/trace-check'))
 FIXTURES = Path(__file__).parent / 'fixtures'
 
 FAILURES = {
+    'empty-graph': 'traceability: graph must contain at least one REQ node',
+    'no-req': 'traceability: graph must contain at least one REQ node',
+    'invalid-edge-target-kind': 'invalid edge kinds: ADR-0001 --justifies--> REQ-001',
+    'invalid-justifies-source': 'invalid edge kinds: PRIN-001 --justifies--> DES-001',
+    'fenced-adr-status': 'ADR-0001: ADR Status must match node status proposed',
+    'nested-json': 'traceability/nested: unexpected entry (subdirectories are not supported)',
+    'unexpected-file': 'traceability/nodes.yml: unexpected file (only README.md, schema.json and *.json are allowed)',
     'duplicate-across-files': 'duplicate ID: PRIN-001',
     'wrong-container': 'traceability/nodes.json.nodes: expected array',
     'unknown-field': 'traceability/nodes.json.nodes[0]: unknown field unexpected',
@@ -81,6 +92,15 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stderr, '')
 
+    def test_markdown_encoding_names(self):
+        result = self.run_gate('markdown-encoding-names')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+        undefined = self.run_gate('undefined-markdown')
+        self.assertEqual(undefined.returncode, 1)
+        self.assertEqual(undefined.stderr.splitlines(),
+                         ['README.md:1: undefined markdown ID REQ-999'])
+
     def test_missing_root(self):
         result = self.run_gate('does-not-exist')
         self.assertEqual(result.returncode, 1)
@@ -105,10 +125,54 @@ class TraceCheckTests(unittest.TestCase):
                 elif key in ('if', 'then', 'items'):
                     visit(item)
         visit(schema)
+        validate = runpy.run_path(str(GATE))['validate']
+        # Unsupported or partial shapes must be diagnostics, never a traceback
+        # or an ignored constraint. The current schema still has to validate.
+        malformed = [
+            ({'if': {}}, 'schema: if requires then'),
+            ({'$defs': {'loop': {'$ref': '#/$defs/loop'}}},
+             'schema.$defs.loop.$ref: recursive schema references are not supported'),
+            ({'then': {}}, 'schema: then requires if'),
+            ({'else': {}}, 'schema: unsupported keyword else'),
+            ({'type': 'number'}, 'schema.type: unsupported type'),
+            ({'properties': []}, 'schema.properties: expected an object'),
+            ({'oneOf': []}, 'schema.oneOf: expected a nonempty array'),
+            ({'items': True}, 'schema.items: expected a schema object'),
+            ({'pattern': '['}, 'schema.pattern: invalid regular expression'),
+            ({'$ref': '#/$defs/missing'}, 'schema.$ref: unresolved local definition'),
+            ({'required': 'id'}, 'schema.required: expected an array of unique strings'),
+            ({'additionalProperties': {}}, 'schema.additionalProperties: expected a boolean'),
+        ]
+        for broken, diagnostic in malformed:
+            with self.subTest(schema=broken):
+                self.assertEqual(list(validate({}, broken, broken, 'input')),
+                                 [diagnostic])
+
+    def test_partial_schema_is_a_clean_gate_error(self):
+        gate = runpy.run_path(str(GATE))
+        schema_path = Path(__file__).parent / 'schema-fixtures/partial-if.json'
+        with patch.dict(gate['check'].__globals__, {'SCHEMA': schema_path}):
+            errors, summary = gate['check'](FIXTURES / 'clean')
+        self.assertEqual(errors, ['schema: if requires then'])
+        self.assertEqual(summary, [])
+
+    def test_workflow_pins_releases_and_bounds_jobs(self):
+        workflow = (ROOT / '.github/workflows/trace.yml').read_text()
+        uses = re.findall(r'^\s+- uses: (.+)$', workflow, re.MULTILINE)
+        self.assertTrue(uses)
+        for action in uses:
+            with self.subTest(action=action):
+                self.assertRegex(action, r'^[^@ ]+@[0-9a-f]{40} # v[0-9]+\.[0-9]+\.[0-9]+$')
+        jobs = re.findall(r'^  ([a-z-]+):\n(.*?)(?=^  [a-z-]+:|\Z)',
+                          workflow.split('jobs:\n', 1)[1], re.MULTILINE | re.DOTALL)
+        self.assertTrue(jobs)
+        for name, body in jobs:
+            with self.subTest(job=name):
+                self.assertRegex(body, r'(?m)^    timeout-minutes: [1-9][0-9]*$')
 
     def test_every_fixture_is_exercised(self):
         self.assertEqual({p.name for p in FIXTURES.iterdir() if p.is_dir()},
-                         set(FAILURES) | {'clean', 'delivered', 'all-edge-kinds'})
+                         set(FAILURES) | {'clean', 'delivered', 'all-edge-kinds', 'markdown-encoding-names'})
 
 
 def failure_test(fixture, expected):

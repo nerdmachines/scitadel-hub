@@ -28,15 +28,19 @@ The schema in [schema.json](../traceability/schema.json) owns identifiers:
 Identifiers are unique across all trace files. Repository slugs in external ADR
 IDs use uppercase letters, digits and hyphens, starting with a letter.
 Local ADR IDs resolve to exactly one `docs/decisions/NNNN-*.md` file. Its standalone
-`Status: <status>` line must equal the node's status. External ADRs require an
-HTTP(S) `source` URL; the gate validates its format without fetching it.
+`Status: <status>` header line must equal the node's status. The gate requires
+exactly one such unindented line, with one space after the colon, outside
+backtick or tilde code fences; fenced examples cannot supply the status. External
+ADRs require an HTTP(S) `source` URL; the gate validates its format without fetching it.
 Owner decision nodes (`D`) can point to an ADR or issue in `source`.
 
 [Traceability JSON](../traceability/README.md) consists of `nodes.json` and
 `edges.json`; additional `*.json` files in that directory may contain either
 `{"nodes": [...]}` or `{"edges": [...]}`. `schema.json` is excluded from graph
-input. Every node has `id`, `kind`, `title`, `status` and `source`. `source` is a
-provenance string; it may be empty except for external ADRs. Designs also declare
+input. The layout is flat: subdirectories and files other than `README.md`,
+`schema.json` and top-level `*.json` are rejected, so trace data cannot be
+silently skipped. Every node has `id`, `kind`, `title`, `status` and `source`.
+`source` is a provenance string; it may be empty except for external ADRs. Designs also declare
 `level` (`L3` or `L4`); tests declare `test_kind` (`acceptance`, `system`,
 `integration`, `unit`). The test classification is separate from node `kind`.
 The optional `example: true` marks temporary examples. Every edge has `from`,
@@ -63,7 +67,11 @@ The executable `tools/trace-check <docs-root>` uses Python 3.11 or later and onl
 the standard library. It validates the schema's supported keywords, ID formats,
 unique IDs, edge endpoints and allowed kinds, local ADR files/status, external
 ADR source format, and references to IDs in all Markdown under the docs root.
-It rejects an orphan requirement, a requirement or system node without verification,
+Markdown scanning recognizes only `PRIN`, `D`, `REQ`, `US`, `OUT`, `SYS`, `DES`,
+`RISK`, `TEST`, `S`, `C`, `ADR` and `XADR` numeric identifiers. Unrelated names
+such as UTF-8 and SHA-256 are ignored.
+The graph must contain at least one `REQ` node; an empty graph fails explicitly.
+It also rejects an orphan requirement, a requirement or system node without verification,
 a system node without design, a risk without mitigation, and missing delivery
 edges at the applicable statuses. Each violation is one stderr line, with a
 nonzero exit code. Coverage on stdout counts nodes, nodes with verification and
@@ -94,8 +102,11 @@ package installation or language build.
 Authors must update graph rows and links alongside documentation. IDs are owned
 here and must not be invented in downstream slices. Schema shape and graph rules
 are checked together; the bounded Python validator must be extended and tested
-if new JSON Schema keywords are introduced. The gate checks trace completeness;
-verification execution and the richer content arrive in later slices.
+if new JSON Schema keywords are introduced. Unsupported keywords, malformed
+keyword shapes, incomplete `if`/`then` pairs and recursive references produce
+clean schema diagnostics before graph evaluation. The subset supports schema
+objects, scalar enums/constants and acyclic references to local definitions.
+The gate checks trace completeness; verification execution and the richer content arrive in later slices.
 
 ## Sources
 
