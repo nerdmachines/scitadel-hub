@@ -859,6 +859,1056 @@
       "title": "scitadel-hub: a lab corpus server (vig-os/scitadel ADR-008)",
       "status": "proposed",
       "source": "https://github.com/vig-os/scitadel/pull/317"
+    },
+    {
+      "id": "SYS-001",
+      "kind": "SYS",
+      "title": "Licence determination at ingest",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §6; §12; §15 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-002",
+      "kind": "SYS",
+      "title": "Sealed shard builds and collection layout",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2; §6 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-003",
+      "kind": "SYS",
+      "title": "OpenAlex delta sync within the free-key budget",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §5 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-004",
+      "kind": "SYS",
+      "title": "Weekly patent-grant delta",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §6 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-005",
+      "kind": "SYS",
+      "title": "Base, delta and current-pointer lifecycle",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-006",
+      "kind": "SYS",
+      "title": "Licence-gated extraction cascade",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §10; §12; §13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-007",
+      "kind": "SYS",
+      "title": "Extraction quality control and golden loop",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-008",
+      "kind": "SYS",
+      "title": "Document-model storage",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §9; §6 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-009",
+      "kind": "SYS",
+      "title": "Provenance recording",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §11 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-010",
+      "kind": "SYS",
+      "title": "Retraction flags joined at index build",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §15 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-011",
+      "kind": "SYS",
+      "title": "Hot tier layout on the KC3000",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1474"
+    },
+    {
+      "id": "SYS-012",
+      "kind": "SYS",
+      "title": "Local NVMe random access for indexes",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8; §14 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1474"
+    },
+    {
+      "id": "SYS-013",
+      "kind": "SYS",
+      "title": "Object tiers per project",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1449"
+    },
+    {
+      "id": "SYS-014",
+      "kind": "SYS",
+      "title": "Raw and intermediate store: keep everything",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-015",
+      "kind": "SYS",
+      "title": "Warm tier on the storage host",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8; §2 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1363"
+    },
+    {
+      "id": "SYS-016",
+      "kind": "SYS",
+      "title": "Cold tier on the Storage Box",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1363; gerchowl/g-fleet#1438"
+    },
+    {
+      "id": "SYS-017",
+      "kind": "SYS",
+      "title": "Retention policy",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1363"
+    },
+    {
+      "id": "SYS-018",
+      "kind": "SYS",
+      "title": "BM25 index",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §4; §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-019",
+      "kind": "SYS",
+      "title": "Vector index",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §4; §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-020",
+      "kind": "SYS",
+      "title": "Graph neighbours",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §4 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-021",
+      "kind": "SYS",
+      "title": "Index freshness and rebuild",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2; §4 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-022",
+      "kind": "SYS",
+      "title": "Hybrid search latency at lab scale",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-023",
+      "kind": "SYS",
+      "title": "Rerank fallback",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-024",
+      "kind": "SYS",
+      "title": "CPU-only serving",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8; §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-025",
+      "kind": "SYS",
+      "title": "Get, neighbours and snippet responses",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §7; §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-026",
+      "kind": "SYS",
+      "title": "Protocol surface",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §7; §16 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-027",
+      "kind": "SYS",
+      "title": "Capabilities, coverage and the embedding contract",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §7; §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-028",
+      "kind": "SYS",
+      "title": "Response metadata and untrusted text",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §7; §11; §12 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-029",
+      "kind": "SYS",
+      "title": "Standalone MCP server",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §7 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-030",
+      "kind": "SYS",
+      "title": "Conformance kit",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §16 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-031",
+      "kind": "SYS",
+      "title": "Fall-through and unchanged client",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §7 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-032",
+      "kind": "SYS",
+      "title": "Detach hands back structured documents, never PDF bytes",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (https://github.com/vig-os/scitadel/pull/317); vig-os/scitadel#317 clarification of §12"
+    },
+    {
+      "id": "SYS-033",
+      "kind": "SYS",
+      "title": "Local-subset routing",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-034",
+      "kind": "SYS",
+      "title": "No bulk export",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-035",
+      "kind": "SYS",
+      "title": "Tenant isolation",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-036",
+      "kind": "SYS",
+      "title": "Usage metering",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8; §17 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-037",
+      "kind": "SYS",
+      "title": "Annotation layers",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12; §17 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-038",
+      "kind": "SYS",
+      "title": "On-prem parity",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8; §1 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-039",
+      "kind": "SYS",
+      "title": "Stage portability",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-040",
+      "kind": "SYS",
+      "title": "Secrets handling",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §1; §5 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1474"
+    },
+    {
+      "id": "SYS-041",
+      "kind": "SYS",
+      "title": "Encryption and access control",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8; §12 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1449"
+    },
+    {
+      "id": "SYS-042",
+      "kind": "SYS",
+      "title": "Privacy controls",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12; §18 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-043",
+      "kind": "SYS",
+      "title": "Freshness, spend and budget telemetry",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §5; §10 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1474"
+    },
+    {
+      "id": "SYS-044",
+      "kind": "SYS",
+      "title": "Service health and quota watch",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §14 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1474"
+    },
+    {
+      "id": "SYS-045",
+      "kind": "SYS",
+      "title": "Snapshot schedule",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1438"
+    },
+    {
+      "id": "SYS-046",
+      "kind": "SYS",
+      "title": "Off-box encrypted backup",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1438; gerchowl/g-fleet#1263"
+    },
+    {
+      "id": "SYS-047",
+      "kind": "SYS",
+      "title": "Restore from empty host",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1263; gerchowl/g-fleet#1363"
+    },
+    {
+      "id": "SYS-048",
+      "kind": "SYS",
+      "title": "GPU submission policy",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8; §14 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet docs/gpu-jobs.md"
+    },
+    {
+      "id": "SYS-049",
+      "kind": "SYS",
+      "title": "GPU job data access",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#654; g-fleet docs/gpu-jobs.md"
+    },
+    {
+      "id": "SYS-050",
+      "kind": "SYS",
+      "title": "Embedding throughput",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §15 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-051",
+      "kind": "SYS",
+      "title": "Backfills off the shared GPU",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-052",
+      "kind": "SYS",
+      "title": "Licence class on every row and artefact",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-053",
+      "kind": "SYS",
+      "title": "Gated features off in phase 1",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12; §15 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-054",
+      "kind": "SYS",
+      "title": "Paid-tier exclusion of NC and ND content",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-055",
+      "kind": "SYS",
+      "title": "TDM opt-out honoured on every ingest",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12; §15 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-056",
+      "kind": "SYS",
+      "title": "Release hygiene",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §16 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-021",
+      "kind": "TEST",
+      "title": "System: Licence determination at ingest; method: audit a random sample of 1,000 ingested items per source against upstream licence metadata; replay negative fixtures (a CC-BY-NC item, a paywalled item, an item with no licence field) through ingest",
+      "status": "proposed",
+      "source": "vig-os/scitadel#314 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-022",
+      "kind": "TEST",
+      "title": "System: Sealed shard builds and collection layout; method: build the base from a recorded sample release on ksb, verify the collection layout and shard sizes, then compare the per-source row counts in `coverage` with the upstream counts",
+      "status": "proposed",
+      "source": "vig-os/scitadel#314 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-023",
+      "kind": "TEST",
+      "title": "System: OpenAlex delta sync within the free-key budget; method: replay seven days of daily jobs against recorded API responses including a merged and a deleted ID, with a metered fake of the credit header",
+      "status": "proposed",
+      "source": "vig-os/scitadel#315 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-024",
+      "kind": "TEST",
+      "title": "System: Weekly patent-grant delta; method: ingest two recorded weekly grant files into a base fixture and measure the delay from the release timestamp to searchability on the replayed clock",
+      "status": "proposed",
+      "source": "vig-os/scitadel#314 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-025",
+      "kind": "TEST",
+      "title": "System: Base, delta and current-pointer lifecycle; method: base plus three deltas fixture with updated, merged and deleted IDs; query every ID before and after a compaction and a pointer switch; kill the process mid-compaction",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-026",
+      "kind": "TEST",
+      "title": "System: Licence-gated extraction cascade; method: gating test over fixtures of every licence class asserting the highest reachable tier; a cap test with an exhausted budget asserting queueing; a counter audit of calls per tier",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-027",
+      "kind": "TEST",
+      "title": "System: Extraction quality control and golden loop; method: run the golden set with red and green fixtures; seed a fault into a batch and confirm detection; compute the QC pass rate and the sample result per batch",
+      "status": "proposed",
+      "source": "vig-os/scitadel#321 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-028",
+      "kind": "TEST",
+      "title": "System: Document-model storage; method: golden fixtures from JATS, TEI, HTML, PDF and USPTO XML; field-by-field round trip against the source; a byte scan of every product for the PDF magic number; a figure decode compare",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-029",
+      "kind": "TEST",
+      "title": "System: Provenance recording; method: completeness check over a sealed fixture product and over a 10,000-row sample of the stage-0 products: resolve every provenance field and every input hash",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-030",
+      "kind": "TEST",
+      "title": "System: Retraction flags joined at index build; method: join audit: fixture records matching a retraction list by DOI and by PMID, plus non-matching controls; run at each index build",
+      "status": "proposed",
+      "source": "vig-os/scitadel#323 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-031",
+      "kind": "TEST",
+      "title": "System: Hot tier layout on the KC3000; method: apply the layout script to a scratch btrfs image, then check names, properties, quotas and the sum of limits; fill a subvolume past its quota and confirm the write fails while the neighbours are unaffected",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#1474 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-032",
+      "kind": "TEST",
+      "title": "System: Local NVMe random access for indexes; method: fio random-read job (4 KiB, queue depth 8, 60 s) against the `index` mount from inside the hub microVM, and again on the host for reference",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#1474 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-033",
+      "kind": "TEST",
+      "title": "System: Object tiers per project; method: red/green permission matrix per role and bucket (allowed passes, denied fails, including research overwrite and cross-project read) and an expiry test per tier on shortened clocks",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#1449 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-034",
+      "kind": "TEST",
+      "title": "System: Raw and intermediate store: keep everything; method: ingest an open-access PDF and a TEI fixture through T1 to T3, assert every raw input and tier output is stored by hash, fill the stage-0 raw budget so ingest pauses without deleting, refuse a hand-drop without a recorded hash, and check gpu-io/in and the hand-off prefix are empty after acceptance",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-035",
+      "kind": "TEST",
+      "title": "System: Warm tier on the storage host; method: migrate the KC3000 `keep` bucket to the warm box with a checksum-verified copy, compare object listings and hashes, run a scrub and a snapshot",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#1363 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-036",
+      "kind": "TEST",
+      "title": "System: Cold tier on the Storage Box; method: run a backup of a seeded dataset, `restic check --read-data-subset=5%`, and inspect the repository for plaintext markers",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#1363 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-037",
+      "kind": "TEST",
+      "title": "System: Retention policy; method: create three bases on a test bucket; run the retention job and assert the oldest expires by policy; attempt an ad-hoc delete with every other role and assert denial; audit the log",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-038",
+      "kind": "TEST",
+      "title": "System: BM25 index; method: build the index over a 10⁸-document synthetic corpus plus the real stage-0 corpus; run 1,000 filtered queries single-threaded; tamper with a stamp and query",
+      "status": "proposed",
+      "source": "vig-os/tessera#775 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-039",
+      "kind": "TEST",
+      "title": "System: Vector index; method: compare ANN against exact search on 1,000 golden queries over a million-chunk sample; time the ANN step; check the recorded index kind in `capabilities`",
+      "status": "proposed",
+      "source": "vig-os/tessera#769 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-040",
+      "kind": "TEST",
+      "title": "System: Graph neighbours; method: load a citation fixture with known neighbourhoods and time 1,000 depth-1 and depth-2 queries; compare returned sets against the fixture",
+      "status": "proposed",
+      "source": "vig-os/tessera#776 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-041",
+      "kind": "TEST",
+      "title": "System: Index freshness and rebuild; method: seal a delta and time the interval to searchability; delete the index directory and rebuild from products, timing it and comparing golden-query results before and after",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-042",
+      "kind": "TEST",
+      "title": "System: Hybrid search latency at lab scale; method: load test with 20 simulated users replaying a golden-query mix against the stage-0 corpus on a CPU-only host, recording p95 per step",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-043",
+      "kind": "TEST",
+      "title": "System: Rerank fallback; method: simulate a saturated rerank queue (fake worker that never answers) and issue 500 searches",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-044",
+      "kind": "TEST",
+      "title": "System: CPU-only serving; method: inspect the serving unit and microVM definition for GPU devices; sample `nvidia-smi` process memory on the host while the load test runs",
+      "status": "proposed",
+      "source": "vig-os/scitadel#311 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-045",
+      "kind": "TEST",
+      "title": "System: Get, neighbours and snippet responses; method: contract tests against the protocol schema plus a timed run of 1,000 `get` calls of 100 IDs and a size check of 1,000 search pages",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-046",
+      "kind": "TEST",
+      "title": "System: Protocol surface; method: schema conformance of every call against the crate types; licence check of the crate manifest; a response scan for the version field",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-047",
+      "kind": "TEST",
+      "title": "System: Capabilities, coverage and the embedding contract; method: send vectors with a wrong model id, a wrong version and a wrong dimension and a matching one; text input; compare `capabilities` and `coverage` to a recorded snapshot before and after a delta",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-048",
+      "kind": "TEST",
+      "title": "System: Response metadata and untrusted text; method: response contract tests across all calls over a seeded corpus, scanning every record for the five fields and every text field for the wrapper",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-049",
+      "kind": "TEST",
+      "title": "System: Standalone MCP server; method: end-to-end MCP session against a mock hub over a seeded corpus; grounding benchmark on a pinned release",
+      "status": "proposed",
+      "source": "vig-os/scitadel#329 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-050",
+      "kind": "TEST",
+      "title": "System: Conformance kit; method: run the verifier against the reference hub on stage 0",
+      "status": "proposed",
+      "source": "vig-os/scitadel#331 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-051",
+      "kind": "TEST",
+      "title": "System: Fall-through and unchanged client; method: fault injection: hub down, hub slow (10 s) and hub erroring, 200 queries each; run the unchanged client suite with no hub configured",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-052",
+      "kind": "TEST",
+      "title": "System: Detach hands back structured documents, never PDF bytes; method: detach a tracked-works fixture on a clean profile with the network disabled afterwards; verify the per-paper product; scan every `detach` and `open` response for PDF bytes",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-053",
+      "kind": "TEST",
+      "title": "System: Local-subset routing; method: build a 50,000-paper reference subset and measure size and 500 local queries; route a covered and an uncovered query",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-054",
+      "kind": "TEST",
+      "title": "System: No bulk export; method: enumerate the routes of the hub against an allowlist; attempt `get` of 101 IDs and a `detach` of works the caller does not track",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-055",
+      "kind": "TEST",
+      "title": "System: Tenant isolation; method: two simulated tenants on microVMs; attempt reads of the other tenant's buckets, files and API; scan the mount tables",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub-deploy#1 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-056",
+      "kind": "TEST",
+      "title": "System: Usage metering; method: generate a known number of grounded queries across two tenants and reconcile the counters; run the local tier and assert no events",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-cloud#1 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-057",
+      "kind": "TEST",
+      "title": "System: Annotation layers; method: permission-matrix test over the 4 layers with read, write and leak-upward attempts for each role",
+      "status": "proposed",
+      "source": "vig-os/scitadel#325 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-058",
+      "kind": "TEST",
+      "title": "System: On-prem parity; method: install on a clean microVM from each of the three artefacts; run the smoke suite; serve one shard from both and compare bytes",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub-deploy#2 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-059",
+      "kind": "TEST",
+      "title": "System: Stage portability; method: run the conformance kit and the licence-gating negative suite against each stage that exists, and grep the code for stage conditionals",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub-deploy#1 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-060",
+      "kind": "TEST",
+      "title": "System: Secrets handling; method: plant canary secrets, run a failure-heavy session (bad key, expired credential, S3 error) and scan every log, error body and response",
+      "status": "proposed",
+      "source": "vig-os/scitadel#315 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-061",
+      "kind": "TEST",
+      "title": "System: Encryption and access control; method: port scan and handshake probe of the hub and gateway from a peer microVM; anonymous request attempts; check the LUKS status of the pool",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#1449 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-062",
+      "kind": "TEST",
+      "title": "System: Privacy controls; method: erase a fixture author and query before and after; age log entries on a shortened clock; scan the schema and logs for per-user read records",
+      "status": "proposed",
+      "source": "vig-os/scitadel#333 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-063",
+      "kind": "TEST",
+      "title": "System: Freshness, spend and budget telemetry; method: drive each cap to 80 % on a test instance and observe the alert; compare the freshness report with the replayed clock",
+      "status": "proposed",
+      "source": "vig-os/scitadel#315 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-064",
+      "kind": "TEST",
+      "title": "System: Service health and quota watch; method: fill a test subvolume to 80 % and 90 % and observe the alerts; compare histogram p95 against the load-test log",
+      "status": "proposed",
+      "source": "vig-os/scitadel#311 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-065",
+      "kind": "TEST",
+      "title": "System: Snapshot schedule; method: run the snapshot job on a scratch image with a shortened clock; delete a file and recover it from the snapshot; count snapshots against the policy",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#1438 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-066",
+      "kind": "TEST",
+      "title": "System: Off-box encrypted backup; method: compare the backup set against the inventory of non-rebuildable paths; run backup and `restic check`; confirm no keys on the target",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#1438 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-067",
+      "kind": "TEST",
+      "title": "System: Restore from empty host; method: restore the backup set into an empty microVM, rebuild indexes and run the protocol smoke suite and the golden queries",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#1263 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-068",
+      "kind": "TEST",
+      "title": "System: GPU submission policy; method: lint every submission template and job wrapper; run a 2-chunk job and kill it between chunks to confirm resumption from the checkpoint",
+      "status": "proposed",
+      "source": "vig-os/scitadel#311 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-069",
+      "kind": "TEST",
+      "title": "System: GPU job data access; method: run a job that writes a valid output, one that writes a corrupted output and one that tries to write outside its directory; run the promotion step on all three",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#654 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-070",
+      "kind": "TEST",
+      "title": "System: Embedding throughput; method: embed a 5,000,000-chunk sample as chunked jobs and read the throughput from the job logs",
+      "status": "proposed",
+      "source": "vig-os/scitadel#311 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-071",
+      "kind": "TEST",
+      "title": "System: Backfills off the shared GPU; method: audit the job queue history of the hub project for jobs tagged backfill or re-embed; check the chunk size of ingest jobs",
+      "status": "proposed",
+      "source": "vig-os/scitadel#311 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-072",
+      "kind": "TEST",
+      "title": "System: Licence class on every row and artefact; method: negative suite with rows of every disallowed class plus a query fuzzer over `get` and `search`",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-073",
+      "kind": "TEST",
+      "title": "System: Gated features off in phase 1; method: enumerate routes and handler registrations in the phase-1 build and attempt each gated call",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-074",
+      "kind": "TEST",
+      "title": "System: Paid-tier exclusion of NC and ND content; method: build a paid-tier index from a fixture containing NC and ND rows and scan the result",
+      "status": "proposed",
+      "source": "vig-os/scitadel#318 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-075",
+      "kind": "TEST",
+      "title": "System: TDM opt-out honoured on every ingest; method: opt-out fixtures for each of the four mechanisms present at the first ingest of a source, and a late opt-out between two ingests",
+      "status": "proposed",
+      "source": "vig-os/scitadel#330 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-076",
+      "kind": "TEST",
+      "title": "System: Release hygiene; method: release-checklist automation on a candidate build: SPDX and file presence, NOTICE and SBOM generation, allowlist check and a layer scan for weight files",
+      "status": "proposed",
+      "source": "vig-os/scitadel#333 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-057",
+      "kind": "SYS",
+      "title": "ETL run orchestrator and run ledger",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2; §11; §12; §13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-077",
+      "kind": "TEST",
+      "title": "System: ETL run orchestrator and run ledger; method: fixture ingest: assert a run record exists before step 1 and pins every input, the slice manifest and the definition hashes; start runs with an unpinned input and with a changed upstream hash; re-run a CPU run from its record and diff the output hashes",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-058",
+      "kind": "SYS",
+      "title": "Resumable, verified downloads",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §5; §12 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-078",
+      "kind": "TEST",
+      "title": "System: Resumable, verified downloads; method: local HTTP server with range support and a published checksum: kill the downloader at 10 %, 50 % and 99 %, resume, corrupt the tail, change the ETag between attempts, and serve a source with no checksum",
+      "status": "proposed",
+      "source": "vig-os/scitadel#315 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-059",
+      "kind": "SYS",
+      "title": "Canonical-first product write and copy verification",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2; §8 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-079",
+      "kind": "TEST",
+      "title": "System: Canonical-first product write and copy verification; method: kill the product write between the keep write, the keep verification, the hot copy and the hot rename; flip a byte in the keep copy and in the hot copy; restart and let the hub reconcile; trace the write order in the ledger",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-060",
+      "kind": "SYS",
+      "title": "Promotion after QC, atomic switch and rollback",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2; §13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-080",
+      "kind": "TEST",
+      "title": "System: Promotion after QC, atomic switch and rollback; method: qC pass and fail fixtures; 100,000 concurrent reads while `current` switches; kill during the switch; roll back after promotion and compare golden queries; attempt retention of the previous generation inside the 7-day soak",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-061",
+      "kind": "SYS",
+      "title": "Crash-resume of a run",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2; §8; §10 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-081",
+      "kind": "TEST",
+      "title": "System: Crash-resume of a run; method: kill a fixture run at every step boundary and mid-step, and kill a 2-chunk GPU run between chunks; resume; compare output hashes, credit and budget counters and orphan files with an uninterrupted run; stop at a full quota and resume after space is added",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-062",
+      "kind": "SYS",
+      "title": "GPU output acceptance",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8; `gerchowl/g-fleet#654`; `gerchowl/g-fleet#1402` (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-082",
+      "kind": "TEST",
+      "title": "System: GPU output acceptance; method: six jobs: a valid one, a manifest that does not match the files, a missing manifest, an extra file, a job id not in the ledger, and a file modified by a second process after the job ended (also during the hub's copy); run the acceptance step on each",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#654 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-063",
+      "kind": "SYS",
+      "title": "Explicit corpus slice transfer to ksb",
+      "status": "proposed",
+      "source": "vig-os/scitadel `gerchowl/g-fleet#654`; g-fleet docs/ksb-compute.md (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-083",
+      "kind": "TEST",
+      "title": "System: Explicit corpus slice transfer to ksb; method: build a slice, transfer it to ksb, list the files on ksb against the manifest, flip a byte in transit, include a CC-BY-NC fixture row, and end the task",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#654 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-064",
+      "kind": "SYS",
+      "title": "Page renders and region crops from kept originals",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (raw retention, image processing); H12 `vig-os/scitadel#324` (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-084",
+      "kind": "TEST",
+      "title": "System: Page renders and region crops from kept originals; method: render a page and crop a region from a kept PDF fixture; request crops for permitted and non-permitted licence classes; attempt a listing of crops and a page-scale PDF request; fill the render cache past its bound; attach a crop to a confirmed report",
+      "status": "proposed",
+      "source": "vig-os/scitadel#324 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-065",
+      "kind": "SYS",
+      "title": "Image embeddings of figures and page regions",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §9; §12; §15 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-085",
+      "kind": "TEST",
+      "title": "System: Image embeddings of figures and page regions; method: embed a 200,000-figure sample as chunked GPU jobs at 512 and at full dimension; compare recall@10 on the golden image queries; read the product metadata; read throughput from the job logs",
+      "status": "proposed",
+      "source": "vig-os/scitadel#311 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-066",
+      "kind": "SYS",
+      "title": "Vision tiers re-run on demand from stored inputs",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §10; §12; §13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-086",
+      "kind": "TEST",
+      "title": "System: Vision tiers re-run on demand from stored inputs; method: re-run T1, T2, T3 and T4 on a chosen element and on a batch of a kept fixture with the network disabled; hash the old intermediates before and after; request T4 for a non-permitted class",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-067",
+      "kind": "SYS",
+      "title": "Service registry",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §10 (service definitions); §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-087",
+      "kind": "TEST",
+      "title": "System: Service registry; method: negative suite of at least 8 definitions: a missing field, a gpu_submit executor without VRAM, normal priority, a T3 and a T4 without a budget cap, T4 with a non-permitted class, an escalation cycle, a model without weights hash; then run a job whose weights differ from the definition's hash; resolve every historical definition hash from `keep`",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-068",
+      "kind": "SYS",
+      "title": "Definition hash in the run ledger and in every row's provenance",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §10; §11 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-088",
+      "kind": "TEST",
+      "title": "System: Definition hash in the run ledger and in every row's provenance; method: run a fixture cascade through three definitions; read the ledger and sample 1,000 output rows; try to start a step and to write a row with a missing or unknown definition hash",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-069",
+      "kind": "SYS",
+      "title": "Re-derive by definition hash; executor change is configuration",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §10 (service definitions); §13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-089",
+      "kind": "TEST",
+      "title": "System: Re-derive by definition hash; executor change is configuration; method: select \"everything produced by definition X\" on a fixture and compare with the ledger; change T3's executor between two fixture definitions with no code change, re-derive, and grep the code for host and model names",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-070",
+      "kind": "SYS",
+      "title": "Sage overflow data path (only if an overflow definition targets sage)",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §10 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-090",
+      "kind": "TEST",
+      "title": "System: Sage overflow data path (only if an overflow definition targets sage); method: with no sage definition enabled, audit credentials and connections; with an overflow definition enabled in a fixture, fetch a payload as the T3 worker, attempt a cross-prefix read, return a result with a bad manifest and a good one, and list sage after acceptance",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
     }
   ]
 }

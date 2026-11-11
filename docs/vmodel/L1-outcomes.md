@@ -15,7 +15,7 @@ The wanted outcomes as measurable targets. A target marked *(estimate)* is a fir
 | OUT-007 | Delta freshness, patents | ≤ 7 *(estimate)* | days from weekly grant release to searchable | freshness report for the grant delta | REQ-002 |
 | OUT-008 | Free-key budget compliance | ≤ 100 | % of the daily free-key allowance used, on each of 7 consecutive days | credits-used log of the daily jobs | REQ-002 |
 | OUT-009 | Extraction QC pass rate | ≥ 95 *(estimate)* | % of works per batch that pass automated QC without escalation beyond T1 | per-work QC columns on the works block | REQ-006 |
-| OUT-010 | Silent-error bound per batch | < 1 | % upper bound on the error rate at 95 % confidence (300 random samples with no confirmed error) | random-sample QC through T3 and T4 on every batch (rule of three) | REQ-006 |
+| OUT-010 | Silent-error bound per batch | ≤ ~1 | % upper bound on the error rate at 95 % confidence, from 300 random samples per batch with no confirmed error (rule of three: 3 / 300 = 1.0 %) | random-sample QC through T3 and T4 on every batch (rule of three) | REQ-006 |
 | OUT-011 | Retrieval quality | ≥ 0.90 and ≥ 0.95 *(estimate)* | recall@10 on golden queries, and ANN recall against exact search | golden-query evaluation and ANN-versus-exact comparison | REQ-003, REQ-004 |
 | OUT-012 | Provenance completeness | 100 | % of served rows that resolve to a product seal and to their raw-input hash and URL | completeness check over the sealed products | REQ-007 |
 | OUT-013 | Retraction coverage | 100 | % of held records matching the retraction list that are flagged; the flag lags by at most one index build | join audit against the retraction list at each index build | REQ-009 |
@@ -62,5 +62,5 @@ The wanted outcomes as measurable targets. A target marked *(estimate)* is a fir
 
 - Targets state what the programme wants, not what a current system achieves; no measurement exists yet.
 - OUT-004 is derived from the phase-1 embedding budget: about 250 million chunks in one to two GPU-days is 5 to 10 million chunks per GPU-hour, so the target takes the lower end.
-- OUT-010 is the rule of three: 300 random samples with no confirmed error bound the error rate below about 1 % at 95 % confidence.
+- OUT-010 is the rule of three: a sample of 300 random works per batch with no confirmed error supports an upper bound of 3 / 300 = 1.0 % at 95 % confidence, so the target reads "≤ ~1" (XADR-SCITADEL-008 §13 says "below ~1%"). A smaller sample supports a looser bound only.
 - No outcome here sets a commercial figure (PRIN-013).
