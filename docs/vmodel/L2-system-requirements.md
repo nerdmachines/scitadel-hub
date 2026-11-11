@@ -22,6 +22,9 @@ What the system and its infrastructure shall do to meet each [L1 requirement](L1
 | Backup and restore | SYS-045, SYS-046, SYS-047 |
 | GPU job usage | SYS-048, SYS-049, SYS-050, SYS-051 |
 | Licence and TDM gating | SYS-052, SYS-053, SYS-054, SYS-055, SYS-056 |
+| ETL orchestration and run ledger | SYS-057, SYS-058, SYS-059, SYS-060, SYS-061, SYS-062, SYS-063 |
+| Image processing from kept originals | SYS-064, SYS-065, SYS-066 |
+| Service registry | SYS-067, SYS-068, SYS-069, SYS-070 |
 
 ## Decomposition of the L1 requirements
 
@@ -30,13 +33,13 @@ Every requirement decomposes into at least one system requirement.
 | Requirement | Decomposes into |
 |---|---|
 | REQ-001 | SYS-001, SYS-002, SYS-034 |
-| REQ-002 | SYS-002, SYS-003, SYS-004, SYS-005, SYS-017, SYS-021, SYS-040, SYS-043 |
-| REQ-003 | SYS-005, SYS-012, SYS-018, SYS-019, SYS-020, SYS-021, SYS-022, SYS-023, SYS-025 |
+| REQ-002 | SYS-002, SYS-003, SYS-004, SYS-005, SYS-017, SYS-021, SYS-040, SYS-043, SYS-057, SYS-058, SYS-060, SYS-061 |
+| REQ-003 | SYS-005, SYS-012, SYS-018, SYS-019, SYS-020, SYS-021, SYS-022, SYS-023, SYS-025, SYS-065 |
 | REQ-004 | SYS-019, SYS-027 |
 | REQ-005 | SYS-002, SYS-008, SYS-014, SYS-032 |
-| REQ-006 | SYS-006, SYS-007 |
-| REQ-007 | SYS-009, SYS-014, SYS-028, SYS-049 |
-| REQ-008 | SYS-001, SYS-014, SYS-028, SYS-032, SYS-034, SYS-052, SYS-053, SYS-054 |
+| REQ-006 | SYS-006, SYS-007, SYS-060, SYS-064, SYS-066, SYS-067, SYS-069, SYS-070 |
+| REQ-007 | SYS-009, SYS-014, SYS-028, SYS-049, SYS-057, SYS-058, SYS-059, SYS-062, SYS-066, SYS-067, SYS-068, SYS-069 |
+| REQ-008 | SYS-001, SYS-014, SYS-028, SYS-032, SYS-034, SYS-052, SYS-053, SYS-054, SYS-064, SYS-070 |
 | REQ-009 | SYS-010, SYS-021, SYS-028 |
 | REQ-010 | SYS-028, SYS-029 |
 | REQ-011 | SYS-025, SYS-026, SYS-027, SYS-030, SYS-031 |
@@ -46,8 +49,8 @@ Every requirement decomposes into at least one system requirement.
 | REQ-015 | SYS-038, SYS-039 |
 | REQ-016 | SYS-041, SYS-042 |
 | REQ-017 | SYS-055 |
-| REQ-018 | SYS-003, SYS-006, SYS-011, SYS-013, SYS-015, SYS-016, SYS-017, SYS-039, SYS-040, SYS-041, SYS-043, SYS-044, SYS-045, SYS-046, SYS-047 |
-| REQ-019 | SYS-011, SYS-012, SYS-013, SYS-022, SYS-024, SYS-044, SYS-048, SYS-049, SYS-050, SYS-051 |
+| REQ-018 | SYS-003, SYS-006, SYS-011, SYS-013, SYS-015, SYS-016, SYS-017, SYS-039, SYS-040, SYS-041, SYS-043, SYS-044, SYS-045, SYS-046, SYS-047, SYS-057, SYS-059, SYS-060, SYS-061, SYS-063, SYS-069, SYS-070 |
+| REQ-019 | SYS-011, SYS-012, SYS-013, SYS-022, SYS-024, SYS-044, SYS-048, SYS-049, SYS-050, SYS-051, SYS-062, SYS-065, SYS-067 |
 | REQ-020 | SYS-026, SYS-030, SYS-056 |
 
 ## Ingest and corpus lifecycle
@@ -104,9 +107,9 @@ Reads shall be newest-wins over base and deltas; tombstones shall drop or redire
 
 ### SYS-006: Licence-gated extraction cascade
 
-Extraction shall run as the T0 to T4 cascade in which each tier sees only what the cheaper tier could not settle; T4 shall be reachable only for CC-BY, CC0 and public-domain content; T3 and T4 shall be budget-capped and over-budget work shall queue.
+Extraction shall run as the T0 to T4 cascade in which each tier sees only what the cheaper tier could not settle, every tier running through its service definition (SYS-067); T4 shall be reachable only for CC-BY, CC0 and public-domain content; T3 and T4 shall be budget-capped and over-budget work shall queue. Queued work stays queued in the run ledger and is never dropped when a hand-off payload expires.
 
-- **Quantified:** 0 T4 calls for items outside CC-BY, CC0 and public domain; 0 items skipped for budget; T3 and T4 spend ≤ the configured cap in 100 % of days.
+- **Quantified:** 0 T4 calls for items outside CC-BY, CC0 and public domain; 0 items skipped for budget, including items queued longer than the 28-day expiry of a hand-off payload; T3 and T4 spend ≤ the configured cap in 100 % of days.
 - **Derives from:** REQ-006, REQ-018
 - **Source:** XADR-SCITADEL-008 §10; §12; §13
 - **Verified by:** TEST-026
@@ -158,7 +161,7 @@ Every record that matches a retraction-tracking entry by DOI or PMID shall carry
 
 The hub's hot data shall live on named btrfs subvolumes of the KC3000 pool, each with a hard quota, the properties set out in [L2 infrastructure](L2-infrastructure.md), and a defined owner.
 
-- **Quantified:** Combined hub quota ≤ 1.5 TiB, about 55 % of the roughly 2.7 TiB free on 2026-11-09 *(estimate)*; alert at 80 % of each quota; pool free space ≥ 500 GiB.
+- **Quantified:** Combined hub quota ≤ 1,800 GiB, about 65 % of the roughly 2.7 TiB free on 2026-11-09 and sized from the stated size model of [L2 infrastructure](L2-infrastructure.md) (section 2.4) *(estimate)*; alert at 80 % of each quota; pool free space ≥ 500 GiB.
 - **Derives from:** REQ-018, REQ-019
 - **Source:** XADR-SCITADEL-008 §8; `gerchowl/g-fleet#1474`
 - **Verified by:** TEST-031
@@ -184,21 +187,21 @@ The hub shall use the buckets `scitadel-hub-scratch` (48 h), `scitadel-hub-runs`
 - **Verified by:** TEST-033
 - **Delivered by:** `gerchowl/g-fleet#1449`
 
-### SYS-014: Content-addressed artefact store
+### SYS-014: Raw and intermediate store: keep everything
 
-Raw originals shall live in a content-addressed store keyed by blake3 hash in `scitadel-hub-keep`, referenced from `works` rows by hash and URL; open-access PDFs shall be deleted after ingest, raw XML shall never enter a product, and a re-fetch shall be verified against the hash.
+Every raw input (open-access PDFs, JATS, TEI and USPTO XML, bulk snapshots) and every cascade tier's intermediate output (T1 OCR and layout, T2 math OCR, T3 vision-language output, T4 results) shall be kept in a content-addressed store keyed by blake3 hash, with its provenance, in `scitadel-hub-keep` on the KC3000 until the warm tier exists and on the warm tier from then on. Nothing shall be deleted automatically. Raw XML and PDF bytes shall never enter a product, and PDF bytes shall never be served. In stage 0 the store has an explicit budget; when it is reached, ingest shall pause with an alert. The only class an operator may drop by hand is a re-fetchable open-access PDF whose hash and URL are recorded.
 
-- **Quantified:** 0 PDF bytes served (D-007); kept TEI about 8 to 10 GB zstd per 2,000,000 papers *(estimate)*; 100 % of re-fetches verified.
+- **Quantified:** 100 % of the raw inputs and tier outputs of a completed run present in the store, each with hash, tool, model, version and input hash; 0 automatic deletions (audit of delete calls); alert at 80 % and ingest paused at 90 % of the stage-0 raw budget, with 0 data lost when the budget is reached; a hand-drop is refused for any object without a recorded hash and URL; 0 PDF bytes served (D-007); a re-fetch is verified against the recorded hash; kept TEI about 8 to 10 GB zstd per 2,000,000 papers *(estimate)*.
 - **Derives from:** REQ-005, REQ-007, REQ-008
-- **Source:** XADR-SCITADEL-008 §12
+- **Source:** XADR-SCITADEL-008 §12 (Raw retention: keep everything; owner decision 2026-11-11); §8
 - **Verified by:** TEST-034
 - **Delivered by:** [vig-os/scitadel#318](https://github.com/vig-os/scitadel/issues/318)
 
 ### SYS-015: Warm tier on the storage host
 
-Once the storage host exists, the canonical sealed products, retained raw XML and base generations shall be held on it, served by an S3 gateway, with scheduled scrubs and snapshots; until then the `keep` bucket on the KC3000 stands in.
+Once the storage host exists, the canonical sealed products and their history, every raw input and every cascade intermediate (SYS-014) shall be held on it, served by an S3 gateway, with scheduled scrubs and snapshots; until then the `keep` bucket on the KC3000 stands in, within its quota.
 
-- **Quantified:** Capacity 4 to 8 TB *(estimate, from g-fleet#1363)*; 0 checksum mismatches after migration from the KC3000 buckets; scrub on schedule.
+- **Quantified:** Capacity of at least 20 TB usable (owner, 2026-11-11), with central-case steady state about 13 TB and compaction peak about 18 TB *(estimate, size model in L2 infrastructure section 2.4)*; 0 checksum mismatches after migration from the KC3000 buckets; scrub on schedule.
 - **Derives from:** REQ-018
 - **Source:** XADR-SCITADEL-008 §8; §2; `gerchowl/g-fleet#1363`
 - **Verified by:** TEST-035
@@ -206,9 +209,9 @@ Once the storage host exists, the canonical sealed products, retained raw XML an
 
 ### SYS-016: Cold tier on the Storage Box
 
-Backups and derived products that fall out of the warm working set shall be pushed client-side encrypted with restic to a Hetzner Storage Box, with keys only in this fleet's sops, and the repository shall pass an integrity check.
+The cold tier shall mirror the warm tier (and, before the warm tier exists, the non-rebuildable part of the KC3000 buckets): everything shall be pushed client-side encrypted with restic to a Hetzner Storage Box, with keys only in this fleet's sops, and the repository shall pass an integrity check.
 
-- **Quantified:** Backup lag ≤ 24 h; `restic check` pass monthly; 0 plaintext objects on the box.
+- **Quantified:** Backup lag ≤ 24 h; `restic check` pass monthly; 0 plaintext objects on the box; 0 objects of the warm tier missing from the mirror after a nightly run.
 - **Derives from:** REQ-018
 - **Source:** XADR-SCITADEL-008 §8; `gerchowl/g-fleet#1363`; `gerchowl/g-fleet#1438`
 - **Verified by:** TEST-036
@@ -216,9 +219,9 @@ Backups and derived products that fall out of the warm working set shall be push
 
 ### SYS-017: Retention policy
 
-Generations shall expire only by an explicit retention policy executed by one dedicated role, never by ad-hoc deletion; the default shall keep the last 2 bases and their deltas, and stage 0 shall run with 1 base until the warm tier exists.
+Generations shall expire only by an explicit retention policy executed by one dedicated role, never by ad-hoc deletion; the default shall keep the last 2 bases and their deltas, and stage 0 shall run with 1 base until the warm tier exists, plus the previous base for a soak of at least 7 days after each promotion so that SYS-060 can roll back. The policy covers generations of products only: raw inputs and cascade intermediates (SYS-014) are never expired by it.
 
-- **Quantified:** Default 2 bases plus deltas; stage-0 override 1 base, recorded as policy; 0 deletions outside the retention role (audit).
+- **Quantified:** Default 2 bases plus deltas; stage-0 override 1 base plus the previous base for ≥ 7 days after promotion, recorded as policy; 0 deletions outside the retention role (audit); 0 deletions of raw inputs or intermediates.
 - **Derives from:** REQ-018, REQ-002
 - **Source:** XADR-SCITADEL-008 §2; `gerchowl/g-fleet#1363`
 - **Verified by:** TEST-037
@@ -522,7 +525,7 @@ The hub's btrfs subvolumes shall be snapshotted read-only by policy: `state` hou
 
 ### SYS-046: Off-box encrypted backup
 
-The non-rebuildable data (`keep`, `research`, `state` dumps) shall be backed up off the KC3000 and off anvil, client-side encrypted, and research data shall additionally go to the separate fleet's target.
+The non-rebuildable data (`keep` with its raw inputs and intermediates, `research`, `state` dumps) shall be backed up off the KC3000 and off anvil, client-side encrypted, and research data shall additionally go to the separate fleet's target.
 
 - **Quantified:** Backup lag ≤ 24 h; `restic check` monthly pass; keys only in sops; 100 % of non-rebuildable data covered by the backup set.
 - **Derives from:** REQ-018
@@ -554,9 +557,9 @@ Every hub GPU job shall go through `gpu_submit` with a declared VRAM, low priori
 
 ### SYS-049: GPU job data access
 
-GPU jobs shall read their inputs from the hub's `gpu-io` subvolume as exposed under the project path and write only to a new `out/<run-id>/` directory; the hub shall validate outputs against a hash ledger before promoting them into products.
+GPU jobs shall read their inputs from the hub's `gpu-io` subvolume as exposed under the project path and write only to a new `out/<run-id>/` directory; the hub shall accept an output only under the acceptance rules of SYS-062 before promoting it into products, and shall remove its `in/<run-id>/` copies when the run is accepted.
 
-- **Quantified:** 0 unvalidated outputs promoted; 0 writes by jobs outside `out/<run-id>/`; 100 % of promoted outputs match the ledger hash.
+- **Quantified:** 0 outputs promoted without passing SYS-062; 0 writes by jobs outside `out/<run-id>/`; `in/<run-id>/` empty ≤ 24 h after acceptance with the kept original intact.
 - **Derives from:** REQ-019, REQ-007
 - **Source:** XADR-SCITADEL-008 §8; `gerchowl/g-fleet#654`; g-fleet docs/gpu-jobs.md
 - **Verified by:** TEST-069
@@ -614,11 +617,11 @@ CC-BY-NC and CC-BY-ND content shall be excluded from every build and index of a 
 - **Verified by:** TEST-074
 - **Delivered by:** [vig-os/scitadel#318](https://github.com/vig-os/scitadel/issues/318)
 
-### SYS-055: TDM opt-out honoured on every re-ingest
+### SYS-055: TDM opt-out honoured on every ingest
 
-Every re-ingest of the commercial tier shall re-check robots.txt, TDMRep, `noai` and ai.txt, skip and record opted-out sources, honour per-publisher terms in the paced fetch buckets, and pin the upstream snapshot date.
+Every ingest of the commercial tier, the first one and every re-ingest, shall check robots.txt, TDMRep, `noai` and ai.txt before the first fetch of a source, skip and record opted-out sources, honour per-publisher terms in the paced fetch buckets, and pin the upstream snapshot date.
 
-- **Quantified:** 100 % of re-ingested sources re-checked in the same cycle (OUT-016); 0 fetches of opted-out sources.
+- **Quantified:** 100 % of ingested sources checked before their first fetch and again in the same cycle of every re-ingest (OUT-016); 0 fetches of opted-out sources.
 - **Derives from:** REQ-017
 - **Source:** XADR-SCITADEL-008 §12; §15
 - **Verified by:** TEST-075
@@ -633,3 +636,149 @@ Every release shall carry SPDX expressions and licence files, a third-party NOTI
 - **Source:** XADR-SCITADEL-008 §16
 - **Verified by:** TEST-076
 - **Delivered by:** [vig-os/scitadel#333](https://github.com/vig-os/scitadel/issues/333)
+
+## ETL orchestration and run ledger
+
+### SYS-057: ETL run orchestrator and run ledger
+
+Every ingest, delta, base build, extraction batch, embedding sweep, re-derive and index build shall execute as one run under a single orchestrator that writes a run record to the `state` ledger before its first step. The record pins every input by upstream version or snapshot date and by content hash (downloads, the stage-0 slice manifest, the golden-set version, code and configuration versions) and the hash of every service definition the run uses (SYS-067, SYS-068). A run with an unpinned input shall not start, and re-running a record shall reproduce the same output hashes or name the input that differed.
+
+- **Quantified:** 100 % of runs have a record before step 1; 100 % of inputs carry a version or snapshot date and a hash (a source that publishes none gets its own blake3 and size at fetch time); 100 % of unpinned-input starts refused; a re-run of a CPU run from its record gives identical output hashes, and a GPU step run on the same inputs and definition passes the golden-set diff of SYS-007.
+- **Derives from:** REQ-002, REQ-007, REQ-018
+- **Source:** XADR-SCITADEL-008 §2; §11; §12; §13
+- **Verified by:** TEST-077
+- **Delivered by:** [vig-os/scitadel#320](https://github.com/vig-os/scitadel/issues/320), [vig-os/scitadel#319](https://github.com/vig-os/scitadel/issues/319)
+
+### SYS-058: Resumable, verified downloads
+
+Every download (bulk files, XML, open-access PDFs) shall resume by HTTP range from the bytes already on disk, with a sidecar recording URL, validators and the expected size and hash. A finished file shall be accepted only if its size and hash match what the source publishes (length, published checksum or manifest); where the source publishes none, the file is recorded with its own blake3 and size at completion and verified on every later fetch. If the validators changed, the partial is discarded and restarted. Pacing, credit and opt-out rules (SYS-055) apply to resumed requests.
+
+- **Quantified:** A killed download resumes and re-requests at most one range chunk of already verified bytes; 0 files accepted with a size or hash mismatch; 100 % of partials with changed validators restarted from zero; 0 resumed requests outside the pacing budget.
+- **Derives from:** REQ-002, REQ-007
+- **Source:** XADR-SCITADEL-008 §5; §12
+- **Verified by:** TEST-078
+- **Delivered by:** [vig-os/scitadel#315](https://github.com/vig-os/scitadel/issues/315), [vig-os/scitadel#320](https://github.com/vig-os/scitadel/issues/320)
+
+### SYS-059: Canonical-first product write and copy verification
+
+A sealed product shall be written to `scitadel-hub-keep` first and to the hot `products` subvolume second: each shard goes to keep under a new key (create only) and is read back and verified by size and blake3; only then is it copied to `products` under a temporary name, verified again and renamed. Writing a shard never moves `current`. At start the hub reconciles `products` against the keep listing, keep winning, and removes hot files that keep does not hold verified.
+
+- **Quantified:** 0 shards in `products` that are not present and verified in `keep`; 100 % of copies verified by hash; a kill at any point between the two writes leaves at most an unreferenced keep object or a temporary hot file, swept by the next run; a flipped byte in either copy is detected in 100 % of attempts.
+- **Derives from:** REQ-007, REQ-018
+- **Source:** XADR-SCITADEL-008 §2; §8
+- **Verified by:** TEST-079
+- **Delivered by:** [vig-os/scitadel#320](https://github.com/vig-os/scitadel/issues/320)
+
+### SYS-060: Promotion after QC, atomic switch and rollback
+
+A candidate generation (base or delta) shall be promoted only after its QC gate passes (golden-set diff, QC pass rate, row counts against `coverage`, licence audit), by one atomic switch of the `current` pointer: first in `keep`, then the hot pointer by atomic rename, so a reader sees the old or the new generation and never a mix. The previous generation shall stay for at least 7 days after promotion, and rollback is a logged run that re-points `current` to it. A failed QC leaves `current` untouched. This builds on the compaction and pointer rules of SYS-005 and the retention of SYS-017.
+
+- **Quantified:** 0 promotions without a passing QC record; 0 mixed-generation reads in 100,000 reads taken during a switch; a kill during the switch leaves the old or the new `current`, never none; rollback ≤ 5 min *(estimate)* and golden-query results identical to the previous generation.
+- **Derives from:** REQ-002, REQ-006, REQ-018
+- **Source:** XADR-SCITADEL-008 §2; §13
+- **Verified by:** TEST-080
+- **Delivered by:** [vig-os/scitadel#320](https://github.com/vig-os/scitadel/issues/320), [vig-os/scitadel#321](https://github.com/vig-os/scitadel/issues/321)
+
+### SYS-061: Crash-resume of a run
+
+A run shall be a sequence of idempotent steps, each recorded in the ledger as started and completed with the hashes of its outputs. After a crash, a kill or a restart the orchestrator shall resume at the first incomplete step, skip completed steps whose recorded outputs still verify, redo the rest and discard partial outputs. A resume shall not double-count credits or budget spend, and a run that stops at a quota (SYS-014) shall be resumable once space exists.
+
+- **Quantified:** A kill at every step boundary and mid-step of a fixture run gives final output hashes identical to an uninterrupted run; 0 duplicated credit or budget spend; 0 orphan files after the cleanup sweep; a resumed GPU run repeats ≤ 600 s of work.
+- **Derives from:** REQ-002, REQ-018
+- **Source:** XADR-SCITADEL-008 §2; §8; §10
+- **Verified by:** TEST-081
+- **Delivered by:** [vig-os/scitadel#320](https://github.com/vig-os/scitadel/issues/320), [vig-os/scitadel#319](https://github.com/vig-os/scitadel/issues/319)
+
+### SYS-062: GPU output acceptance
+
+The hub shall accept the output of a GPU job only after it has checked, in this order: the ledger holds the job id, the run id, the expected `out/<run-id>/` directory and the input hashes recorded at submission; the job wrote a manifest listing every file with size and blake3, the input hashes it read, the model and version and its job id; at the job's terminal state the hub, not the job, hashed every file and recorded the hashes in the ledger; the hub copied the files to its private staging and verified the copy against both the job-end hashes and the manifest. An extra file, a missing manifest, a mismatched hash, an unknown job id or a modification after the job ended is quarantined. Output hashes cannot be known in advance, so this detects accidents, mix-ups between runs and modification after the job ended; it does not make a compromised job trustworthy, whose content is judged by QC (SYS-007). Until `gerchowl/g-fleet#1402` makes `/srv/anvil` read-only for vm-dev, any agent there can write to `gpu-io`, which is why the check is against job-end hashes and not against file permissions.
+
+- **Quantified:** 0 outputs promoted without a manifest that matches the ledger; 100 % of modifications after job end rejected; 0 writes outside `out/<run-id>/`; 100 % of promoted outputs verified from the hub's private copy, not from `gpu-io`.
+- **Derives from:** REQ-007, REQ-019
+- **Source:** XADR-SCITADEL-008 §8; `gerchowl/g-fleet#654`; `gerchowl/g-fleet#1402`
+- **Verified by:** TEST-082
+- **Delivered by:** `gerchowl/g-fleet#654`, `gerchowl/g-fleet#1402`
+
+### SYS-063: Explicit corpus slice transfer to ksb
+
+Corpus data shall reach the ksb batch host only by an explicit transfer of a named, versioned slice (`ksb-slice-<id>`: a manifest of paths, sizes and hashes plus the files) built by the hub from the stage-0 slice, verified against the manifest on arrival, read-only on ksb, limited to CC0, CC-BY and public-domain content, and deleted when the task ends. Tests that name the stage-0 corpus on ksb mean this slice.
+
+- **Quantified:** 0 files on ksb that are not in a manifest; 100 % of transferred files verified by hash; a flipped byte detected in 100 % of attempts; slice ≤ 250 GiB *(estimate)*, ksb capacity confirmed before the first transfer.
+- **Derives from:** REQ-018
+- **Source:** `gerchowl/g-fleet#654`; g-fleet docs/ksb-compute.md
+- **Verified by:** TEST-083
+- **Delivered by:** `gerchowl/g-fleet#654`
+
+## Image processing from kept originals
+
+### SYS-064: Page renders and region crops from kept originals
+
+The hub shall render pages and crop regions on demand from the kept originals (SYS-014), keyed by input hash, page, bounding box and renderer version, so that a report on an element (US-006) is shown against its source region and the element is re-extracted from that region. Renders and crops are derived and rebuildable: they live in a size-bounded, evictable cache in `staging/renders` on the hot tier, never on the warm tier, and only the crop attached to a confirmed report is kept, as a red fixture in `scitadel-hub-keep`. A crop is a licence-gated derived image: it carries the licence class and provenance of its work, is served only where that class allows, one crop per request addressed by element, never as a listing and never as a PDF.
+
+- **Quantified:** A crop is produced ≤ 2 s p95 from a kept PDF *(estimate)*; 100 % of crops carry licence class, input hash and renderer version; 0 crops served for a class the caller may not see; 0 PDF bytes in any crop response; cache eviction touches 0 raw inputs or intermediates.
+- **Derives from:** REQ-006, REQ-008
+- **Source:** XADR-SCITADEL-008 §12 (raw retention, image processing); H12 `vig-os/scitadel#324`
+- **Verified by:** TEST-084
+- **Delivered by:** [vig-os/scitadel#324](https://github.com/vig-os/scitadel/issues/324)
+
+### SYS-065: Image embeddings of figures and page regions
+
+Figures and page regions shall be embedded with Qwen3-VL-Embedding as chunked GPU jobs under SYS-048, SYS-049 and SYS-062, from the stored figures and the kept originals, into a model-versioned embeddings product beside the shards. Each product records the model id, revision, dimension and truncation, and the executor is named by a service definition (SYS-067). The dimension (a Matryoshka truncation, 512 by default) is chosen on the golden set.
+
+- **Quantified:** 100 % of image-embedding products record model, revision, dimension, truncation and definition hash; recall@10 at the chosen dimension within 2 points of the full dimension on the golden image queries *(estimate)*; 100 % of jobs meet SYS-048; throughput measured on a 200,000-figure sample before the full run is scheduled.
+- **Derives from:** REQ-003, REQ-019
+- **Source:** XADR-SCITADEL-008 §9; §12; §15
+- **Verified by:** TEST-085
+- **Delivered by:** [vig-os/scitadel#311](https://github.com/vig-os/scitadel/issues/311), [vig-os/scitadel#314](https://github.com/vig-os/scitadel/issues/314)
+
+### SYS-066: Vision tiers re-run on demand from stored inputs
+
+Any vision tier (T1 OCR and layout, T2 math OCR, T3, T4) shall be re-runnable on a chosen element, work or batch from the stored inputs and intermediates alone: no upstream fetch, no re-run of an earlier tier whose output is kept. A re-run writes new intermediates keyed by input hash, tool, model, version and definition hash and leaves the old ones intact. Products derived from them go through the golden-set diff (SYS-007) and promotion (SYS-060), and T3 and T4 re-runs keep the budget caps and licence gates of SYS-006.
+
+- **Quantified:** 0 upstream fetches in a re-run; 100 % of new intermediates keyed with tool, model, version and definition hash; old intermediates unchanged (hash compare) in 100 % of re-runs; 0 T4 calls for content outside CC-BY, CC0 and public domain.
+- **Derives from:** REQ-006, REQ-007
+- **Source:** XADR-SCITADEL-008 §10; §12; §13
+- **Verified by:** TEST-086
+- **Delivered by:** [vig-os/scitadel#319](https://github.com/vig-os/scitadel/issues/319), [vig-os/scitadel#324](https://github.com/vig-os/scitadel/issues/324)
+
+## Service registry
+
+### SYS-067: Service registry
+
+Every extraction tier and job kind (T1 to T4, embedding, figure description, rerank, re-embedding) shall run through a service definition held in a versioned, content-hashed service registry, which is configuration and not code. A definition names the tier or job kind; the executor (a `gpu_submit` queue on anvil, sage, the Opus API or a CPU pool) with its limits (declared VRAM, maximum runtime, priority, chunk size); the model (id, revision, quantization, weights hash) and the runtime with its version; the budget cap; the escalation target; and the licence classes it may process. A definition is immutable: a change is a new version with a new hash, and every version stays resolvable from the hash in `scitadel-hub-keep`. The registry shall refuse a definition that is incomplete, that has a gpu_submit executor without declared VRAM and low priority (SYS-048), that has a T3 or T4 tier without a budget cap, that lets T4 process a class outside CC-BY, CC0 and public domain, or whose escalation targets form a cycle. The stage-0 definition of T3 targets the shared 5090 through `gpu_submit`, so page images stay local. The same registry backs the `capabilities` response.
+
+- **Quantified:** 100 % of definitions carry all nine fields and a hash; 0 invalid definitions accepted in a negative suite of ≥ 8 cases; 100 % of tiers resolve to exactly one active definition; the job's weights hash equals the definition's in 100 % of runs.
+- **Derives from:** REQ-006, REQ-007, REQ-019
+- **Source:** XADR-SCITADEL-008 §10 (service definitions); §14
+- **Verified by:** TEST-087
+- **Delivered by:** [vig-os/scitadel#319](https://github.com/vig-os/scitadel/issues/319), [vig-os/scitadel#321](https://github.com/vig-os/scitadel/issues/321)
+
+### SYS-068: Definition hash in the run ledger and in every row's provenance
+
+The run ledger (SYS-057) shall record the hash of each service definition a run used at each step, and every output row's provenance (`prov_id`, tessera#782) shall carry the hash of the definition that produced it, so that "which model on which executor produced this value" is answerable per row. A step shall not start, and a row shall not be written, without a resolvable definition hash.
+
+- **Quantified:** 100 % of ledger steps and 100 % of output rows carry a definition hash; 100 % of hashes resolve to a stored definition; 0 rows written without a hash; the per-row answer matches the ledger for 1,000 sampled rows.
+- **Derives from:** REQ-007
+- **Source:** XADR-SCITADEL-008 §10; §11
+- **Verified by:** TEST-088
+- **Delivered by:** [vig-os/scitadel#319](https://github.com/vig-os/scitadel/issues/319), [vig-os/scitadel#321](https://github.com/vig-os/scitadel/issues/321)
+
+### SYS-069: Re-derive by definition hash; executor change is configuration
+
+A re-derive shall be selectable by definition hash ("everything produced by definition X"), using the ledger and the per-row provenance, and shall run as an ordinary run under SYS-057 with the golden-set diff of SYS-007 before promotion. Changing the executor of a tier, for instance T3 from the 5090 to sage, shall be a new definition version with no code change: the code shall name no host and no model, and old rows keep the old definition hash.
+
+- **Quantified:** The selection returns exactly the rows whose provenance names the hash (set equality against the ledger); moving a tier between two executors in a fixture changes 0 lines of code and the new rows carry the new hash while the old rows keep the old one; 0 host or model names in the code outside the registry (grep).
+- **Derives from:** REQ-006, REQ-007, REQ-018
+- **Source:** XADR-SCITADEL-008 §10 (service definitions); §13
+- **Verified by:** TEST-089
+- **Delivered by:** [vig-os/scitadel#319](https://github.com/vig-os/scitadel/issues/319), [vig-os/scitadel#321](https://github.com/vig-os/scitadel/issues/321)
+
+### SYS-070: Sage overflow data path (only if an overflow definition targets sage)
+
+This requirement applies only if an enabled service definition targets sage as an overflow executor, for instance for a model that does not fit in the 5090's 32 GB. Then the hand-off payload shall be fetched by a T3-worker role with short-lived credentials from its own prefix of `scitadel-hub-runs`, the result shall be written back under that prefix with a manifest and accepted under the rules of SYS-062, only the licence classes the definition allows shall be sent, and nothing shall remain on sage after the result is accepted. With no such definition enabled, no credential for sage exists and no data goes to sage.
+
+- **Quantified:** 0 credentials issued and 0 transfers to sage while no enabled definition names sage (audit); with one, 100 % of results accepted under SYS-062, 0 cross-prefix reads, 0 files left on sage after acceptance.
+- **Derives from:** REQ-006, REQ-008, REQ-018
+- **Source:** XADR-SCITADEL-008 §10
+- **Verified by:** TEST-090
+- **Delivered by:** [vig-os/scitadel#319](https://github.com/vig-os/scitadel/issues/319)

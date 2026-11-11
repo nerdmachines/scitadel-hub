@@ -954,7 +954,7 @@
     {
       "id": "SYS-014",
       "kind": "SYS",
-      "title": "Content-addressed artefact store",
+      "title": "Raw and intermediate store: keep everything",
       "status": "proposed",
       "source": "vig-os/scitadel ADR-008 §12 (https://github.com/vig-os/scitadel/pull/317)"
     },
@@ -1241,7 +1241,7 @@
     {
       "id": "SYS-055",
       "kind": "SYS",
-      "title": "TDM opt-out honoured on every re-ingest",
+      "title": "TDM opt-out honoured on every ingest",
       "status": "proposed",
       "source": "vig-os/scitadel ADR-008 §12; §15 (https://github.com/vig-os/scitadel/pull/317)"
     },
@@ -1359,7 +1359,7 @@
     {
       "id": "TEST-034",
       "kind": "TEST",
-      "title": "System: Content-addressed artefact store; method: ingest an open-access PDF fixture and a TEI fixture: assert the PDF is deleted after ingest with hash, URL and date kept, a corrupted re-fetch is rejected, and no artefact route returns PDF bytes",
+      "title": "System: Raw and intermediate store: keep everything; method: ingest an open-access PDF and a TEI fixture through T1 to T3, assert every raw input and tier output is stored by hash, fill the stage-0 raw budget so ingest pauses without deleting, refuse a hand-drop without a recorded hash, and check gpu-io/in and the hand-off prefix are empty after acceptance",
       "status": "proposed",
       "source": "vig-os/scitadel#318 system",
       "test_kind": "system"
@@ -1687,7 +1687,7 @@
     {
       "id": "TEST-075",
       "kind": "TEST",
-      "title": "System: TDM opt-out honoured on every re-ingest; method: opt-out fixtures for each of the four mechanisms; replay where an opt-out appears between two ingests",
+      "title": "System: TDM opt-out honoured on every ingest; method: opt-out fixtures for each of the four mechanisms present at the first ingest of a source, and a late opt-out between two ingests",
       "status": "proposed",
       "source": "vig-os/scitadel#330 system",
       "test_kind": "system"
@@ -1698,6 +1698,216 @@
       "title": "System: Release hygiene; method: release-checklist automation on a candidate build: SPDX and file presence, NOTICE and SBOM generation, allowlist check and a layer scan for weight files",
       "status": "proposed",
       "source": "vig-os/scitadel#333 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-057",
+      "kind": "SYS",
+      "title": "ETL run orchestrator and run ledger",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2; §11; §12; §13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-077",
+      "kind": "TEST",
+      "title": "System: ETL run orchestrator and run ledger; method: fixture ingest: assert a run record exists before step 1 and pins every input, the slice manifest and the definition hashes; start runs with an unpinned input and with a changed upstream hash; re-run a CPU run from its record and diff the output hashes",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-058",
+      "kind": "SYS",
+      "title": "Resumable, verified downloads",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §5; §12 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-078",
+      "kind": "TEST",
+      "title": "System: Resumable, verified downloads; method: local HTTP server with range support and a published checksum: kill the downloader at 10 %, 50 % and 99 %, resume, corrupt the tail, change the ETag between attempts, and serve a source with no checksum",
+      "status": "proposed",
+      "source": "vig-os/scitadel#315 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-059",
+      "kind": "SYS",
+      "title": "Canonical-first product write and copy verification",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2; §8 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-079",
+      "kind": "TEST",
+      "title": "System: Canonical-first product write and copy verification; method: kill the product write between the keep write, the keep verification, the hot copy and the hot rename; flip a byte in the keep copy and in the hot copy; restart and let the hub reconcile; trace the write order in the ledger",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-060",
+      "kind": "SYS",
+      "title": "Promotion after QC, atomic switch and rollback",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2; §13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-080",
+      "kind": "TEST",
+      "title": "System: Promotion after QC, atomic switch and rollback; method: qC pass and fail fixtures; 100,000 concurrent reads while `current` switches; kill during the switch; roll back after promotion and compare golden queries; attempt retention of the previous generation inside the 7-day soak",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-061",
+      "kind": "SYS",
+      "title": "Crash-resume of a run",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2; §8; §10 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-081",
+      "kind": "TEST",
+      "title": "System: Crash-resume of a run; method: kill a fixture run at every step boundary and mid-step, and kill a 2-chunk GPU run between chunks; resume; compare output hashes, credit and budget counters and orphan files with an uninterrupted run; stop at a full quota and resume after space is added",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-062",
+      "kind": "SYS",
+      "title": "GPU output acceptance",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8; `gerchowl/g-fleet#654`; `gerchowl/g-fleet#1402` (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-082",
+      "kind": "TEST",
+      "title": "System: GPU output acceptance; method: six jobs: a valid one, a manifest that does not match the files, a missing manifest, an extra file, a job id not in the ledger, and a file modified by a second process after the job ended (also during the hub's copy); run the acceptance step on each",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#654 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-063",
+      "kind": "SYS",
+      "title": "Explicit corpus slice transfer to ksb",
+      "status": "proposed",
+      "source": "vig-os/scitadel `gerchowl/g-fleet#654`; g-fleet docs/ksb-compute.md (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-083",
+      "kind": "TEST",
+      "title": "System: Explicit corpus slice transfer to ksb; method: build a slice, transfer it to ksb, list the files on ksb against the manifest, flip a byte in transit, include a CC-BY-NC fixture row, and end the task",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#654 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-064",
+      "kind": "SYS",
+      "title": "Page renders and region crops from kept originals",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §12 (raw retention, image processing); H12 `vig-os/scitadel#324` (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-084",
+      "kind": "TEST",
+      "title": "System: Page renders and region crops from kept originals; method: render a page and crop a region from a kept PDF fixture; request crops for permitted and non-permitted licence classes; attempt a listing of crops and a page-scale PDF request; fill the render cache past its bound; attach a crop to a confirmed report",
+      "status": "proposed",
+      "source": "vig-os/scitadel#324 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-065",
+      "kind": "SYS",
+      "title": "Image embeddings of figures and page regions",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §9; §12; §15 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-085",
+      "kind": "TEST",
+      "title": "System: Image embeddings of figures and page regions; method: embed a 200,000-figure sample as chunked GPU jobs at 512 and at full dimension; compare recall@10 on the golden image queries; read the product metadata; read throughput from the job logs",
+      "status": "proposed",
+      "source": "vig-os/scitadel#311 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-066",
+      "kind": "SYS",
+      "title": "Vision tiers re-run on demand from stored inputs",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §10; §12; §13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-086",
+      "kind": "TEST",
+      "title": "System: Vision tiers re-run on demand from stored inputs; method: re-run T1, T2, T3 and T4 on a chosen element and on a batch of a kept fixture with the network disabled; hash the old intermediates before and after; request T4 for a non-permitted class",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-067",
+      "kind": "SYS",
+      "title": "Service registry",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §10 (service definitions); §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-087",
+      "kind": "TEST",
+      "title": "System: Service registry; method: negative suite of at least 8 definitions: a missing field, a gpu_submit executor without VRAM, normal priority, a T3 and a T4 without a budget cap, T4 with a non-permitted class, an escalation cycle, a model without weights hash; then run a job whose weights differ from the definition's hash; resolve every historical definition hash from `keep`",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-068",
+      "kind": "SYS",
+      "title": "Definition hash in the run ledger and in every row's provenance",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §10; §11 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-088",
+      "kind": "TEST",
+      "title": "System: Definition hash in the run ledger and in every row's provenance; method: run a fixture cascade through three definitions; read the ledger and sample 1,000 output rows; try to start a step and to write a row with a missing or unknown definition hash",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-069",
+      "kind": "SYS",
+      "title": "Re-derive by definition hash; executor change is configuration",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §10 (service definitions); §13 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-089",
+      "kind": "TEST",
+      "title": "System: Re-derive by definition hash; executor change is configuration; method: select \"everything produced by definition X\" on a fixture and compare with the ledger; change T3's executor between two fixture definitions with no code change, re-derive, and grep the code for host and model names",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-070",
+      "kind": "SYS",
+      "title": "Sage overflow data path (only if an overflow definition targets sage)",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §10 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "TEST-090",
+      "kind": "TEST",
+      "title": "System: Sage overflow data path (only if an overflow definition targets sage); method: with no sage definition enabled, audit credentials and connections; with an overflow definition enabled in a fixture, fetch a payload as the T3 worker, attempt a cross-prefix read, return a result with a bad manifest and a good one, and list sage after acceptance",
+      "status": "proposed",
+      "source": "vig-os/scitadel#319 system",
       "test_kind": "system"
     }
   ]

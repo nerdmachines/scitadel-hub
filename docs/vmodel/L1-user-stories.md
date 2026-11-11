@@ -88,6 +88,7 @@ As a lab member, I want to flag a wrong table, equation or reading order on the 
 Acceptance:
 
 - A report is attached to one element and carries the work, the element and the extractor version.
+- A report on an element is shown against its source region (a licence-gated crop rendered from the kept original) and the element can be re-extracted from that region.
 - A confirmed report becomes a red fixture in the golden set and the fixed case stays in it.
 - Reports on licensed content go to the private tracker, public ones to the public tracker.
 

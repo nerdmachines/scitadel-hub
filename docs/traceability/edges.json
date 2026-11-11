@@ -2794,6 +2794,421 @@
       "from": "TEST-076",
       "to": "vig-os/scitadel#333",
       "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-002",
+      "to": "SYS-057",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-007",
+      "to": "SYS-057",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-018",
+      "to": "SYS-057",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-057",
+      "to": "TEST-077",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-057",
+      "to": "vig-os/scitadel#320",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-057",
+      "to": "vig-os/scitadel#319",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-077",
+      "to": "vig-os/scitadel#320",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-002",
+      "to": "SYS-058",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-007",
+      "to": "SYS-058",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-058",
+      "to": "TEST-078",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-058",
+      "to": "vig-os/scitadel#315",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-058",
+      "to": "vig-os/scitadel#320",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-078",
+      "to": "vig-os/scitadel#315",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-007",
+      "to": "SYS-059",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-018",
+      "to": "SYS-059",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-059",
+      "to": "TEST-079",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-059",
+      "to": "vig-os/scitadel#320",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-079",
+      "to": "vig-os/scitadel#320",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-002",
+      "to": "SYS-060",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-006",
+      "to": "SYS-060",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-018",
+      "to": "SYS-060",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-060",
+      "to": "TEST-080",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-060",
+      "to": "vig-os/scitadel#320",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-060",
+      "to": "vig-os/scitadel#321",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-080",
+      "to": "vig-os/scitadel#320",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-002",
+      "to": "SYS-061",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-018",
+      "to": "SYS-061",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-061",
+      "to": "TEST-081",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-061",
+      "to": "vig-os/scitadel#320",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-061",
+      "to": "vig-os/scitadel#319",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-081",
+      "to": "vig-os/scitadel#320",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-007",
+      "to": "SYS-062",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-019",
+      "to": "SYS-062",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-062",
+      "to": "TEST-082",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-062",
+      "to": "gerchowl/g-fleet#654",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-062",
+      "to": "gerchowl/g-fleet#1402",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-082",
+      "to": "gerchowl/g-fleet#654",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-018",
+      "to": "SYS-063",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-063",
+      "to": "TEST-083",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-063",
+      "to": "gerchowl/g-fleet#654",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-083",
+      "to": "gerchowl/g-fleet#654",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-006",
+      "to": "SYS-064",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-008",
+      "to": "SYS-064",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-064",
+      "to": "TEST-084",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-064",
+      "to": "vig-os/scitadel#324",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-084",
+      "to": "vig-os/scitadel#324",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-003",
+      "to": "SYS-065",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-019",
+      "to": "SYS-065",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-065",
+      "to": "TEST-085",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-065",
+      "to": "vig-os/scitadel#311",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-065",
+      "to": "vig-os/scitadel#314",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-085",
+      "to": "vig-os/scitadel#311",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-006",
+      "to": "SYS-066",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-007",
+      "to": "SYS-066",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-066",
+      "to": "TEST-086",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-066",
+      "to": "vig-os/scitadel#319",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-066",
+      "to": "vig-os/scitadel#324",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-086",
+      "to": "vig-os/scitadel#319",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-006",
+      "to": "SYS-067",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-007",
+      "to": "SYS-067",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-019",
+      "to": "SYS-067",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-067",
+      "to": "TEST-087",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-067",
+      "to": "vig-os/scitadel#319",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-067",
+      "to": "vig-os/scitadel#321",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-087",
+      "to": "vig-os/scitadel#319",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-007",
+      "to": "SYS-068",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-068",
+      "to": "TEST-088",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-068",
+      "to": "vig-os/scitadel#319",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-068",
+      "to": "vig-os/scitadel#321",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-088",
+      "to": "vig-os/scitadel#319",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-006",
+      "to": "SYS-069",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-007",
+      "to": "SYS-069",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-018",
+      "to": "SYS-069",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-069",
+      "to": "TEST-089",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-069",
+      "to": "vig-os/scitadel#319",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-069",
+      "to": "vig-os/scitadel#321",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-089",
+      "to": "vig-os/scitadel#319",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-006",
+      "to": "SYS-070",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-008",
+      "to": "SYS-070",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-018",
+      "to": "SYS-070",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-070",
+      "to": "TEST-090",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-070",
+      "to": "vig-os/scitadel#319",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-090",
+      "to": "vig-os/scitadel#319",
+      "kind": "delivered_by"
     }
   ]
 }
