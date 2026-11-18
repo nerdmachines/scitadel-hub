@@ -25,7 +25,7 @@ As an individual researcher (offline), I want to search a detached subset of my 
 
 Acceptance:
 
-- A detached subset with its own indexes answers BM25, vector and hybrid queries with the network disabled.
+- A detached subset with its own indexes answers BM25 and keyword queries, with filters and neighbours, with the network disabled; the client ships no embedding model, so vector and hybrid queries on query text need the hub (D-009).
 - The result reports `answered_by: local-subset:<id>`, which names the subset.
 - A query outside the subset is routed to the hub when one is reachable, and is reported as not covered when not.
 
@@ -218,17 +218,18 @@ Acceptance:
 - Each record carries its licence class and the attribution the licence requires.
 - Every text field arrives wrapped as untrusted content.
 
-### US-017: Send query vectors safely
+### US-017: Read the embedding contract and send text
 
-As an agent builder (MCP), I want to read the hub's capabilities and send a query vector tagged with its model, version and dimensions, so that a model upgrade never silently degrades my recall.
+As an agent builder (MCP), I want to read the embedding contract from the hub's capabilities and send query text only, so that a model upgrade never silently degrades my recall and I never need an embedding model of my own.
 
 *Story of:* REQ-004. *Delivered by:* [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316).
 
 Acceptance:
 
-- `capabilities` lists, per index, the model id, version, dimensions, Matryoshka truncation, analyzer and rerankers.
-- A vector with a mismatched model, version or dimension is rejected with an explicit protocol error.
-- Sending text instead makes the hub embed it, and the response says so.
+- `capabilities` lists, per index, the model id, version, dimensions, Matryoshka truncation, the hash of the query-embedding definition, analyzer and rerankers.
+- Sending text makes the hub embed it with the definition that embedded the index, and the response provenance carries the definition's hash.
+- If the index generation's embedding definition does not match, the vector leg is refused with an explicit protocol error and no vectors are mixed.
+- A request carrying a query vector is rejected with an explicit protocol error.
 
 ### US-018: Implement the protocol myself
 

@@ -148,6 +148,13 @@
       "source": "vig-os/scitadel ADR-008 §1 (repository table and creation note) (https://github.com/vig-os/scitadel/pull/317)"
     },
     {
+      "id": "D-009",
+      "kind": "D",
+      "title": "Query embeddings are computed hub-side (2026-11-18)",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 (owner decision, comment of 2026-11-18)"
+    },
+    {
       "id": "REQ-001",
       "kind": "REQ",
       "title": "Licence-clean corpus scope",
@@ -173,7 +180,7 @@
       "kind": "REQ",
       "title": "Query-embedding contract",
       "status": "proposed",
-      "source": "vig-os/scitadel ADR-008 §7; §14 (https://github.com/vig-os/scitadel/pull/317); vig-os/scitadel#316"
+      "source": "vig-os/scitadel ADR-008 §7; §14 (https://github.com/vig-os/scitadel/pull/317); vig-os/scitadel#316 (owner decision, 2026-11-18)"
     },
     {
       "id": "REQ-005",
@@ -402,7 +409,7 @@
     {
       "id": "US-017",
       "kind": "US",
-      "title": "Send query vectors safely",
+      "title": "Read the embedding contract and send text",
       "status": "proposed",
       "source": "vig-os/scitadel#316"
     },
@@ -713,7 +720,7 @@
     {
       "id": "TEST-004",
       "kind": "TEST",
-      "title": "Acceptance: model mismatch is explicit; method: protocol contract tests where a vector with a wrong model id, version or dimension is rejected with the documented error, a matching vector is accepted, text input is embedded hub-side, and the capabilities response matches a recorded snapshot",
+      "title": "Acceptance: query embedding is hub-side and a mismatch is explicit; method: protocol contract tests where a text query is embedded hub-side and the response provenance carries the definition hash, an index generation whose embedding definition differs from the active one is refused for vector search with the documented error, any request carrying a query vector is rejected with the documented error, a client with no hub answers BM25 only, and the capabilities response matches a recorded snapshot",
       "status": "proposed",
       "source": "vig-os/scitadel#316 acceptance",
       "test_kind": "acceptance"
@@ -970,7 +977,7 @@
       "kind": "SYS",
       "title": "Cold tier on the Storage Box",
       "status": "proposed",
-      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1363; gerchowl/g-fleet#1438"
+      "source": "vig-os/scitadel ADR-008 §8 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1363; gerchowl/g-fleet#1438; gerchowl/g-fleet#1649"
     },
     {
       "id": "SYS-017",
@@ -1860,7 +1867,7 @@
     {
       "id": "TEST-087",
       "kind": "TEST",
-      "title": "System: Service registry; method: negative suite of at least 8 definitions: a missing field, a gpu_submit executor without VRAM, normal priority, a T3 and a T4 without a budget cap, T4 with a non-permitted class, an escalation cycle, a model without weights hash; then run a job whose weights differ from the definition's hash; resolve every historical definition hash from `keep`",
+      "title": "System: Service registry; method: negative suite of at least 9 definitions: a missing field, a gpu_submit executor without VRAM, normal priority, a T3 and a T4 without a budget cap, T4 with a non-permitted class, an escalation cycle, a model without weights hash, an embedding model without dimensions or truncation; then run a job whose weights differ from the definition's hash; resolve every historical definition hash from `keep`",
       "status": "proposed",
       "source": "vig-os/scitadel#319 system",
       "test_kind": "system"
@@ -1938,6 +1945,21 @@
       "title": "System: The off-anvil copy gates keep-everything; method: gate-logic tests for corpus ingest without a backup, a raw-writing run with a 49-hour-old backup and a warm flip without a restore, then a restore from cold of 1,000 sampled objects plus one complete run onto a scratch volume, verified against the ledger, and an integrity check of the newest state dump",
       "status": "proposed",
       "source": "gerchowl/g-fleet#1649 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "SYS-073",
+      "kind": "SYS",
+      "title": "Compaction waits for the pin on a retired base to expire",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §2; §8 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1363 (warm snapshot policy)"
+    },
+    {
+      "id": "TEST-093",
+      "kind": "TEST",
+      "title": "System: Compaction waits for the pin on a retired base to expire; method: scheduler logic with an injected clock and a simulated snapshot schedule, a QC retry and a re-derive requested while a retired base is pinned and after its expiry, base occupancy recorded at every step, and a mutation that disables the wait which must fail the test",
+      "status": "proposed",
+      "source": "vig-os/scitadel#320 system",
       "test_kind": "system"
     }
   ]
