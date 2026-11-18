@@ -4,6 +4,8 @@ Spikes (`S`) and contradictions between sources (`C`) found while designing L3 a
 
 > **Source legend.** As in [the tessera boundary](architecture/tessera-boundary.md). The "Proposed" option is the one the design uses until the issue is settled.
 
+**Graph edges.** Each row names the design it concerns (the DES in parentheses). That link is not in the trace graph: ADR-0001's edge table allows only `delivered_by` from an `S` or `C` node (to its discussion issue), and no edge kind runs from an `S` or `C` node to a `DES`. Inventing one is not allowed, so the link lives in this table until a decision moves into the design it names.
+
 ## Spikes
 
 | ID | Question | Options | Owner | Issue |

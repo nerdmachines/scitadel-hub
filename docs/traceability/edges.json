@@ -4474,6 +4474,56 @@
       "from": "C-006",
       "to": "nerdmachines/scitadel-hub#25",
       "kind": "delivered_by"
+    },
+    {
+      "from": "DES-019",
+      "to": "TEST-116",
+      "kind": "verified_by"
+    },
+    {
+      "from": "TEST-116",
+      "to": "nerdmachines/scitadel-hub#5",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-054",
+      "to": "DES-001",
+      "kind": "realised_by"
+    },
+    {
+      "from": "SYS-073",
+      "to": "DES-001",
+      "kind": "realised_by"
+    },
+    {
+      "from": "SYS-028",
+      "to": "DES-011",
+      "kind": "realised_by"
+    },
+    {
+      "from": "SYS-052",
+      "to": "DES-011",
+      "kind": "realised_by"
+    },
+    {
+      "from": "SYS-058",
+      "to": "DES-013",
+      "kind": "realised_by"
+    },
+    {
+      "from": "SYS-055",
+      "to": "DES-014",
+      "kind": "realised_by"
+    },
+    {
+      "from": "SYS-051",
+      "to": "DES-015",
+      "kind": "realised_by"
+    },
+    {
+      "from": "SYS-071",
+      "to": "DES-006",
+      "kind": "realised_by"
     }
   ]
 }

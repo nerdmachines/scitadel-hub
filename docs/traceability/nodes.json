@@ -1965,7 +1965,7 @@
     {
       "id": "DES-001",
       "kind": "DES",
-      "title": "Tessera boundary conventions: hub-boundary traits, composition root, ErrorKind, Arrow at the boundary, ProvContext, index stamps",
+      "title": "Tessera boundary conventions: hub-boundary traits, composition root, async_trait dyn dispatch, one HubError with ErrorKind, Arrow at the boundary, capabilities minted by the authority layer, tier-typed scopes, split index stamps",
       "status": "proposed",
       "source": "docs/architecture/tessera-boundary.md §1",
       "level": "L3"
@@ -1973,7 +1973,7 @@
     {
       "id": "TEST-094",
       "kind": "TEST",
-      "title": "Integration: only hub-compose names a backend; method: cargo-metadata dependency check over the workspace and an ErrorKind mapping test per backend",
+      "title": "Integration: dependency and error-kind check plus compile-fail capability cases; method: cargo metadata over the workspace, an ErrorKind mapping test per backend and trybuild cases with pinned error codes",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
@@ -2125,7 +2125,7 @@
     {
       "id": "DES-011",
       "kind": "DES",
-      "title": "MediaColumns trait: lossless figures with a closed media-type set, PDF refused (interim: tessera blob blocks plus a figures table)",
+      "title": "Media columns: the fixed figures contract (bytes as BinaryView, media_hash, licence_class, prov_id) written and read through ProductStore and TableScan; closed media-type set, PDF refused (interim: media packs in tessera blob blocks)",
       "status": "proposed",
       "source": "docs/architecture/tessera-boundary.md §2.10",
       "level": "L3"
@@ -2133,7 +2133,7 @@
     {
       "id": "TEST-104",
       "kind": "TEST",
-      "title": "Integration: MediaColumns conformance suite; method: PNG, JPEG XL and SVG round trips and a PDF fixture that must be refused",
+      "title": "Integration: media-columns suite through ProductStore and TableScan; method: PNG, JPEG XL and SVG round trips, a PDF fixture that must be refused, a 10^5-figure shard for the block count, the figures schema on every backend",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
@@ -2141,7 +2141,7 @@
     {
       "id": "DES-012",
       "kind": "DES",
-      "title": "GenerationCatalog trait: collections, current pointer, canonical-first publication, promotion, rollback and the base-slot rule",
+      "title": "GenerationCatalog trait and BaseSlots authority: collections, current pointer, canonical-first publication tagged with run and step, promotion, rollback, and a base permit on every base path",
       "status": "proposed",
       "source": "docs/architecture/tessera-boundary.md §4.1",
       "level": "L3"
@@ -2149,7 +2149,7 @@
     {
       "id": "TEST-105",
       "kind": "TEST",
-      "title": "Integration: GenerationCatalog conformance suite; method: 100,000 reads during a switch and an injected snapshot clock for the fourth-base wait",
+      "title": "Integration: GenerationCatalog and BaseSlots suite; method: 100,000 reads during a switch, an injected snapshot clock for the fourth-base wait on every base path, two racing reservations",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
@@ -2157,7 +2157,7 @@
     {
       "id": "DES-013",
       "kind": "DES",
-      "title": "ArtefactStore trait: content-addressed raw and intermediate store, create-only, no automatic deletion",
+      "title": "ArtefactStore trait: content-addressed raw and intermediate store, create-only, source-digest index, no delete; RawDrop as the operator-only hand-drop",
       "status": "proposed",
       "source": "docs/architecture/tessera-boundary.md §4.2",
       "level": "L3"
@@ -2165,7 +2165,7 @@
     {
       "id": "TEST-106",
       "kind": "TEST",
-      "title": "Integration: ArtefactStore conformance suite; method: gateway and directory backends with create-only, intermediate, drop-refusal and quota cases",
+      "title": "Integration: ArtefactStore and RawDrop suite; method: gateway and directory backends, source-digest hits and conflicts, drop refusals",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
@@ -2173,7 +2173,7 @@
     {
       "id": "DES-014",
       "kind": "DES",
-      "title": "RunLedger trait: pinned runs, idempotent steps, resume, spend, queue and GPU job records",
+      "title": "RunLedger trait and Steps/QcGate authorities: pinned runs, idempotent steps, resume, spend, queue, QC and opt-out verdicts, GPU job records",
       "status": "proposed",
       "source": "docs/architecture/tessera-boundary.md §4.3",
       "level": "L3"
@@ -2205,7 +2205,7 @@
     {
       "id": "DES-016",
       "kind": "DES",
-      "title": "QueryEmbedder trait: hub-side query embedding as a service-registry consumer, refusing mismatched definitions",
+      "title": "QueryEmbedder authority over EmbeddingRuntimes: hub-side query embedding as a service-registry consumer, matching on embedding-space identity, refusing mismatches",
       "status": "proposed",
       "source": "docs/architecture/tessera-boundary.md §4.5",
       "level": "L3"
@@ -2213,7 +2213,7 @@
     {
       "id": "TEST-109",
       "kind": "TEST",
-      "title": "Integration: QueryEmbedder conformance suite; method: a deterministic fake runtime with two definitions, mismatch, timeout and provenance cases",
+      "title": "Integration: QueryEmbedder suite; method: a deterministic fake runtime with two spaces and two definitions of one space, per-field space mismatch, timeout and provenance cases",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
@@ -2310,6 +2310,14 @@
       "id": "TEST-115",
       "kind": "TEST",
       "title": "Integration: GPU job exchange; method: a 50-item chunk through gpu_submit on anvil-gpu with a fake model, then the tampering cases of SYS-062",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (adapters-and-pool.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-116",
+      "kind": "TEST",
+      "title": "Integration: download pool resume without a strong validator; method: a fault-injecting server that changes the file between kill and resume, with no validator, weak validators, 200 on a range request and a published digest",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (adapters-and-pool.md)",
       "test_kind": "integration"
