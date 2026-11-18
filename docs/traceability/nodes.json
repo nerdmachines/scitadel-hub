@@ -1961,6 +1961,436 @@
       "status": "proposed",
       "source": "vig-os/scitadel#320 system",
       "test_kind": "system"
+    },
+    {
+      "id": "DES-001",
+      "kind": "DES",
+      "title": "Tessera boundary conventions: hub-boundary traits, composition root, async_trait dyn dispatch, one HubError with ErrorKind, Arrow at the boundary, capabilities minted by authorities reachable only through a feature-gated compose over hash-chained records, tier-typed scopes, index stamps carrying tier and opt-out exclusion digest",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §1",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-094",
+      "kind": "TEST",
+      "title": "Integration: workspace check (backend dependents; who requests and who reaches the composition-root and backend-impl features, through any dependency; no dependency on hub-compose; every other crate builds alone with all its targets), error-kind mapping, compile-fail capability cases and the authority suite over faulty stores; method: cargo metadata, cargo tree -e features -i hub-boundary --all-features --target all --no-dedupe and cargo check -p --all-targets per crate, an ErrorKind mapping test per backend, trybuild cases with pinned error codes, mutant stores",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-002",
+      "kind": "DES",
+      "title": "ProductStore trait: write, seal, open and verify .tsra products (interim: tessera writer, reader and verify)",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §2.1",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-095",
+      "kind": "TEST",
+      "title": "Integration: ProductStore conformance suite; method: the named cases of tessera-boundary section 5 against the tessera backend, bit-exact round trip",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-003",
+      "kind": "DES",
+      "title": "TableScan trait: blocks as streaming DataFusion TableProviders (interim: hub provider over tessera leaves)",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §2.2",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-096",
+      "kind": "TEST",
+      "title": "Integration: TableScan conformance suite; method: interim backend against a MemTable reference, row-for-row comparison and a peak-memory bound",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-004",
+      "kind": "DES",
+      "title": "KeyedRefs trait: declared keys and keyed references (interim: hub declaration and key index)",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §2.3",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-097",
+      "kind": "TEST",
+      "title": "Integration: KeyedRefs conformance suite; method: resolve, duplicate, superseded and dangling-reference cases, and held_paid_stamp_after_cycle_flip_is_stale on the fixture generation",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-005",
+      "kind": "DES",
+      "title": "DeltaStore trait: keyed deltas, newest-wins reads and compaction behind a BaseBuildPermit (interim: hub delta layout)",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §2.4",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-098",
+      "kind": "TEST",
+      "title": "Integration: DeltaStore conformance suite; method: base plus three deltas fixture, a kill at every compaction step and a trybuild case for compaction without a permit",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-006",
+      "kind": "DES",
+      "title": "VectorIndex trait: exact scan and IVF-flat, model-matched query vectors (interim: vectors in .tsra blob blocks)",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §2.5",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-099",
+      "kind": "TEST",
+      "title": "Integration: VectorIndex conformance suite; method: exact scan against brute force, ANN recall@10 on fixtures, mixed-definition refusal, held_paid_stamp_after_cycle_flip_is_stale, ksb timing on the SYS-063 slice",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-007",
+      "kind": "DES",
+      "title": "TextIndex trait: BM25 with analyzer-stamped indexes and a bm25 table function (interim: tantivy direct)",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §2.6",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-100",
+      "kind": "TEST",
+      "title": "Integration: TextIndex conformance suite; method: score comparison against the reference backend, delta refresh and stale-stamp cases including held_paid_stamp_after_cycle_flip_is_stale and refresh_after_cycle_flip_is_stale, ksb timing on the slice",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-008",
+      "kind": "DES",
+      "title": "GraphIndex trait: typed edge tables and CSR adjacency, no graph database (interim: Arrow CSR cache)",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §2.7",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-101",
+      "kind": "TEST",
+      "title": "Integration: GraphIndex conformance suite; method: depth-1 and depth-2 neighbours by kind and direction on fixture edge tables, held_paid_stamp_after_cycle_flip_is_stale, ksb timing on the slice",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-009",
+      "kind": "DES",
+      "title": "ProvenanceSink trait: pipeline steps, per-row prov_id and external artefacts (interim: tessera Source and Producer plus hub row provenance)",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §2.8",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-102",
+      "kind": "TEST",
+      "title": "Integration: ProvenanceSink conformance suite; method: a 1,000-row sample traced to seal, raw hash and URL, and selection by definition hash compared with the ledger",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-010",
+      "kind": "DES",
+      "title": "RemoteRead trait: open and verify products in object storage (interim: tessera open_url plus hub full-read verify)",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §2.9",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-103",
+      "kind": "TEST",
+      "title": "Integration: RemoteRead conformance suite; method: open and verify against a local S3 gateway in CI with a flipped-byte object",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-011",
+      "kind": "DES",
+      "title": "Media columns: the fixed figures contract (bytes as BinaryView, media_hash, licence_class, prov_id) written and read through ProductStore and TableScan; closed media-type set, PDF refused (interim: media packs in tessera blob blocks)",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §2.10",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-104",
+      "kind": "TEST",
+      "title": "Integration: media-columns suite through ProductStore (push, ProductHandle blocks and schema) and TableScan; method: PNG, JPEG XL and SVG round trips, a PDF fixture refused through put and as a hand-built push batch, a 10^5-figure shard for the block count, the figures contract on every backend",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-012",
+      "kind": "DES",
+      "title": "GenerationCatalog trait and BaseSlots authority: collections, current pointer, canonical-first publication tagged with run and step, promotion, rollback, and a base permit on every base path",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §4.1",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-105",
+      "kind": "TEST",
+      "title": "Integration: GenerationCatalog and BaseSlots suite; method: 100,000 reads during a switch, an injected snapshot clock for the fourth-base wait on every base path, two racing reservations",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-013",
+      "kind": "DES",
+      "title": "ArtefactStore trait: content-addressed raw and intermediate store, create-only, source-digest index, no delete; RawDrop as the operator-only hand-drop",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §4.2",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-106",
+      "kind": "TEST",
+      "title": "Integration: ArtefactStore and RawDrop suite; method: gateway and directory backends, source-digest hits and conflicts, drop refusals",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-014",
+      "kind": "DES",
+      "title": "RunLedger trait and Steps/QcGate authorities: pinned runs, idempotent steps, resume, spend, queue, QC and opt-out verdicts, GPU job records",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §4.3",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-107",
+      "kind": "TEST",
+      "title": "Integration: RunLedger conformance suite; method: a kill at every step boundary of a fixture run, comparing output hashes and spend",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-015",
+      "kind": "DES",
+      "title": "ServiceRegistry trait: versioned, content-hashed service definitions; no code names a host or a model",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §4.4",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-108",
+      "kind": "TEST",
+      "title": "Integration: ServiceRegistry conformance suite; method: the nine refusal cases of SYS-067, canonical hashing and resolvability of every version",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-016",
+      "kind": "DES",
+      "title": "QueryEmbedder authority over EmbeddingRuntimes: hub-side query embedding as a service-registry consumer, matching on embedding-space identity, refusing mismatches",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §4.5",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-109",
+      "kind": "TEST",
+      "title": "Integration: QueryEmbedder suite; method: a deterministic fake runtime with two spaces and two definitions of one space, per-field space mismatch, timeout and provenance cases",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-017",
+      "kind": "DES",
+      "title": "Swap test: one conformance suite per trait run against every backend, plus mutant backends",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §5",
+      "level": "L4"
+    },
+    {
+      "id": "TEST-110",
+      "kind": "TEST",
+      "title": "Integration: conformance suites are discriminating; method: every deliberately broken backend run through its suite",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-018",
+      "kind": "DES",
+      "title": "IngestAdapter trait: one ingest fabric distinct from the client search adapters; source-namespaced keys",
+      "status": "proposed",
+      "source": "docs/architecture/adapters-and-pool.md §1",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-111",
+      "kind": "TEST",
+      "title": "Integration: phase-1 adapters through the pool only; method: recorded upstream fixtures through a pool double that fails on direct network calls, T0 re-run from kept artefacts",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (adapters-and-pool.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-019",
+      "kind": "DES",
+      "title": "Shared download pool: concurrency, per-source pacing and credits, bounded retries, resumable downloads, blake3 dedup, cache, secret redaction",
+      "status": "proposed",
+      "source": "docs/architecture/adapters-and-pool.md §2",
+      "level": "L4"
+    },
+    {
+      "id": "TEST-112",
+      "kind": "TEST",
+      "title": "Integration: download pool under faults; method: a fault-injecting HTTP server with kills, changed validators, 429 and 5xx storms, a credit header and duplicate bytes",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (adapters-and-pool.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-020",
+      "kind": "DES",
+      "title": "Gate order: raw-write gate, TDM opt-out checks, licence gate, tier gate and the paid-tier view before any paid-tier index",
+      "status": "proposed",
+      "source": "docs/architecture/adapters-and-pool.md §3",
+      "level": "L4"
+    },
+    {
+      "id": "TEST-113",
+      "kind": "TEST",
+      "title": "Integration: gates in order; method: fixture sources with each opt-out kind and licence class through a lab and a commercial run, then a flipped opt-out",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (adapters-and-pool.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-021",
+      "kind": "DES",
+      "title": "Byte placement: every byte of ingest, indexes and GPU exchange on the stage-0 KC3000 subvolumes and the g-fleet#1449 buckets",
+      "status": "proposed",
+      "source": "docs/architecture/adapters-and-pool.md §4",
+      "level": "L4"
+    },
+    {
+      "id": "TEST-114",
+      "kind": "TEST",
+      "title": "Integration: byte placement; method: a fixture ingest in a scratch microVM with the stage-0 layout and every write traced",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (adapters-and-pool.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-022",
+      "kind": "DES",
+      "title": "GPU job exchange: staged inputs, ledger-first submission, chunked and checkpointed jobs, hub-side acceptance and production",
+      "status": "proposed",
+      "source": "docs/architecture/adapters-and-pool.md §5",
+      "level": "L4"
+    },
+    {
+      "id": "TEST-115",
+      "kind": "TEST",
+      "title": "Integration: GPU job exchange; method: a 50-item chunk through gpu_submit on anvil-gpu with a fake model, then the tampering cases of SYS-062",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (adapters-and-pool.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-116",
+      "kind": "TEST",
+      "title": "Integration: download pool resume without a strong validator; method: a fault-injecting server that changes the file between kill and resume, with no validator, weak validators, 200 on a range request and a published digest",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#5 integration (adapters-and-pool.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "S-001",
+      "kind": "S",
+      "title": "Does interim IVF-flat meet SYS-019 on the stage-0 slice, or is an HNSW cache needed?",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#17"
+    },
+    {
+      "id": "S-002",
+      "kind": "S",
+      "title": "Is the interim streaming TableProvider fast enough for get and hybrid search before tessera#654?",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#18"
+    },
+    {
+      "id": "C-001",
+      "kind": "C",
+      "title": "Embeddings as tessera blob blocks until tessera#768, versus Vortex fixed-size lists (L2 infrastructure 5)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#19"
+    },
+    {
+      "id": "C-002",
+      "kind": "C",
+      "title": "Parquet staging internal only, versus the 'Parquet-in-object-store' example of #5",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#20"
+    },
+    {
+      "id": "C-003",
+      "kind": "C",
+      "title": "OpenAlex per_page 200 (SYS-003) versus a documented maximum of 100",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#21"
+    },
+    {
+      "id": "C-004",
+      "kind": "C",
+      "title": "PatentRef 504 GB snapshot versus the 380 GiB stage-0 raw budget",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#22"
+    },
+    {
+      "id": "S-003",
+      "kind": "S",
+      "title": "Cross-source identity of one work: identity edge, merged row or OpenAlex key?",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#26"
+    },
+    {
+      "id": "C-005",
+      "kind": "C",
+      "title": "IVF-flat in the products (SYS-019, L2 infrastructure 2.4) versus 0 index bytes on S3 (SYS-012)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#24"
+    },
+    {
+      "id": "C-006",
+      "kind": "C",
+      "title": "Candidate products in scitadel-hub-runs (L2 infrastructure 4) versus keep-first for every sealed shard (SYS-059)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#25"
+    },
+    {
+      "id": "C-007",
+      "kind": "C",
+      "title": "A consistent rollback of slot log and ledger after a restore (SYS-047) can grant a fourth base (SYS-073) or serve a forgotten opt-out cycle (SYS-055)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#27"
     }
   ]
 }
