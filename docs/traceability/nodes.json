@@ -2331,7 +2331,7 @@
     {
       "id": "C-001",
       "kind": "C",
-      "title": "Embeddings as tessera blob blocks until tessera#768, versus native fixed-size lists in SYS-019",
+      "title": "Embeddings as tessera blob blocks until tessera#768, versus Vortex fixed-size lists (L2 infrastructure 5)",
       "status": "proposed",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#19"
     },
@@ -2355,6 +2355,27 @@
       "title": "PatentRef 504 GB snapshot versus the 380 GiB stage-0 raw budget",
       "status": "proposed",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#22"
+    },
+    {
+      "id": "S-003",
+      "kind": "S",
+      "title": "Cross-source identity of one work: identity edge, merged row or OpenAlex key?",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#26"
+    },
+    {
+      "id": "C-005",
+      "kind": "C",
+      "title": "IVF-flat in the products (SYS-019, L2 infrastructure 2.4) versus 0 index bytes on S3 (SYS-012)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#24"
+    },
+    {
+      "id": "C-006",
+      "kind": "C",
+      "title": "Candidate products in scitadel-hub-runs (L2 infrastructure 4) versus keep-first for every sealed shard (SYS-059)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#25"
     }
   ]
 }

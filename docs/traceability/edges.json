@@ -4026,11 +4026,6 @@
       "kind": "realised_by"
     },
     {
-      "from": "SYS-023",
-      "to": "DES-016",
-      "kind": "realised_by"
-    },
-    {
       "from": "SYS-024",
       "to": "DES-016",
       "kind": "realised_by"
@@ -4463,6 +4458,21 @@
     {
       "from": "C-004",
       "to": "nerdmachines/scitadel-hub#22",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "S-003",
+      "to": "nerdmachines/scitadel-hub#26",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "C-005",
+      "to": "nerdmachines/scitadel-hub#24",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "C-006",
+      "to": "nerdmachines/scitadel-hub#25",
       "kind": "delivered_by"
     }
   ]

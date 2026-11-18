@@ -30,7 +30,7 @@ pub enum ErrorKind {
 ```
 
 - Every trait is `Send + Sync + 'static` and declares `type Error: BoundaryError`. `hub-compose` wraps each backend in an adapter that maps its error to the hub's `HubError` by `kind()`, so callers hold `Arc<dyn Trait<Error = HubError>>` and branch on `ErrorKind` only. A backend's own error type never reaches a caller.
-- Methods are `async` and return `Send` futures (object-safe through boxed futures in the sketch; the choice of macro is an implementation detail).
+- Methods are `async` and return `Send` futures. The sketches show the call shape; for dynamic dispatch `hub-compose` erases associated types (a trait's `Writer` becomes a boxed `dyn ProductWriter`, by-value methods such as `finish(self)` take `Box<Self>`), and the choice of macro is an implementation detail.
 - **Arrow at the boundary.** Data enters and leaves as `arrow::record_batch::RecordBatch` with an `arrow_schema::SchemaRef`, streamed as DataFusion `SendableRecordBatchStream`; tables are exposed as `Arc<dyn datafusion::catalog::TableProvider>`. No tessera type (`ColumnData`, `TableSpec`, `Reader`) appears in `hub-boundary`; the tessera backend converts at its edge.
 - **Provenance is a parameter, not an afterthought.** Every write takes a `&ProvContext` (run id, step id, service-definition hash, input hashes). The type has no `Default` and no public constructor outside the run ledger (DES-014), so a write without provenance does not compile, and a backend refuses a context whose definition hash does not resolve (SYS-068).
 - **Index stamps.** Every derived index carries
@@ -110,7 +110,7 @@ pub trait KeyedRefs: Send + Sync + 'static {
 
 - **Invariants.** A key column is declared in `ProductSpec`, unique within a product and sorted; the writer checks both and refuses otherwise. References (an embedding row to its chunk, an edge endpoint to its work, a retraction flag to a DOI or PMID, SYS-010) name their target block and key. `resolve` answers only for the generation it is given, so a superseded row cannot come back (SYS-005). A sealed generation has 0 dangling references.
 - **Backs it:** [vig-os/tessera#780](https://github.com/vig-os/tessera/issues/780) (`TableSpec.keys`, `references`, a key-to-product aux cache, `verify --references`).
-- **Interim: hub-built (tessera does not ship it; `RowAlignment` is positional only).** The declaration is written into the product's manifest metadata under `hub.keys.v1`; the key index is a sorted key → (seal, leaf, row) file in `index/keys/`, stamped like any index and rebuilt from the products.
+- **Interim: hub-built (tessera does not ship it; `RowAlignment` is positional only).** The declaration is written into the product's manifest metadata under `hub.keys.v1`; the key index is a sorted key → (seal, leaf, row) file in `index/keys/<collection>/<stamp>/`, stamped like any index and rebuilt from the products.
 - **On the swap:** nothing for callers. Products written before #780 carry the hub declaration; the tessera backend reads both, and the next compaction writes the native one.
 - **Failure modes.** `Invalid` on a duplicate or unsorted key at write; `StaleStamp`; `Integrity` when a resolved row's key does not equal the requested key (a corrupt index; rebuilt, never served).
 
@@ -153,10 +153,10 @@ pub trait VectorIndex: Send + Sync + 'static {
 - **Invariants.** The embeddings of an index generation come from exactly one embedding definition; its hash is in `params_hash`. `search` refuses a `QueryVector` whose definition does not match with `ModelMismatch` (SYS-071): no mixed-model results, no fallback model. The method chosen is reported in `capabilities` (SYS-019). Recall against exact scan is a pass criterion of the suite, not a hope.
 - **Backs it:** [vig-os/tessera#769](https://github.com/vig-os/tessera/issues/769) (tier 0 exact scan through a `vec_distance` UDF, tier 1 IVF-flat as a sealed centroids product, tier 2 HNSW as an aux cache), on top of [#768](https://github.com/vig-os/tessera/issues/768) (declared `vector{dim, dtype}` columns).
 - **Interim: hub-built (tessera ships neither; `tessera-ingest/src/arrow_table.rs` refuses `FixedSizeList` wider than 8 and `ColumnData` has no binary type).**
-  - *Storage, inside `.tsra`:* the embeddings product holds a table block (key, chunk ordinal, definition hash, `prov_id`) and the vectors as one tessera blob block per leaf (`tessera-core/src/block/blob.rs`), row-aligned little-endian fp16, whose digest tessera verifies (a deviation from SYS-019's wording until #768, C-001). The reader exposes them as Arrow `FixedSizeListArray` through `EmbeddingSource`. Nothing leaves `.tsra`.
+  - *Storage, inside `.tsra`:* the embeddings product holds a table block (key, chunk ordinal, definition hash, `prov_id`) and the vectors as one tessera blob block per leaf (`tessera-core/src/block/blob.rs`), row-aligned little-endian fp16, whose digest tessera verifies (a deviation from the "native fixed-size lists" of L2 infrastructure section 5 until #768, C-001). The reader exposes them as Arrow `FixedSizeListArray` through `EmbeddingSource`. Nothing leaves `.tsra`.
   - *Exact scan:* in-crate SIMD over those arrays, also the reference for recall.
-  - *IVF-flat:* a sealed derived `.tsra` product per index generation (centroids blob plus the embeddings reordered by list, with the list id as an int64 column so that tessera's shipped int64 chunk statistics prune the lists to probe). This keeps the lists in the products, as SYS-019 and L2 infrastructure section 2.4 state; the HNSW cache is not built unless S-001 shows IVF-flat cannot meet the budget.
-- **On the swap:** nothing for callers. Embedding products are re-sealed with native vector columns by an ordinary run (a new generation through promotion), and the IVF product is rebuilt; old stamps report `StaleStamp` until then.
+  - *IVF-flat:* one sealed `.tsra` file per index generation under `index/ann/<collection>/<stamp>/`: the centroids, and per-list postings (list id as an int64 column, so that tessera's shipped int64 chunk statistics prune the lists to probe, then key, seal, leaf and row). It holds **no copy of the vectors**; a probe reads them in place from the hot embeddings products. It is Vortex-encoded as SYS-019 asks, local and never in a bucket as SYS-012 asks, rebuildable, and small (about 16 bytes per vector), so the 0.2 B index estimate of L2 infrastructure section 2.4 holds. That section's premise that the lists live in the products, which would put index bytes on S3, is C-005. The HNSW cache is not built unless S-001 shows IVF-flat cannot meet the budget.
+- **On the swap:** nothing for callers. Embedding products are re-sealed with native vector columns by an ordinary run (a new generation through promotion), and the IVF file is rebuilt; old stamps report `StaleStamp` until then.
 - **Failure modes.** `ModelMismatch`; `StaleStamp`; `Invalid` for a dimension mismatch; `Transient` on I/O. The query service answers a failed or late vector leg BM25-only and flags it (SYS-071).
 
 ### 2.6 `TextIndex`: BM25 (DES-007)
@@ -188,13 +188,13 @@ pub trait GraphIndex: Send + Sync + 'static {
     async fn build(&self, g: &GenerationRef, kinds: &EdgeKindSet, prov: &ProvContext) -> Result<IndexStamp, Self::Error>;
     /// Depth 1 or 2 (SYS-020), by edge kind and direction.
     async fn neighbours(&self, stamp: &IndexStamp, seeds: &ArrayRef, kinds: &EdgeKindSet, depth: u8, dir: Direction)
-        -> Result<SendableRecordBatchStream, Self::Error>; // seed, node, kind, depth, via
+        -> Result<SendableRecordBatchStream, Self::Error>; // seed, node, kind, depth, via, edge seal, prov_id, licence_class
 }
 ```
 
-- **Invariants.** Edges are product rows, not index state: tables with columns `src`, `dst`, `kind` (and an optional `weight`) in the convention #776 proposes, for work cites work, patent cites patent, patent cites paper and has-CPC (SYS-020). Endpoints are keys (DES-004). The adjacency is a derived cache. **No graph database** (XADR-SCITADEL-008 §4).
+- **Invariants.** Edges are product rows, not index state: tables with columns `src`, `dst`, `kind` (and an optional `weight`) in the convention #776 proposes, for work cites work, patent cites patent, patent cites paper and has-CPC (SYS-020). Endpoints are keys (DES-004). Every returned edge carries the seal, `prov_id` and licence class of its edge row, as every record does (SYS-028). The adjacency is a derived cache. **No graph database** (XADR-SCITADEL-008 §4).
 - **Backs it:** [vig-os/tessera#776](https://github.com/vig-os/tessera/issues/776) (edge convention, CSR and reverse CSR as an aux cache, `neighbours` table function).
-- **Interim: hub-built (tessera does not ship it).** A forward and a reverse CSR per edge kind, built from the edge tables: a node dictionary (key → ordinal) plus `UInt64` offsets and `UInt32` targets as Arrow arrays, persisted in `index/graph/<stamp>/` as Arrow IPC files. That file format is an **internal cache that never leaves the hub**: rebuildable, never a product, never served.
+- **Interim: hub-built (tessera does not ship it).** A forward and a reverse CSR per edge kind, built from the edge tables: a node dictionary (key → ordinal) plus `UInt64` offsets and `UInt32` targets as Arrow arrays, persisted in `index/graph/<collection>/<stamp>/` as Arrow IPC files. That file format is an **internal cache that never leaves the hub**: rebuildable, never a product, never served.
 - **On the swap:** nothing for callers; the edge tables already follow #776, so only the cache is rebuilt.
 - **Failure modes.** `StaleStamp`; `Invalid` for a depth above 2 or an unknown kind; `Integrity` for an endpoint that does not resolve.
 
@@ -245,7 +245,7 @@ pub trait RemoteRead: Send + Sync + 'static {
 ```rust
 pub trait MediaColumns: Send + Sync + 'static {
     type Error: BoundaryError;
-    fn put(&self, w: &mut dyn ProductWriterExt, m: MediaValue) -> Result<MediaRef, Self::Error>;
+    fn put(&self, w: &mut dyn ProductWriter<Error = Self::Error>, m: MediaValue) -> Result<MediaRef, Self::Error>;
     async fn get(&self, p: &ProductHandle, r: &MediaRef) -> Result<MediaBytes, Self::Error>; // bytes, media type, blake3
 }
 // MediaValue { media_type: Png | JpegXlLossless | Svg, width, height, bytes, source_blake3 }
@@ -296,7 +296,7 @@ pub trait GenerationCatalog: Send + Sync + 'static {
 }
 ```
 
-- **Invariants.** The layout `base/<release>`, `delta/<date>`, `current` (SYS-002). `publish_shard` never moves `current`. A reader resolves `current` once per query and pins that `GenerationRef`, so it sees the old or the new generation, never a mix. `QcPass` is constructible only by the QC gate. `reserve_base_slot` counts the bases on the tier, counting a retired base as the previous one while a snapshot pins it, computes the pin's expiry from the snapshot schedule in configuration (L2 infrastructure section 2.4), and returns `Wait` while the count would exceed three. Retention deletes are **not** a method here: they belong to the retention role (SYS-017), a separate credential.
+- **Invariants.** The layout `base/<release>/`, `delta/<date>.tsra`, `current` (SYS-002). `publish_shard` never moves `current`. A reader resolves `current` once per query and pins that `GenerationRef`, so it sees the old or the new generation, never a mix. `QcPass` is constructible only by the QC gate. `reserve_base_slot` counts the bases on the tier, counting a retired base as the previous one while a snapshot pins it, computes the pin's expiry from the snapshot schedule in configuration (L2 infrastructure section 2.4), and returns `Wait` while the count would exceed three; the orchestrator records the wait and its expected end in the ledger and raises an alert if the wait exceeds the longest snapshot retention. Retention deletes are **not** a method here: they belong to the retention role (SYS-017), a separate credential.
 - **Backend:** S3 keys in `scitadel-hub-keep` written by the ingest role (or the newest-wins sequence of pointer objects if the gateway has no per-key rule, L2 infrastructure section 4), the hot pointer `products/<collection>/current` replaced by `rename(2)`, and collection manifests through tessera's shipped `CollectionBuilder` (`tessera-core/src/collection.rs`). **Second backend:** in memory over a temporary directory, for the suite.
 - **Failure modes.** `Integrity` on a read-back mismatch (not published; the keep object stays unreferenced and is swept); `Conflict` when two promotions race (one wins, the other is refused and logged); `Wait` is a result, not an error.
 
