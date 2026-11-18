@@ -2391,6 +2391,620 @@
       "title": "A consistent rollback of slot log and ledger after a restore (SYS-047) can grant a fourth base (SYS-073) or serve a forgotten opt-out cycle (SYS-055)",
       "status": "proposed",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#27"
+    },
+    {
+      "id": "DES-023",
+      "kind": "DES",
+      "title": "Shard and collection layout",
+      "status": "proposed",
+      "source": "docs/architecture/data-model-and-lifecycle.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-024",
+      "kind": "DES",
+      "title": "Base, delta and current lifecycle policy",
+      "status": "proposed",
+      "source": "docs/architecture/data-model-and-lifecycle.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-117",
+      "kind": "TEST",
+      "title": "Integration: Shard and collection layout; method: Build one OpenAlex field and one patent year from a fixture slice; list every product and read its provenance",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/data-model-and-lifecycle.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-118",
+      "kind": "TEST",
+      "title": "Integration: Base, delta and current lifecycle policy; method: A fixture release with three deltas, a compaction to a new base, a pinned reader and a restart in the middle",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/data-model-and-lifecycle.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-025",
+      "kind": "DES",
+      "title": "Logical table, newest-wins scan and the DataFusion session",
+      "status": "proposed",
+      "source": "docs/architecture/query-engine.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-119",
+      "kind": "TEST",
+      "title": "Integration: Logical table, newest-wins scan and the DataFusion session; method: A fixture base with three deltas holding upserts, a merge and a deletion, queried through the session by filter, by key and across two products",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/query-engine.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-026",
+      "kind": "DES",
+      "title": "Hybrid retrieval pipeline: filters, BM25, vector, fusion and masking",
+      "status": "proposed",
+      "source": "docs/architecture/retrieval.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-027",
+      "kind": "DES",
+      "title": "Graph neighbours service and edge kinds",
+      "status": "proposed",
+      "source": "docs/architecture/retrieval.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-120",
+      "kind": "TEST",
+      "title": "Integration: Hybrid retrieval pipeline: filters, BM25, vector, fusion and masking; method: The golden queries of [DES-043](quality.md) over a fixture slice in each mode, with a stale index, a superseded row, a retracted record and a paid-tier query",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/retrieval.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-121",
+      "kind": "TEST",
+      "title": "Integration: Graph neighbours service and edge kinds; method: A fixture citation graph with a cycle, a merged work and a patent with dependent claims, traversed at depths 1 to 3",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/retrieval.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-028",
+      "kind": "DES",
+      "title": "OpenAlex sync scheduler: base subset, subscriptions, rolling refresh, on demand",
+      "status": "proposed",
+      "source": "docs/architecture/sync.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-029",
+      "kind": "DES",
+      "title": "Merge and deletion reconciliation",
+      "status": "proposed",
+      "source": "docs/architecture/sync.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-122",
+      "kind": "TEST",
+      "title": "Integration: OpenAlex sync scheduler: base subset, subscriptions, rolling refresh, on demand; method: A recorded OpenAlex fixture server with a credit header counting down, run for three cycles with a kill during paging",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/sync.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-123",
+      "kind": "TEST",
+      "title": "Integration: Merge and deletion reconciliation; method: A fixture refresh set with a merged ID, a vanished ID and a quarterly snapshot with its `merged_ids` and `deleted_ids` files",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/sync.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-030",
+      "kind": "DES",
+      "title": "Patent build: T0 parse, claim tree, drawings, tables and embeddings",
+      "status": "proposed",
+      "source": "docs/architecture/patents.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-031",
+      "kind": "DES",
+      "title": "Patent weekly delta, walled serving and attribution",
+      "status": "proposed",
+      "source": "docs/architecture/patents.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-124",
+      "kind": "TEST",
+      "title": "Integration: Patent build: T0 parse, claim tree, drawings, tables and embeddings; method: One recorded utility patent with 20 claims (6 dependent), a chemistry block, a table and 3 TIFF drawings, plus a PatentsView extract, built end to end",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/patents.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-125",
+      "kind": "TEST",
+      "title": "Integration: Patent weekly delta, walled serving and attribution; method: A weekly delta applied to a base, then `search` and `get` through the protocol for a patent in the delta",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/patents.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-032",
+      "kind": "DES",
+      "title": "Protocol crate and the five calls",
+      "status": "proposed",
+      "source": "docs/architecture/protocol.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-033",
+      "kind": "DES",
+      "title": "Response envelope: provenance, licence class, retraction, attribution, untrusted text",
+      "status": "proposed",
+      "source": "docs/architecture/protocol.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-034",
+      "kind": "DES",
+      "title": "Standalone MCP server",
+      "status": "proposed",
+      "source": "docs/architecture/protocol.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-035",
+      "kind": "DES",
+      "title": "Conformance kit",
+      "status": "proposed",
+      "source": "docs/architecture/protocol.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-126",
+      "kind": "TEST",
+      "title": "Integration: Protocol crate and the five calls; method: Each call over HTTP against a fixture hub, including a `search` with a query vector, a vector leg with a mismatched index, `get` of 101 IDs and a cached `coverage` across a delta",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/protocol.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-127",
+      "kind": "TEST",
+      "title": "Integration: Response envelope: provenance, licence class, retraction, attribution, untrusted text; method: 1,000 records from `search`, `get` and `neighbours` over a fixture with a retracted work, a patent and a local-subset answer",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/protocol.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-128",
+      "kind": "TEST",
+      "title": "Integration: Standalone MCP server; method: The MCP server against the fixture hub, with a tool-schema snapshot",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/protocol.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-129",
+      "kind": "TEST",
+      "title": "Integration: Conformance kit; method: The verifier run against the reference implementation and against three deliberately non-conforming servers",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/protocol.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-036",
+      "kind": "DES",
+      "title": "Blocks of a shard product and their keys",
+      "status": "proposed",
+      "source": "docs/architecture/document-model.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-037",
+      "kind": "DES",
+      "title": "Derived products, lossless figure storage and figure embeddings",
+      "status": "proposed",
+      "source": "docs/architecture/document-model.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-130",
+      "kind": "TEST",
+      "title": "Integration: Blocks of a shard product and their keys; method: A fixture JATS paper and a fixture patent through T0 into a shard, then `get` by ID, a cross-shard citation and a re-sort check",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/document-model.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-131",
+      "kind": "TEST",
+      "title": "Integration: Derived products, lossless figure storage and figure embeddings; method: A fixture with an SVG, an embedded JPEG, a PNG, a TIFF and a 16-bit image stored and read back; an embeddings product aligned with `chunks`",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/document-model.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-038",
+      "kind": "DES",
+      "title": "Tiered cascade runner",
+      "status": "proposed",
+      "source": "docs/architecture/extraction-cascade.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-039",
+      "kind": "DES",
+      "title": "Image processing from kept originals",
+      "status": "proposed",
+      "source": "docs/architecture/extraction-cascade.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-132",
+      "kind": "TEST",
+      "title": "Integration: Tiered cascade runner; method: A fixture set across the four sources with injected QC flags, a CC BY-NC item and a paywalled item, a T3 cap and a stub definition for each tier",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/extraction-cascade.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-133",
+      "kind": "TEST",
+      "title": "Integration: Image processing from kept originals; method: A fixture work re-run at T3 from stored intermediates with the network disabled; a reported region crop",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/extraction-cascade.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-040",
+      "kind": "DES",
+      "title": "Provenance record model: product, work, row and verdict",
+      "status": "proposed",
+      "source": "docs/architecture/provenance.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-134",
+      "kind": "TEST",
+      "title": "Integration: Provenance record model: product, work, row and verdict; method: A fixture shard through two cascade tiers with a verdict at each, a re-derive by definition hash, and an external input recorded as `cold`",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/provenance.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-041",
+      "kind": "DES",
+      "title": "Storage tiers, keep-everything retention and stage migration",
+      "status": "proposed",
+      "source": "docs/architecture/artefact-store.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-042",
+      "kind": "DES",
+      "title": "Snapshots, cold mirror and restore",
+      "status": "proposed",
+      "source": "docs/architecture/artefact-store.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-135",
+      "kind": "TEST",
+      "title": "Integration: Storage tiers, keep-everything retention and stage migration; method: A fixture ingest into a scratch store with a tiny quota, a stage-0 to a second `ArtefactStore` backend swap, and an operator `RawDrop`",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/artefact-store.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-136",
+      "kind": "TEST",
+      "title": "Integration: Snapshots, cold mirror and restore; method: A scratch host with the hourly and daily schedules, a restic run to a test repository, a backup 49 h old, and a restore onto an empty volume",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/artefact-store.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-043",
+      "kind": "DES",
+      "title": "Golden set and the red/green loop",
+      "status": "proposed",
+      "source": "docs/architecture/quality.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-044",
+      "kind": "DES",
+      "title": "Random-sample QC, embedding checks and upgrade diff",
+      "status": "proposed",
+      "source": "docs/architecture/quality.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-137",
+      "kind": "TEST",
+      "title": "Integration: Golden set and the red/green loop; method: Inject a failing extraction on a fixture work and drive it through the loop; add one CC BY-NC fixture",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/quality.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-138",
+      "kind": "TEST",
+      "title": "Integration: Random-sample QC, embedding checks and upgrade diff; method: A fixture batch of 300 with one silent error, an embeddings product with a NaN and a duplicate, and a changed extractor version",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/quality.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-045",
+      "kind": "DES",
+      "title": "Serving placement and latency budget",
+      "status": "proposed",
+      "source": "docs/architecture/serving.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-046",
+      "kind": "DES",
+      "title": "Rerank with an unreranked fallback",
+      "status": "proposed",
+      "source": "docs/architecture/serving.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-139",
+      "kind": "TEST",
+      "title": "Integration: Serving placement and latency budget; method: The fixture hub in a microVM with no GPU device, 100 hybrid searches on the fixture slice",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/serving.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-140",
+      "kind": "TEST",
+      "title": "Integration: Rerank with an unreranked fallback; method: The same hub with a rerank stub that is busy, slow and healthy in turn",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/serving.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-047",
+      "kind": "DES",
+      "title": "Tenant instance isolation and stage-portable packaging",
+      "status": "proposed",
+      "source": "docs/architecture/tenancy-and-layered-hubs.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-048",
+      "kind": "DES",
+      "title": "Usage metering seam",
+      "status": "proposed",
+      "source": "docs/architecture/tenancy-and-layered-hubs.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-049",
+      "kind": "DES",
+      "title": "Transport security, access control and secrets",
+      "status": "proposed",
+      "source": "docs/architecture/tenancy-and-layered-hubs.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-050",
+      "kind": "DES",
+      "title": "Annotation layers",
+      "status": "proposed",
+      "source": "docs/architecture/tenancy-and-layered-hubs.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-141",
+      "kind": "TEST",
+      "title": "Integration: Tenant instance isolation and stage-portable packaging; method: Two tenant microVMs from the production packaging, each with a distinct fixture corpus and credentials, with cross-tenant read and write attempts and a stage-1 configuration swap",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/tenancy-and-layered-hubs.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-142",
+      "kind": "TEST",
+      "title": "Integration: Usage metering seam; method: Fixture calls for two hosted tenants and the same calls through a local-tier hub",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/tenancy-and-layered-hubs.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-143",
+      "kind": "TEST",
+      "title": "Integration: Transport security, access control and secrets; method: Port and endpoint scan of a fixture hub, anonymous and wrong-credential requests, a secrets canary in a request",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/tenancy-and-layered-hubs.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-144",
+      "kind": "TEST",
+      "title": "Integration: Annotation layers; method: The permission matrix over the four layers: reads, writes and publishes by each of four fixture users",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/tenancy-and-layered-hubs.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-051",
+      "kind": "DES",
+      "title": "Client store model, `detach` and no bulk export",
+      "status": "proposed",
+      "source": "docs/architecture/client-app.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-052",
+      "kind": "DES",
+      "title": "Local-subset routing and offline mode",
+      "status": "proposed",
+      "source": "docs/architecture/client-app.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-053",
+      "kind": "DES",
+      "title": "Hub source and fall-through",
+      "status": "proposed",
+      "source": "docs/architecture/client-app.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-145",
+      "kind": "TEST",
+      "title": "Integration: Client store model, `detach` and no bulk export; method: A fixture client detaching 10 tracked works of mixed licence classes, with an attempt to fetch a PDF and to export a collection",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/client-app.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-146",
+      "kind": "TEST",
+      "title": "Integration: Local-subset routing and offline mode; method: A 50,000-paper fixture subset on a laptop-class machine, queried by text in BM25 and vector mode, with and without the hub",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/client-app.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-147",
+      "kind": "TEST",
+      "title": "Integration: Hub source and fall-through; method: A mock hub with a covered source, an uncovered source, an error and a timeout",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/client-app.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "DES-054",
+      "kind": "DES",
+      "title": "Licence classes and the gated features of phase 1",
+      "status": "proposed",
+      "source": "docs/architecture/licensing-and-tdm.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-055",
+      "kind": "DES",
+      "title": "Privacy controls: erasure, bounded logs, no reading history",
+      "status": "proposed",
+      "source": "docs/architecture/licensing-and-tdm.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "DES-056",
+      "kind": "DES",
+      "title": "Licence per part, release hygiene and model-weight policy",
+      "status": "proposed",
+      "source": "docs/architecture/licensing-and-tdm.md; XADR-SCITADEL-008 (https://github.com/vig-os/scitadel/pull/317)",
+      "level": "L3"
+    },
+    {
+      "id": "TEST-148",
+      "kind": "TEST",
+      "title": "Integration: Licence classes and the gated features of phase 1; method: One fixture item of each class through ingest, search and `get` with every gated feature at its phase-1 setting, then with a test-only phase-2 class enabled",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/licensing-and-tdm.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-149",
+      "kind": "TEST",
+      "title": "Integration: Privacy controls: erasure, bounded logs, no reading history; method: An erasure request for a fixture author, an access log with entitlement checks and a search by a fixture user",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/licensing-and-tdm.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-150",
+      "kind": "TEST",
+      "title": "Integration: Licence per part, release hygiene and model-weight policy; method: A release dry run on the client tree with an injected GPL dependency; a build of the hub OCI image",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/licensing-and-tdm.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "S-004",
+      "kind": "S",
+      "title": "Annotation layers: where are the four layers stored and how does a publish move a row up? (SYS-037)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#30"
+    },
+    {
+      "id": "S-005",
+      "kind": "S",
+      "title": "Layered hubs: can a client or hub resolve against more than one hub, and what does coverage mean then?",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#31"
+    },
+    {
+      "id": "S-006",
+      "kind": "S",
+      "title": "Erasure scope: is soft-delete from the index enough for sealed products, kept raw inputs and intermediates? (SYS-042)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#32"
+    },
+    {
+      "id": "S-007",
+      "kind": "S",
+      "title": "Rerank placement: an interactive rerank cannot go through a queued gpu_submit job; where does it run? (SYS-023, SYS-024)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#33"
+    },
+    {
+      "id": "S-008",
+      "kind": "S",
+      "title": "Metering seam: what usage events does the hub emit to scitadel-cloud, in what units? (SYS-036)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#34"
+    },
+    {
+      "id": "C-008",
+      "kind": "C",
+      "title": "The hub never serves PDF bytes (D-007) versus entitled colleagues getting an uploaded artefact from the hub (XADR-SCITADEL-008 §12)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#35"
+    },
+    {
+      "id": "C-009",
+      "kind": "C",
+      "title": "Patent scope: pre-grant publications a later option (XADR-SCITADEL-008 §6) versus folded into the first patent product (§15)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#36"
+    },
+    {
+      "id": "S-009",
+      "kind": "S",
+      "title": "Per-statement resource limits for SQL: are there any, what are they per tier, and what error do they raise?",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#38"
+    },
+    {
+      "id": "S-010",
+      "kind": "S",
+      "title": "Retrieval-leg timeouts and a partial-answer signal in the protocol",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#39"
+    },
+    {
+      "id": "S-011",
+      "kind": "S",
+      "title": "Graph expansion bounds: is there a maximum neighbours depth or result size, and what happens above it?",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#40"
     }
   ]
 }
