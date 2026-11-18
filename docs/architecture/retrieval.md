@@ -39,7 +39,7 @@ How BM25, vector and graph retrieval combine into one candidate set. Source: XAD
 | `has_topic` | work or patent → CPC class or topic |
 | `claim_depends_on` | claim → the claim it depends on (patents, [DES-030](patents.md)) |
 
-- `neighbours(id, edge_kind, depth)` is a bounded breadth-first traversal over the adjacency cache; `depth` is capped by configuration and a request above it is refused. The same edge tables support recursive CTEs for analytic queries ([DES-025](query-engine.md)).
+- `neighbours(id, edge_kind, depth)` is a bounded breadth-first traversal over the adjacency cache; the bound on `depth` and on result size is S-011 ([#40](https://github.com/nerdmachines/scitadel-hub/issues/40)) and none is designed here. The same edge tables support recursive CTEs for analytic queries ([DES-025](query-engine.md)).
 - An edge exists only if its `bib.matched_work_id` or source record resolves; unresolved references stay as `bib` rows ([DES-036](document-model.md)). How records of one work from two sources link is S-003.
 - Node embeddings (node2vec, GraphSAGE) become ordinary vector columns when [vig-os/tessera#776](https://github.com/vig-os/tessera/issues/776) lands; nothing here depends on them.
 
@@ -48,4 +48,4 @@ How BM25, vector and graph retrieval combine into one candidate set. Source: XAD
 | Test | Verifies | Method | Pass criterion |
 |---|---|---|---|
 | TEST-120 | DES-026 | The golden queries of [DES-043](quality.md) over a fixture slice in each mode, with a stale index, a superseded row, a retracted record and a paid-tier query | every candidate names its mode; superseded rows masked; retraction flag present on 100 % of matches; a stale index refused; 0 lab-only rows in the paid result |
-| TEST-121 | DES-027 | A fixture citation graph with a cycle, a merged work and a patent with dependent claims, traversed at depths 1 to the cap and one above it | results equal a reference traversal; the cycle terminates; the over-cap request is refused; every edge kind is reachable |
+| TEST-121 | DES-027 | A fixture citation graph with a cycle, a merged work and a patent with dependent claims, traversed at depths 1 to 3 | results equal a reference traversal; the cycle terminates; every edge kind is reachable |

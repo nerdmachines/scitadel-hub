@@ -5939,6 +5939,21 @@
       "from": "C-009",
       "to": "nerdmachines/scitadel-hub#36",
       "kind": "delivered_by"
+    },
+    {
+      "from": "S-009",
+      "to": "nerdmachines/scitadel-hub#38",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "S-010",
+      "to": "nerdmachines/scitadel-hub#39",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "S-011",
+      "to": "nerdmachines/scitadel-hub#40",
+      "kind": "delivered_by"
     }
   ]
 }

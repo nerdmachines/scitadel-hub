@@ -23,7 +23,7 @@ Ingest (GPU, queued, latency does not matter) is separated from serving (CPU, in
 | Rerank of the top 50 | optional, DES-046 (section 2) | |
 | System One scoring of the shortlist | client-side or hosted scorer | not hub code |
 
-- **Budget.** The hybrid search target of SYS-022 is the sum of the hub rows; each leg has its own timeout so a slow leg degrades the answer (flagged, as in [DES-046](serving.md)) and never blocks it.
+- **Budget.** The hybrid search target of SYS-022 is the sum of the hub rows; what happens when one leg is slow or fails, and whether the protocol says an answer is partial, is S-010 ([#39](https://github.com/nerdmachines/scitadel-hub/issues/39)); only the rerank fallback of DES-046 is designed.
 - **Placement is configuration.** Executors and limits come from service definitions ([DES-015](tessera-boundary.md)); no code names a host.
 - **Sizing** *(estimates)*: 50M chunks at 512 dimensions in fp16 are about 51 GB of vectors, resident in RAM on a sized box or served from NVMe with an on-disk index; a lab of about 20 users is trivial for a CPU hub, which is compute-bound on fusion, not I/O-bound. Stage 0 serves a far smaller slice.
 - **Backfills and re-embedding sweeps** run off the shared GPU, on rented GPU by definition ([DES-022](adapters-and-pool.md), SYS-051).
@@ -37,5 +37,5 @@ If the rerank step cannot start within **200 ms** *(estimate)* the service retur
 
 | Test | Verifies | Method | Pass criterion |
 |---|---|---|---|
-| TEST-139 | DES-045 | The fixture hub in a microVM with no GPU device, 100 hybrid searches with an injected slow BM25 leg and a slow embedder | 0 GPU devices and 0 MiB VRAM in serving; each slow leg times out and the answer is flagged; the median and p95 are recorded against the SYS-022 target |
+| TEST-139 | DES-045 | The fixture hub in a microVM with no GPU device, 100 hybrid searches on the fixture slice | 0 GPU devices and 0 MiB VRAM in serving; the median and p95 are recorded against the SYS-022 target |
 | TEST-140 | DES-046 | The same hub with a rerank stub that is busy, slow and healthy in turn | busy or slow: the response arrives within the added 200 ms with `reranked: false` on 100 % of fallbacks; healthy: `reranked: true` |

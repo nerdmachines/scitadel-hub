@@ -2467,7 +2467,7 @@
     {
       "id": "TEST-121",
       "kind": "TEST",
-      "title": "Integration: Graph neighbours service and edge kinds; method: A fixture citation graph with a cycle, a merged work and a patent with dependent claims, traversed at depths 1 to the cap and one above it",
+      "title": "Integration: Graph neighbours service and edge kinds; method: A fixture citation graph with a cycle, a merged work and a patent with dependent claims, traversed at depths 1 to 3",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/retrieval.md)",
       "test_kind": "integration"
@@ -2499,7 +2499,7 @@
     {
       "id": "TEST-123",
       "kind": "TEST",
-      "title": "Integration: Merge and deletion reconciliation; method: A fixture refresh set with a merged ID, a vanished ID and a quarterly snapshot whose `merged_ids` disagrees with the refresh",
+      "title": "Integration: Merge and deletion reconciliation; method: A fixture refresh set with a merged ID, a vanished ID and a quarterly snapshot with its `merged_ids` and `deleted_ids` files",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/sync.md)",
       "test_kind": "integration"
@@ -2763,7 +2763,7 @@
     {
       "id": "TEST-139",
       "kind": "TEST",
-      "title": "Integration: Serving placement and latency budget; method: The fixture hub in a microVM with no GPU device, 100 hybrid searches with an injected slow BM25 leg and a slow embedder",
+      "title": "Integration: Serving placement and latency budget; method: The fixture hub in a microVM with no GPU device, 100 hybrid searches on the fixture slice",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/serving.md)",
       "test_kind": "integration"
@@ -2819,7 +2819,7 @@
     {
       "id": "TEST-142",
       "kind": "TEST",
-      "title": "Integration: Usage metering seam; method: 1,000 fixture calls for two tenants and the same calls through a local-tier hub; the event log reconciled against the calls",
+      "title": "Integration: Usage metering seam; method: Fixture calls for two hosted tenants and the same calls through a local-tier hub",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/tenancy-and-layered-hubs.md)",
       "test_kind": "integration"
@@ -2984,6 +2984,27 @@
       "title": "Patent scope: pre-grant publications a later option (XADR-SCITADEL-008 §6) versus folded into the first patent product (§15)",
       "status": "proposed",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#36"
+    },
+    {
+      "id": "S-009",
+      "kind": "S",
+      "title": "Per-statement resource limits for SQL: are there any, what are they per tier, and what error do they raise?",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#38"
+    },
+    {
+      "id": "S-010",
+      "kind": "S",
+      "title": "Retrieval-leg timeouts and a partial-answer signal in the protocol",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#39"
+    },
+    {
+      "id": "S-011",
+      "kind": "S",
+      "title": "Graph expansion bounds: is there a maximum neighbours depth or result size, and what happens above it?",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#40"
     }
   ]
 }

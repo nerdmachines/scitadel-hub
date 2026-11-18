@@ -47,5 +47,5 @@ Next to each shard: one embeddings product per model (chunk and figure vectors, 
 
 | Test | Verifies | Method | Pass criterion |
 |---|---|---|---|
-| TEST-130 | DES-036 | A fixture JATS paper and a fixture patent through T0 into a shard, then `get` by ID, a cross-shard citation and a re-sort check | every block sorted by `(work_id, ord)`; `get` touches ≤ 3 chunks per block; the cross-shard citation resolves through the work_id index; numbers sit in typed columns |
+| TEST-130 | DES-036 | A fixture JATS paper and a fixture patent through T0 into a shard, then `get` by ID, a cross-shard citation and a re-sort check | every block sorted by `(work_id, ord)`; `get` touches a few chunks per block (XADR-SCITADEL-008 §9), the count recorded; the cross-shard citation resolves through the work_id index; numbers sit in typed columns |
 | TEST-131 | DES-037 | A fixture with an SVG, an embedded JPEG, a PNG, a TIFF and a 16-bit image stored and read back; an embeddings product aligned with `chunks` | each image decodes bit-exactly (the JPEG reconstructs to its original hash); no lossy encode in the write path; embedding rows align 1:1 with `chunks` and `figures` |

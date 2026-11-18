@@ -30,7 +30,7 @@ How the OpenAlex lab mirror stays fresh on the free key. Source: XADR-SCITADEL-0
 ## 2. Merge and deletion reconciliation (DES-029)
 
 - A refresh that returns a different ID marks a **merge**; one that returns nothing marks a **deletion**. Each becomes a tombstone row `(id, merged → W… | deleted)` in the next delta ([DES-005](tessera-boundary.md)).
-- Each quarterly snapshot reconciles against its `merged_ids` and `deleted_ids` files before it becomes the new base; a disagreement between the two evidences is recorded, with both, in the run and never silently resolved.
+- Each quarterly snapshot reconciles against its `merged_ids` and `deleted_ids` files before it becomes the new base.
 - A tombstone redirects or drops its key on read ([DES-025](query-engine.md)); the retraction flags of [DES-026](retrieval.md) are independent of it.
 
 ## 3. Verification
@@ -38,4 +38,4 @@ How the OpenAlex lab mirror stays fresh on the free key. Source: XADR-SCITADEL-0
 | Test | Verifies | Method | Pass criterion |
 |---|---|---|---|
 | TEST-122 | DES-028 | A recorded OpenAlex fixture server with a credit header counting down, run for three cycles with a kill during paging | 0 requests beyond the allowance; a resumed cycle spends nothing twice; the late-indexed work is absent until the snapshot; the key appears in no log |
-| TEST-123 | DES-029 | A fixture refresh set with a merged ID, a vanished ID and a quarterly snapshot whose `merged_ids` disagrees with the refresh | tombstones written for both; reads redirect and drop; the disagreement recorded with both sources; the next base contains neither tombstoned key |
+| TEST-123 | DES-029 | A fixture refresh set with a merged ID, a vanished ID and a quarterly snapshot with its `merged_ids` and `deleted_ids` files | tombstones written for both; reads redirect and drop; the next base contains neither tombstoned key |

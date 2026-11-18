@@ -15,13 +15,13 @@ How hub instances are isolated and packaged, how usage is counted, how data is p
 
 - **One instance per tenant.** Each tenant runs its own hub instance in its own microVM with no shared writable mount and no shared credentials (SYS-035). Development and acceptance use the same packaging as the hosted tier: one microVM per simulated tenant on the stage-0 host, so isolation and metering paths run against the real artefact.
 - **Stages change configuration only** (SYS-039): stage 0 on anvil; stage 1 a rented dedicated box for serving with object storage as the distribution point; stage 2 k3s plus microVMs for hosted org and personal spaces; on-prem. The backends are chosen at the composition root ([DES-001](tessera-boundary.md)); the data model, protocol and licence gating are identical across stages.
-- **On-prem parity** (SYS-038). An on-prem hub runs the same binary and the same `.tsra` shards and speaks the same protocol ([DES-032](protocol.md)). The packaging (NixOS module, OCI image, Helm chart) lives in the **private** `nerdmachines/scitadel-hub-deploy`, deliberate friction under the commercial grant; the fleet consumes it pinned by tag and never patches it (D-002). Hub secrets are in their own sops file.
-- **Repos.** The hub source is public (`AGPL-3.0-only OR LicenseRef-scitadel-Commercial`, [DES-056](licensing-and-tdm.md)); `scitadel-cloud` is extracted at the first external tenant, the first billing code, or when serving moves to the rented box, whichever comes first (XADR-SCITADEL-008 §1).
+- **On-prem parity** (SYS-038). An on-prem hub runs the same binary and the same `.tsra` shards and speaks the same protocol ([DES-032](protocol.md)). The packaging (NixOS module, OCI image, Helm chart) lives in the **private** `nerdmachines/scitadel-hub-deploy`; the fleet consumes it pinned by tag and never patches it (D-002). Hub secrets are in their own sops file.
+- **Repos.** The hub source is public (`AGPL-3.0-only OR LicenseRef-scitadel-Commercial`, [DES-056](licensing-and-tdm.md)); `scitadel-cloud` is a separate private repository (XADR-SCITADEL-008 §1).
 - **Layered hubs** (S-005). Today a client has one configured hub with fall-through to live sources ([DES-053](client-app.md)); whether hubs chain is undecided, and no DES here assumes it.
 
 ## 2. Usage metering seam (DES-048)
 
-The hub counts usage per tenant for the hosted tiers and **never meters the free local tier** (SYS-036; the local tier runs no hub). Each protocol call appends one usage event to a local log read by the control plane, with no billing logic in the hub. The event schema, its units and the reconciliation rule are S-008: the 1 % reconciliation bound of SYS-036 is tested against the seam, not against billing.
+The hub counts usage per tenant for the hosted tiers and **never meters the free local tier** (SYS-036; the local tier runs no hub). **Unresolved, pending S-008 ([#34](https://github.com/nerdmachines/scitadel-hub/issues/34)):** what is counted, in which units, how it reaches `scitadel-cloud` and how it reconciles (the 1 % bound of SYS-036) are not decided by XADR-SCITADEL-008, so no event shape is designed here.
 
 ## 3. Transport security, access control and secrets (DES-049)
 
@@ -31,13 +31,13 @@ The hub counts usage per tenant for the hosted tiers and **never meters the free
 
 ## 4. Annotation layers (DES-050)
 
-SYS-037 fixes four layers, **personal, group, organisation and global**, each annotation recording its layer and author; a read resolves most specific first; a write goes only to the layer the caller names; a lower layer never appears in a higher one except by an explicit **publish** that creates a new row in the higher layer. XADR-SCITADEL-008 §12 and §17 only say the client keeps annotations and that the hub is the shared store. The sketch used until S-004 settles it: an `annotations` table per tenant with `layer`, `author`, `target` (work id and span) and `published_from`; the personal layer is held by the client and reaches the hub only by publish; a read goes through the protocol's response envelope ([DES-033](protocol.md)), which names the layer.
+SYS-037 fixes four layers, **personal, group, organisation and global**, each annotation recording its layer and author; a read resolves most specific first; a write goes only to the layer the caller names; a lower layer never appears in a higher one except by an explicit **publish** that creates a new row in the higher layer. XADR-SCITADEL-008 §12 and §17 only say the client keeps annotations. **Unresolved, pending S-004 ([#30](https://github.com/nerdmachines/scitadel-hub/issues/30)):** where each layer is stored, whether the personal layer is client-side, the shape of a publish and the protocol call that carries annotations are not decided, so none is designed here. DES-050 is provisional: it states SYS-037 and nothing more.
 
 ## 5. Verification
 
 | Test | Verifies | Method | Pass criterion |
 |---|---|---|---|
 | TEST-141 | DES-047 | Two tenant microVMs from the production packaging, each with a distinct fixture corpus and credentials, with cross-tenant read and write attempts and a stage-1 configuration swap | 0 cross-tenant reads; 0 shared writable mounts; 0 shared credentials; the swap changes no code and no format |
-| TEST-142 | DES-048 | 1,000 fixture calls for two tenants and the same calls through a local-tier hub; the event log reconciled against the calls | event count equals call count within 1 %; 0 events from the local tier; 0 billing fields in any event |
+| TEST-142 | DES-048 | Fixture calls for two hosted tenants and the same calls through a local-tier hub | usage counted per tenant and not mixed across tenants; 0 meter events from the local tier (reconciliation waits for S-008) |
 | TEST-143 | DES-049 | Port and endpoint scan of a fixture hub, anonymous and wrong-credential requests, a secrets canary in a request | 0 plaintext endpoints; 0 anonymous reads; the canary appears in no log, error or response; every S3 client has its own credential |
-| TEST-144 | DES-050 | The permission matrix over the four layers: reads, writes and publishes by each of four fixture users | 0 leaks across the matrix; a read returns the most specific row first; layer and author present on 100 % of annotations |
+| TEST-144 | DES-050 | The permission matrix over the four layers: reads, writes and publishes by each of four fixture users | 0 leaks across the matrix; a read returns the most specific row first; layer and author present on 100 % of annotations (provisional until S-004) |
