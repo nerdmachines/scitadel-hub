@@ -104,10 +104,10 @@ Every derived product shall record tool, version, config, model-weights hash, in
 
 ## REQ-008: Licence classes and gating
 
-Every row and artefact shall carry a licence class, and the protocol shall carry it. Phase 1 writes a single class (public, licence-clean), and `get` and `search` cannot return a row outside it. CC-BY-NC and CC-BY-ND content is excluded from every paid hosted tier. Entitlement classes, local display of licensed content for entitled lab users, upload-on-acquire and COUNTER 5.1 / SUSHI usage reporting are designed and wired through schema and protocol but disabled in phase 1. The hub is never a bulk proxy for paywalled content.
+Every row and artefact shall carry a licence class, and the protocol shall carry it. Phase 1 writes a single class (public, licence-clean), and `get` and `search` cannot return a row outside it. CC-BY-NC and CC-BY-ND content is excluded from every paid hosted tier. Entitlement classes, local display of licensed content for entitled lab users, upload-on-acquire and COUNTER 5.1 / SUSHI usage reporting are designed and wired through schema and protocol but disabled in phase 1. Upload-on-acquire is an inference: XADR-SCITADEL-008 §12 describes it, and §15's list of gated features does not name it. The hub is never a bulk proxy for paywalled content.
 
 - **Derives from:** PRIN-012, D-005, D-006
-- **Source:** XADR-SCITADEL-008 §12; §15
+- **Source:** XADR-SCITADEL-008 §12; §15 (the upload-on-acquire item is an inference from §12 and §15)
 - **Stories:** US-011, US-012, US-014, US-033
 - **Outcomes:** OUT-003
 - **Acceptance stub:** TEST-008, only permitted classes are served and gated paths are off, method: negative tests where rows of a disallowed class are never returned by get or search, NC and ND fixtures are refused by the paid-tier build, and gated handlers are verified unreachable in the phase-1 configuration
@@ -159,7 +159,7 @@ Hubs shall support layered knowledge: a global hub holds the licence-clean corpu
 
 ## REQ-013: Offline use and detach
 
-A client shall work offline-first on a personal machine with local storage. `detach` shall pull full copies of the user's own tracked works into local storage, checking the licence per artefact, and may emit a per-paper product whose provenance points at the hub shard's seal. A detached topic subset with its own indexes gives local search, and the client shall route a query to a covering local subset before the remote hub and report `answered_by: local-subset`. Bulk export of the processed corpus is not offered.
+A client shall work offline-first on a personal machine with local storage. `detach` shall pull full copies of the user's own tracked works into local storage, checking the licence per artefact, and may emit a per-paper product whose provenance points at the hub shard's seal. A detached topic subset with its own indexes gives local search, and the client shall route a query to a covering local subset before the remote hub and report `answered_by: local-subset:<id>`. Bulk export of the processed corpus is not offered.
 
 - **Derives from:** PRIN-002, PRIN-006, D-003
 - **Source:** XADR-SCITADEL-008 §12; §14; §17

@@ -26,7 +26,7 @@ As an individual researcher (offline), I want to search a detached subset of my 
 Acceptance:
 
 - A detached subset with its own indexes answers BM25, vector and hybrid queries with the network disabled.
-- The result reports `answered_by: local-subset` and names the subset.
+- The result reports `answered_by: local-subset:<id>`, which names the subset.
 - A query outside the subset is routed to the hub when one is reachable, and is reported as not covered when not.
 
 ### US-002: Take my tracked works with me
@@ -88,6 +88,7 @@ As a lab member, I want to flag a wrong table, equation or reading order on the 
 Acceptance:
 
 - A report is attached to one element and carries the work, the element and the extractor version.
+- A report on an element is shown against its source region (a licence-gated crop rendered from the kept original) and the element can be re-extracted from that region.
 - A confirmed report becomes a red fixture in the golden set and the fixed case stays in it.
 - Reports on licensed content go to the private tracker, public ones to the public tracker.
 
