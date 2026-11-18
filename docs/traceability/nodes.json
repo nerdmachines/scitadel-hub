@@ -1965,7 +1965,7 @@
     {
       "id": "DES-001",
       "kind": "DES",
-      "title": "Tessera boundary conventions: hub-boundary traits, composition root, async_trait dyn dispatch, one HubError with ErrorKind, Arrow at the boundary, capabilities minted by root-gated authorities over attested records, tier-typed scopes, tier-carrying index stamps",
+      "title": "Tessera boundary conventions: hub-boundary traits, composition root, async_trait dyn dispatch, one HubError with ErrorKind, Arrow at the boundary, capabilities minted by authorities reachable only through a feature-gated compose over hash-chained records, tier-typed scopes, index stamps carrying tier and opt-out exclusion digest",
       "status": "proposed",
       "source": "docs/architecture/tessera-boundary.md §1",
       "level": "L3"
@@ -1973,7 +1973,7 @@
     {
       "id": "TEST-094",
       "kind": "TEST",
-      "title": "Integration: workspace check (backend dependents, composition-root and backend-impl features, every crate builds alone), error-kind mapping, compile-fail capability cases and the authority suite over lying stores; method: cargo metadata plus cargo check -p per crate, an ErrorKind mapping test per backend, trybuild cases with pinned error codes, mutant stores",
+      "title": "Integration: workspace check (backend dependents; who requests and who reaches the composition-root and backend-impl features, through any dependency; no dependency on hub-compose; every other crate builds alone), error-kind mapping, compile-fail capability cases and the authority suite over faulty stores; method: cargo metadata, cargo tree -e features -i hub-boundary and cargo check -p per crate, an ErrorKind mapping test per backend, trybuild cases with pinned error codes, mutant stores",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
@@ -2384,6 +2384,13 @@
       "title": "Candidate products in scitadel-hub-runs (L2 infrastructure 4) versus keep-first for every sealed shard (SYS-059)",
       "status": "proposed",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#25"
+    },
+    {
+      "id": "C-007",
+      "kind": "C",
+      "title": "A consistent rollback of slot log and ledger can grant a fourth base (SYS-073) after a restore (SYS-047)",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#27"
     }
   ]
 }
