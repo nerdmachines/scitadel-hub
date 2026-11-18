@@ -1965,7 +1965,7 @@
     {
       "id": "DES-001",
       "kind": "DES",
-      "title": "Tessera boundary conventions: hub-boundary traits, composition root, async_trait dyn dispatch, one HubError with ErrorKind, Arrow at the boundary, capabilities minted by the authority layer, tier-typed scopes, split index stamps",
+      "title": "Tessera boundary conventions: hub-boundary traits, composition root, async_trait dyn dispatch, one HubError with ErrorKind, Arrow at the boundary, capabilities minted by root-gated authorities over attested records, tier-typed scopes, tier-carrying index stamps",
       "status": "proposed",
       "source": "docs/architecture/tessera-boundary.md §1",
       "level": "L3"
@@ -1973,7 +1973,7 @@
     {
       "id": "TEST-094",
       "kind": "TEST",
-      "title": "Integration: dependency and error-kind check plus compile-fail capability cases; method: cargo metadata over the workspace, an ErrorKind mapping test per backend and trybuild cases with pinned error codes",
+      "title": "Integration: workspace check (backend dependents, composition-root and backend-impl features, every crate builds alone), error-kind mapping, compile-fail capability cases and the authority suite over lying stores; method: cargo metadata plus cargo check -p per crate, an ErrorKind mapping test per backend, trybuild cases with pinned error codes, mutant stores",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
@@ -2133,7 +2133,7 @@
     {
       "id": "TEST-104",
       "kind": "TEST",
-      "title": "Integration: media-columns suite through ProductStore and TableScan; method: PNG, JPEG XL and SVG round trips, a PDF fixture that must be refused, a 10^5-figure shard for the block count, the figures schema on every backend",
+      "title": "Integration: media-columns suite through ProductStore (push, ProductHandle blocks and schema) and TableScan; method: PNG, JPEG XL and SVG round trips, a PDF fixture refused through put and as a hand-built push batch, a 10^5-figure shard for the block count, the figures contract on every backend",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
