@@ -1,0 +1,107 @@
+# L3/L4: source adapters and the download pool
+
+How the hub acquires its corpus: one ingest fabric of source adapters over one shared download pool, the gates every item passes before it can reach a paid-tier index, where every byte lands on the stage-0 layout, and how GPU jobs consume and produce data. The storage traits used here (`ArtefactStore`, `RunLedger`, `ProductStore`, `ServiceRegistry`) are specified in [the tessera boundary](tessera-boundary.md); open points are in [open questions](../open-questions.md).
+
+> **Source legend.** As in [the tessera boundary](tessera-boundary.md). The adapter issues are vig-os/scitadel [#314](https://github.com/vig-os/scitadel/issues/314) (H1, USPTO), [#315](https://github.com/vig-os/scitadel/issues/315) (H2, OpenAlex), [#322](https://github.com/vig-os/scitadel/issues/322) (H8, worldwide patents), [#323](https://github.com/vig-os/scitadel/issues/323) (source triage) and [#330](https://github.com/vig-os/scitadel/issues/330) (H18, TDM opt-out). Paths of the form `crates/…` are in the vig-os/scitadel client repository, read on 2026-11-18. This document specifies no commercial figures; source tiers and licences are taken from #323.
+
+## 1. The ingest adapter and how it relates to the client's search adapters (DES-018)
+
+The client already has a `SourceAdapter` (`crates/scitadel-core/src/ports/source.rs`): `name()` and `search(query, max_results) -> Vec<CandidatePaper>`. It answers a user's query live against an upstream API and is one of the fall-through paths of SYS-031. The hub needs something different: bulk, reproducible acquisition into sealed products. The hub's trait is therefore **a separate trait in a separate crate**, not an extension of the client's.
+
+```rust
+pub trait IngestAdapter: Send + Sync + 'static {
+    type Error: BoundaryError;
+    /// Static facts: namespace, pacing bucket, credit model, published checksums, licence basis, TDM scope.
+    fn descriptor(&self) -> &SourceDescriptor;
+    /// Pin the upstream release or snapshot date and list what to fetch (SYS-057).
+    async fn plan(&self, req: &IngestRequest, pins: &mut InputPins) -> Result<FetchPlan, Self::Error>;
+    /// API sources: the next page from the previous response (cursor paging), or None.
+    async fn next_page(&self, prev: &FetchOutcome) -> Result<Option<FetchItem>, Self::Error>;
+    /// T0: a verified raw artefact into normalised Arrow batches, each row with its licence class.
+    async fn parse(&self, input: VerifiedReader, meta: &ArtefactMeta, out: &mut NormalisedSink, prov: &ProvContext)
+        -> Result<ParseReport, Self::Error>;
+    /// SYS-001: the class from upstream metadata, before anything is written to a product.
+    fn licence(&self, item: &ItemMeta) -> LicenceDecision;
+}
+// FetchPlan  = Files(Vec<FetchItem>) | Paged(FetchItem)
+// FetchItem  { url, expected_size, expected_digest: Option<Digest>, kind: Bulk | Page | OaPdf | Xml, bucket, cost }
+// SourceDescriptor { namespace, bucket, credit: None | DailyCalls(n), publishes: Size | Md5 | Sha256 | Manifest | Nothing,
+//                    licence_basis, tdm_scope: PerSource | PerItem }
+```
+
+- **Adapters, phase 1.** USPTO grant full-text XML and the `PVGPATDIS` tables (#314; the bulk directory on `data.uspto.gov`, since `bulkdata.uspto.gov` is retired), the OpenAlex snapshot subset and its daily subscriptions (#315), the PMC OA `oa_comm` subset (#323 tier A) and the retraction list for SYS-010. Worldwide patents (#322) and the tier-B sources are later adapters on the same trait; #323 owns which ones.
+- **What the two kinds of adapter share.** Source namespaces (`openalex:W…`, `uspto:US…`, `pmcid:PMC…`, `doi:…`), so that a hub key and a client `CandidatePaper` identifier mean the same record; the pacing vocabulary of the client's pacer (`crates/scitadel-core/src/ports/pacer.rs`: buckets, `BucketPolicy { min_interval_ms, request_cap, work_cap }`), so that one upstream sees one politeness policy whether the client or the hub calls it; and the identity-normalisation helpers of `crates/scitadel-adapters`, used as a library. They do not share transport, error types or result shapes: the hub's adapter never returns `CandidatePaper`, and the client never writes a product.
+- **Keys.** A row's key is its source-namespaced identifier. Records of one work from two sources are **not merged into one row**: they are linked by a `same_as` edge (DES-008) found through DOI or PMID, which keeps every row traceable to exactly one raw input and one licence decision.
+- **Invariants.** An adapter performs no network I/O itself: every request goes through the pool (DES-019), which is how pacing, credits, opt-out and secrets apply to all of them. `parse` reads only verified bytes from the artefact store, so T0 can be re-run without a fetch (SYS-066). Every normalised row carries a licence class and a `prov_id` variant naming the raw artefact.
+
+## 2. The shared download pool (DES-019)
+
+One pool per hub instance serves every adapter, the opt-out checks and the re-fetch path.
+
+- **Concurrency.** A global connection cap (16 *(estimate)*), a per-host cap (2 by default) and per-bucket policies from configuration. No adapter can raise them.
+- **Per-source rate limits and credits.** Each bucket has a token-bucket pacer with `min_interval`, a daily request cap and a daily work cap, in the client pacer's shape. Values come from each source's published terms and are recorded beside the policy: OpenAlex at most the free key's daily allowance of list calls with the remaining credits read from `X-RateLimit-Credits-Used` on every response and a stop before the allowance is exhausted (SYS-003; the page size that sets this budget is C-003); Crossref at its public limit; INSPIRE-HEP at its per-IP limit; EPO OPS within its weekly volume; bulk S3 and HTTPS file sources at the per-host cap. A request is debited in the run ledger **before** it is sent, keyed by run, step and page, so a resume never spends twice (SYS-061).
+- **Retries with an explicit budget.** Errors are classified once: `429` and `503` wait for `Retry-After`; other `5xx`, connection errors and timeouts back off exponentially with full jitter (base 1 s, cap 5 min); other `4xx` are not retried. Every item has a `RetryBudget { max_attempts: 6, max_elapsed: 1 h }` and every run a retry share of at most 10 % of its requests *(estimates)*. An item whose budget is spent is recorded as `failed` in the ledger with its last error, never dropped silently; a run whose share is spent stops its fetch phase and reports. Pacing and opt-out rules apply to retried and resumed requests alike (SYS-058).
+- **Resumable downloads.** A download is `staging/downloads/<source>/<url-hash>.part` with a sidecar: URL, `ETag` and `Last-Modified`, expected size and digest when published, and the blake3 of each completed 64 MiB chunk. A resume sends `Range: bytes=<last chunk boundary>-` with `If-Range`; a changed validator discards the partial and restarts from zero. Only the last, incomplete chunk is re-requested (SYS-058).
+- **Verification and content addressing.** A finished file is accepted only if its size and the published digest match (length, MD5, SHA-256 or manifest, per `SourceDescriptor.publishes`); a source that publishes none gets its own blake3 and size, recorded and verified on every later fetch. The blake3 is computed for every file regardless, because it is the artefact store key.
+- **Dedup by blake3.** When a plan item's digest is already known, the pool asks `ArtefactStore::head` first and skips the transfer on a hit, recording the URL as one more source of the existing artefact. After a download the same check runs before `put`, so identical bytes from two URLs are stored once and referenced twice.
+- **Cache.** Conditional requests (`If-None-Match`, `If-Modified-Since`) for manifests, listings and API pages, with the response bodies under `staging/adapters/<source>/cache/`, keyed by URL and validator. A `304` reuses the cached body after a blake3 check. The cache is derived and rebuildable; anything that becomes a run input is kept in the artefact store, because raw inputs are kept (SYS-014).
+- **Secrets.** Keys are attached by the pool from the hub's secrets file as headers where the source allows, and every logged URL passes a redaction filter, so no credential reaches a log, an error or a response (SYS-040).
+- **Telemetry.** Freshness per subscription, credits used, queue depth and retry counts go to the observability seam (SYS-043).
+
+## 3. Gates, in the order an item meets them (DES-020)
+
+| # | Gate | When | Effect |
+|---|---|---|---|
+| 1 | **Raw-write gate (SYS-072)** | before a run that writes raw inputs starts | refused while the newest backup is older than 48 h *(estimate)* or before the first restore from cold has passed; a pause, never a deletion |
+| 2 | **Source opt-out check (SYS-055, #330)** | before the first fetch from a source, in every ingest cycle | robots.txt, TDMRep (`/.well-known/tdmrep.json` and the `tdm-reservation` header), `noai` and ai.txt are fetched through the pool; the evidence is kept by blake3 and the verdict recorded in the ledger. A commercial-tier run makes **no** fetch from an opted-out source; a lab run (research basis) fetches and marks its rows not Article-4-clear |
+| 3 | **Item opt-out record (#330)** | on each fetched HTML or PDF response | item-level `tdm-reservation` and `noai` headers or meta are recorded on the item |
+| 4 | **Licence gate (SYS-001)** | at parse, before any product write | the class from upstream metadata; in phase 1 anything outside CC0, CC-BY and public domain is rejected and logged |
+| 5 | **Tier gate (SYS-006)** | before each cascade tier | the tier's definition lists the classes it may process; T4 only for CC-BY, CC0 and public domain |
+| 6 | **Paid-tier view (SYS-054, #330)** | when any paid-tier index or product is built | a row enters only if its class is CC0, CC-BY or public domain (never NC or ND) **and** it carries an explicit licence or an Article-4-clear opt-out record from the current cycle |
+
+The paid-tier view of gate 6 is a type: index builders for a paid tier take a `TierScoped<GenerationRef>` that only the view constructs, so neither the cache nor a lab-tier generation can reach a paid-tier index without passing gates 2 to 4. An opt-out that flips between two ingests withdraws the item from the next paid-tier build, with the record in its provenance. Gate 4 and the `licence_class` column (SYS-052) keep serving inside the class the tier allows; gated features stay unreachable in phase 1 (SYS-053). PDF bytes never pass any gate into a product or a response (D-007).
+
+## 4. Where every byte lands (DES-021)
+
+Stage 0, on the KC3000 layout of [L2 infrastructure](../vmodel/L2-infrastructure.md) (sections 2.1, 4 and 5): btrfs subvolumes under `HUB=/var/lib/microvms/data/scitadel-hub` and the `gerchowl/g-fleet#1449` buckets under the gateway root. Not ZFS: ZFS exists only on the later warm store of `gerchowl/g-fleet#1363`, which takes over `keep`'s role by configuration.
+
+| Bytes | Path | Written by | Lifetime |
+|---|---|---|---|
+| In-flight download and sidecar | `staging/downloads/<source>/<url-hash>.part`, `.sidecar.json` | pool | until verified and kept |
+| Conditional-request cache | `staging/adapters/<source>/cache/` | pool | derived; evictable |
+| Bulk working copies | `staging/adapters/<source>/pool/` | pool | removed once the copy in `keep` is verified |
+| Raw inputs and opt-out evidence | `scitadel-hub-keep` `cas/<2 hex>/<blake3>` | `ArtefactStore::put` | kept; never deleted automatically (SYS-014) |
+| Cascade intermediates T1 to T4 | `scitadel-hub-keep` `inter/<input>/<tier>/<definition>/…` | `ArtefactStore::put_intermediate` | kept (SYS-066) |
+| Normalised tables before sealing | `staging/parquet/<run-id>/<table>/` | adapters' `parse` | **internal staging only** (XADR-SCITADEL-008 §2, until tessera's wave 1 of #778): never in a bucket, never served, removed when the sealed shard is verified |
+| Shards being sealed | `staging/build/<run-id>/` | `ProductStore` | removed after publication |
+| Canonical sealed products (data, embeddings, IVF products, edge tables) | `scitadel-hub-keep` `products/<collection>/base/<release>/`, `delta/<date>/`, `current` | `GenerationCatalog::publish_shard` | by the retention role only (SYS-017) |
+| Hot serving copy | `products/<collection>/…` | `GenerationCatalog`, after `keep` (SYS-059) | mirror of `keep` |
+| BM25, keys and graph caches | `index/{bm25,keys,graph}/<collection>/<stamp>/` | `TextIndex`, `KeyedRefs`, `GraphIndex` | rebuildable; local NVMe only (SYS-012) |
+| GPU inputs, outputs, weights | `gpu-io/in/<run-id>/`, `out/<run-id>/`, `models/<weights blake3>/` | hub (in, models); job (out) | section 5 |
+| Accepted GPU output before writing | `staging/gpu-accept/<run-id>/` | hub | removed after the write |
+| Page renders and crops | `staging/renders/` | render service | evictable, at most 40 GiB (SYS-064) |
+| Hand-off payloads, QC reports, quarantine | `scitadel-hub-runs` `handoff/<run-id>/`, `qc/<run-id>/`, `quarantine/` | orchestrator | 28 d; untriaged quarantine copied to `keep` at the warning |
+| Ledgers | `state/ledger.sqlite` and siblings | `RunLedger` | snapshots hourly; nightly dump to `keep` |
+| `ksb` slice | `ksb-slice-<id>` manifest and files | orchestrator | deleted when the ksb task ends (SYS-063) |
+
+Quotas, the stage-0 raw budget of 380 GiB and the pause at 90 % are those of L2 infrastructure section 2.4; `ArtefactStore::put` returns `Quota` there and the run waits. A source larger than that budget (the PatentRef snapshot, C-004) is not planned at stage 0 until the owner decides.
+
+## 5. GPU jobs: consuming and producing data (DES-022)
+
+1. **Choose and stage.** The orchestrator selects the items of one chunk, resolves the tier's active definition (`ServiceRegistry::active`) and copies the inputs from the artefact store into `gpu-io/in/<run-id>/`, with `in/<run-id>/MANIFEST.json` listing every input by blake3, the definition hash and the chunk plan. Weights are fetched once into `models/<weights blake3>/` through the signed manifest and checked against the definition (SYS-056, SYS-067).
+2. **Record, then submit.** `RunLedger::gpu_submitted` records run id, the expected `out/<run-id>/` and the input hashes **before** `gpu_submit` is called with the definition's VRAM, `priority=low`, the project `scitadel-hub` and a runtime of at most 1,800 s (SYS-048). The command comes from the definition's runtime; the code names no host and no model.
+3. **The job.** It runs as `bash -lc` with cwd `/`, changes to `/srv/anvil/projects/scitadel-hub`, reads `in/<run-id>/` and `models/`, writes only a new `out/<run-id>/chunk-<n>/`, checkpoints at least every 600 s *(estimate)*, reports `<done>/<total>` to `$GPU_PROGRESS_FILE`, and ends with `out/<run-id>/MANIFEST.json`: every file with size and blake3, the input hashes it read, model and version, and its job id (SYS-049).
+4. **Chunking and resume.** A chunk that times out is resubmitted from its last checkpoint, repeating at most 600 s of work (SYS-061). Bulk embedding is planned to the throughput of SYS-050; backfills and re-embedding sweeps have a definition whose executor is rented GPU, and the registry refuses a sweep definition that targets anvil (SYS-051).
+5. **Accept (SYS-062).** At the job's terminal state the hub hashes every file itself and records the hashes (`gpu_job_ended`), copies the files to `staging/gpu-accept/<run-id>/`, verifies the copy against those hashes and the manifest, and quarantines on any extra file, missing manifest, mismatch, unknown job id or later modification.
+6. **Produce.** Accepted T1 to T4 output becomes intermediates (`put_intermediate`); text and image embeddings (SYS-065) become embedding products through `ProductStore` and promotion; every row names the definition hash. `in/<run-id>/` is removed within 24 h of acceptance and `out/<run-id>/` after promotion, once `gerchowl/g-fleet#1363` settles the add-only exception (O-8); until then nothing is deleted and the quota alerts.
+7. **Overflow.** Only if an enabled definition targets sage: the payload goes under its own prefix of `scitadel-hub-runs`, and the result returns there with a manifest and is accepted by the same step 5 (SYS-070).
+
+## 6. Verification
+
+| Test | Verifies | Method | Pass criterion |
+|---|---|---|---|
+| TEST-111 | DES-018 | Every phase-1 adapter against recorded upstream fixtures through a pool double that fails on any direct network call; T0 re-run from kept artefacts | 0 direct network calls; every row has a licence class and a `prov_id`; re-run output hashes identical |
+| TEST-112 | DES-019 | Pool against a fault-injecting HTTP server: kills mid-download, changed validators, `429` with `Retry-After`, `5xx` storms, a credit header counting down, duplicate bytes under two URLs | at most one chunk re-requested; restarts on changed validators; 0 requests beyond a budget or a cap; one artefact for duplicate bytes; 0 secrets in captured logs |
+| TEST-113 | DES-020 | Fixture sources with each opt-out kind and each licence class through a lab and a commercial run, then a flipped opt-out between two cycles | 0 fetches of opted-out sources in commercial runs; 0 NC, ND or non-clear rows in the paid-tier build; the flipped item withdrawn with its record |
+| TEST-114 | DES-021 | A fixture ingest in a scratch microVM with the stage-0 layout, every write traced (`fanotify`) | every byte lands at the path of section 4; 0 Parquet files outside `staging/parquet/`; 0 index files on S3 |
+| TEST-115 | DES-022 | A 50-item chunk through `gpu_submit` on anvil-gpu with a fake model, then the tampering cases of SYS-062 | accepted only with a matching manifest and job-end hashes; every tampering case quarantined; resume repeats ≤ 600 s |
