@@ -13,13 +13,13 @@ What the system and its infrastructure shall do to meet each [L1 requirement](L1
 | Ingest and corpus lifecycle | SYS-001, SYS-002, SYS-003, SYS-004, SYS-005, SYS-006, SYS-007, SYS-008, SYS-009, SYS-010 |
 | Storage tiers | SYS-011, SYS-012, SYS-013, SYS-014, SYS-015, SYS-016, SYS-017 |
 | Indexes | SYS-018, SYS-019, SYS-020, SYS-021 |
-| Query service | SYS-022, SYS-023, SYS-024, SYS-025 |
+| Query service | SYS-022, SYS-023, SYS-024, SYS-025, SYS-071 |
 | Protocol and MCP | SYS-026, SYS-027, SYS-028, SYS-029, SYS-030 |
 | Client app | SYS-031, SYS-032, SYS-033, SYS-034 |
 | Tenancy and deployment | SYS-035, SYS-036, SYS-037, SYS-038, SYS-039 |
 | Security, secrets and privacy | SYS-040, SYS-041, SYS-042 |
 | Observability | SYS-043, SYS-044 |
-| Backup and restore | SYS-045, SYS-046, SYS-047 |
+| Backup and restore | SYS-045, SYS-046, SYS-047, SYS-072 |
 | GPU job usage | SYS-048, SYS-049, SYS-050, SYS-051 |
 | Licence and TDM gating | SYS-052, SYS-053, SYS-054, SYS-055, SYS-056 |
 | ETL orchestration and run ledger | SYS-057, SYS-058, SYS-059, SYS-060, SYS-061, SYS-062, SYS-063 |
@@ -34,23 +34,23 @@ Every requirement decomposes into at least one system requirement.
 |---|---|
 | REQ-001 | SYS-001, SYS-002, SYS-034 |
 | REQ-002 | SYS-002, SYS-003, SYS-004, SYS-005, SYS-017, SYS-021, SYS-040, SYS-043, SYS-057, SYS-058, SYS-060, SYS-061 |
-| REQ-003 | SYS-005, SYS-012, SYS-018, SYS-019, SYS-020, SYS-021, SYS-022, SYS-023, SYS-025, SYS-065 |
-| REQ-004 | SYS-019, SYS-027 |
-| REQ-005 | SYS-002, SYS-008, SYS-014, SYS-032 |
+| REQ-003 | SYS-005, SYS-012, SYS-018, SYS-019, SYS-020, SYS-021, SYS-022, SYS-023, SYS-025, SYS-065, SYS-071 |
+| REQ-004 | SYS-019, SYS-027, SYS-071 |
+| REQ-005 | SYS-002, SYS-008, SYS-014, SYS-032, SYS-072 |
 | REQ-006 | SYS-006, SYS-007, SYS-060, SYS-064, SYS-066, SYS-067, SYS-069, SYS-070 |
-| REQ-007 | SYS-009, SYS-014, SYS-028, SYS-049, SYS-057, SYS-058, SYS-059, SYS-062, SYS-066, SYS-067, SYS-068, SYS-069 |
+| REQ-007 | SYS-009, SYS-014, SYS-028, SYS-049, SYS-057, SYS-058, SYS-059, SYS-062, SYS-066, SYS-067, SYS-068, SYS-069, SYS-071, SYS-072 |
 | REQ-008 | SYS-001, SYS-014, SYS-028, SYS-032, SYS-034, SYS-052, SYS-053, SYS-054, SYS-064, SYS-070 |
 | REQ-009 | SYS-010, SYS-021, SYS-028 |
 | REQ-010 | SYS-028, SYS-029 |
-| REQ-011 | SYS-025, SYS-026, SYS-027, SYS-030, SYS-031 |
+| REQ-011 | SYS-025, SYS-026, SYS-027, SYS-030, SYS-031, SYS-071 |
 | REQ-012 | SYS-037 |
 | REQ-013 | SYS-032, SYS-033, SYS-034 |
 | REQ-014 | SYS-035, SYS-036, SYS-039, SYS-041, SYS-054 |
 | REQ-015 | SYS-038, SYS-039 |
 | REQ-016 | SYS-041, SYS-042 |
 | REQ-017 | SYS-055 |
-| REQ-018 | SYS-003, SYS-006, SYS-011, SYS-013, SYS-015, SYS-016, SYS-017, SYS-039, SYS-040, SYS-041, SYS-043, SYS-044, SYS-045, SYS-046, SYS-047, SYS-057, SYS-059, SYS-060, SYS-061, SYS-063, SYS-069, SYS-070 |
-| REQ-019 | SYS-011, SYS-012, SYS-013, SYS-022, SYS-024, SYS-044, SYS-048, SYS-049, SYS-050, SYS-051, SYS-062, SYS-065, SYS-067 |
+| REQ-018 | SYS-003, SYS-006, SYS-011, SYS-013, SYS-015, SYS-016, SYS-017, SYS-039, SYS-040, SYS-041, SYS-043, SYS-044, SYS-045, SYS-046, SYS-047, SYS-057, SYS-059, SYS-060, SYS-061, SYS-063, SYS-069, SYS-070, SYS-072 |
+| REQ-019 | SYS-011, SYS-012, SYS-013, SYS-022, SYS-024, SYS-044, SYS-048, SYS-049, SYS-050, SYS-051, SYS-062, SYS-065, SYS-067, SYS-071 |
 | REQ-020 | SYS-026, SYS-030, SYS-056 |
 
 ## Ingest and corpus lifecycle
@@ -161,7 +161,7 @@ Every record that matches a retraction-tracking entry by DOI or PMID shall carry
 
 The hub's hot data shall live on named btrfs subvolumes of the KC3000 pool, each with a hard quota, the properties set out in [L2 infrastructure](L2-infrastructure.md), and a defined owner.
 
-- **Quantified:** Combined hub quota ≤ 1,800 GiB, about 65 % of the roughly 2.7 TiB free on 2026-11-09 and sized from the stated size model of [L2 infrastructure](L2-infrastructure.md) (section 2.4) *(estimate)*; alert at 80 % of each quota; pool free space ≥ 500 GiB.
+- **Quantified:** Combined hub quota ≤ 1,840 GiB, about 67 % of the roughly 2.7 TiB free on 2026-11-09 and sized from the stated size model of [L2 infrastructure](L2-infrastructure.md) (section 2.4) *(estimate)*; alert at 80 % of each quota; pool free space ≥ 500 GiB.
 - **Derives from:** REQ-018, REQ-019
 - **Source:** XADR-SCITADEL-008 §8; `gerchowl/g-fleet#1474`
 - **Verified by:** TEST-031
@@ -189,7 +189,7 @@ The hub shall use the buckets `scitadel-hub-scratch` (48 h), `scitadel-hub-runs`
 
 ### SYS-014: Raw and intermediate store: keep everything
 
-Every raw input (open-access PDFs, JATS, TEI and USPTO XML, bulk snapshots) and every cascade tier's intermediate output (T1 OCR and layout, T2 math OCR, T3 vision-language output, T4 results) shall be kept in a content-addressed store keyed by blake3 hash, with its provenance, in `scitadel-hub-keep` on the KC3000 until the warm tier exists and on the warm tier from then on. Nothing shall be deleted automatically. Raw XML and PDF bytes shall never enter a product, and PDF bytes shall never be served. In stage 0 the store has an explicit budget; when it is reached, ingest shall pause with an alert. The only class an operator may drop by hand is a re-fetchable open-access PDF whose hash and URL are recorded.
+Every raw input (open-access PDFs, JATS, TEI and USPTO XML, bulk snapshots) and every cascade tier's intermediate output (T1 OCR and layout, T2 math OCR, T3 vision-language output, T4 results) shall be kept in a content-addressed store keyed by blake3 hash, with its provenance, in `scitadel-hub-keep` on the KC3000 until the warm tier exists and on the warm tier from then on. Nothing shall be deleted automatically. Raw XML and PDF bytes shall never enter a product, and PDF bytes shall never be served. In stage 0 the store has an explicit budget; when it is reached, ingest shall pause with an alert. The only class an operator may drop by hand is a re-fetchable open-access PDF whose hash and URL are recorded. Because the hot and warm tiers share anvil as one failure domain, the policy rests on the off-anvil cold copy and is gated on it (SYS-072).
 
 - **Quantified:** 100 % of the raw inputs and tier outputs of a completed run present in the store, each with hash, tool, model, version and input hash; 0 automatic deletions (audit of delete calls); alert at 80 % and ingest paused at 90 % of the stage-0 raw budget, with 0 data lost when the budget is reached; a hand-drop is refused for any object without a recorded hash and URL; 0 PDF bytes served (D-007); a re-fetch is verified against the recorded hash; kept TEI about 8 to 10 GB zstd per 2,000,000 papers *(estimate)*.
 - **Derives from:** REQ-005, REQ-007, REQ-008
@@ -197,19 +197,19 @@ Every raw input (open-access PDFs, JATS, TEI and USPTO XML, bulk snapshots) and 
 - **Verified by:** TEST-034
 - **Delivered by:** [vig-os/scitadel#318](https://github.com/vig-os/scitadel/issues/318)
 
-### SYS-015: Warm tier on the storage host
+### SYS-015: Warm tier on anvil's HDD pool
 
-Once the storage host exists, the canonical sealed products and their history, every raw input and every cascade intermediate (SYS-014) shall be held on it, served by an S3 gateway, with scheduled scrubs and snapshots; until then the `keep` bucket on the KC3000 stands in, within its quota.
+Once the warm store of `gerchowl/g-fleet#1363` exists (20+ TB of HDD attached to anvil, ZFS behind its own versitygw; owner, 2026-11-18), the canonical sealed products and their history, every raw input and every cascade intermediate (SYS-014) shall be held on it, served over S3, with scheduled scrubs and snapshots; until then the `keep` bucket on the KC3000 stands in, within its quota. The hot tier stays on the KC3000 NVMe. Hot and warm are different disks in one host and share **one failure domain**: the loss of anvil, of its LUKS keys or a host-level compromise takes both. The cold mirror (SYS-016) is therefore the only off-anvil copy of the raw data, and the cutover to the warm store is gated on a restore from it (SYS-072). No second on-prem host is assumed.
 
-- **Quantified:** Capacity of at least 20 TB usable (owner, 2026-11-11), with central-case steady state about 13 TB and compaction peak about 18 TB *(estimate, size model in L2 infrastructure section 2.4)*; 0 checksum mismatches after migration from the KC3000 buckets; scrub on schedule.
+- **Quantified:** Usable capacity after the ZFS layout (raidz2 or mirror) of at least 19.5 TB, so that the central case stays at or below 80 % at its compaction peak *(estimate, size model in L2 infrastructure section 2.4)*: central steady state about 12.7 TB, compaction peak (current, previous and candidate base, 3.1 B) about 15.5 TB; 0 checksum mismatches after migration from the KC3000 buckets; monthly scrub with 0 unrepaired errors; 0 endpoint flips without a passed restore from cold.
 - **Derives from:** REQ-018
-- **Source:** XADR-SCITADEL-008 §8; §2; `gerchowl/g-fleet#1363`
+- **Source:** XADR-SCITADEL-008 §8 (stage 0, warm tier, owner 2026-11-18); §2; `gerchowl/g-fleet#1363`
 - **Verified by:** TEST-035
 - **Delivered by:** `gerchowl/g-fleet#1363`
 
 ### SYS-016: Cold tier on the Storage Box
 
-The cold tier shall mirror the warm tier (and, before the warm tier exists, the non-rebuildable part of the KC3000 buckets): everything shall be pushed client-side encrypted with restic to a Hetzner Storage Box, with keys only in this fleet's sops, and the repository shall pass an integrity check.
+The cold tier shall mirror the warm tier (and, before the warm tier exists, the non-rebuildable part of the KC3000 buckets): everything shall be pushed client-side encrypted with restic to a Hetzner Storage Box, with keys only in this fleet's sops, and the repository shall pass an integrity check. It is the only copy of the raw data outside anvil (SYS-015), and SYS-072 gates ingest on it.
 
 - **Quantified:** Backup lag ≤ 24 h; `restic check` pass monthly; 0 plaintext objects on the box; 0 objects of the warm tier missing from the mirror after a nightly run.
 - **Derives from:** REQ-018
@@ -275,7 +275,7 @@ Indexes shall be rebuildable from sealed products alone, shall carry the stamp o
 
 The query service shall answer hybrid (rank-fused) search with metadata filters for about 20 concurrent users on a CPU-only host.
 
-- **Quantified:** p95 ≤ 250 ms *(estimate)* (OUT-005) for hybrid search without rerank at 20 concurrent users; ≥ 20 queries per second sustained *(estimate)*; 0 errors.
+- **Quantified:** p95 ≤ 250 ms *(estimate)* (OUT-005) for hybrid search without rerank at 20 concurrent users, hub-side query embedding (SYS-071) included; ≥ 20 queries per second sustained *(estimate)*; 0 errors.
 - **Derives from:** REQ-003, REQ-019
 - **Source:** XADR-SCITADEL-008 §14
 - **Verified by:** TEST-042
@@ -293,11 +293,11 @@ If the rerank queue is busy the service shall return the unreranked result flagg
 
 ### SYS-024: CPU-only serving
 
-No index, embedder or reranker shall be resident on the GPU, and the serving environment shall not be given a GPU device.
+No index or reranker shall be resident on the GPU, and the serving environment shall not be given a GPU device. The query embedder of SYS-071 runs on CPU in the serving environment by default. It may hold a reserved GPU slot only through a service definition (SYS-067) that names a GPU executor outside the serving microVM with declared VRAM, after the benchmark of SYS-071 shows that the CPU path cannot meet its latency budget, and with the owner's approval, because XADR-SCITADEL-008 §14 and the fleet's rules keep serving off the shared 5090.
 
-- **Quantified:** 0 MiB of VRAM held by serving processes; 0 GPU devices in the serving microVM.
+- **Quantified:** 0 GPU devices in the serving microVM; 0 MiB of VRAM held by serving processes, except a query-embedder slot named by an active definition, which stays within its declared VRAM.
 - **Derives from:** REQ-019
-- **Source:** XADR-SCITADEL-008 §8; §14
+- **Source:** XADR-SCITADEL-008 §8; §14; [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316) (owner, 2026-11-18)
 - **Verified by:** TEST-044
 - **Delivered by:** [vig-os/scitadel#311](https://github.com/vig-os/scitadel/issues/311)
 
@@ -309,6 +309,16 @@ No index, embedder or reranker shall be resident on the GPU, and the serving env
 - **Derives from:** REQ-003, REQ-011
 - **Source:** XADR-SCITADEL-008 §7; §14
 - **Verified by:** TEST-045
+- **Delivered by:** [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316)
+
+### SYS-071: Hub-side query embedding
+
+The hub shall embed query text itself (owner decision of 2026-11-18 on `vig-os/scitadel#316`). For each query it shall use the query-embedding service definition (SYS-067) whose model id, revision, quantization, weights hash, dimensions and truncation match those recorded for the index generation being queried, so that query and document vectors come from one model. On any mismatch the query's vector leg shall be refused with an explicit error; the hub never mixes vectors from two models and never silently falls back to another model. The hash of the definition used shall appear in the response's provenance. Clients send text only and ship no embedding model: the live-API fall-through without a hub, and a detached local subset, are BM25 and keyword search only (SYS-031, SYS-033). The embedder runs on CPU in the serving environment by default; a reserved GPU slot is the exception defined in SYS-024. If the embedder cannot answer within its budget, the response is BM25-only and flagged as such, as the rerank fallback of SYS-023 is. The model and its placement are not fixed here: they are chosen by a benchmark on anvil's RTX 5090 and on the serving CPU (owner), together with the bulk-embedding throughput of SYS-050, because the same model embeds the corpus.
+
+- **Quantified:** Query-embedding step p95 ≤ 50 ms *(estimate)* at 20 concurrent users, within the 250 ms of SYS-022; 100 % of mismatching index generations refused for vector search, with 0 mixed-model results; 100 % of vector and hybrid responses carry the definition hash in their provenance; 0 client-supplied vectors accepted; 0 embedding models loaded or fetched by the client; 100 % of embedder timeouts answered BM25-only and flagged; the benchmark records recall@10 on the golden queries and p95 per candidate before a default definition is enabled.
+- **Derives from:** REQ-003, REQ-004, REQ-007, REQ-011, REQ-019
+- **Source:** [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316) (owner decision, 2026-11-18); XADR-SCITADEL-008 §10 (service definitions); §14
+- **Verified by:** TEST-091
 - **Delivered by:** [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316)
 
 ## Protocol and MCP
@@ -325,11 +335,11 @@ The hub shall expose `search`, `get`, `neighbours`, `coverage` and `capabilities
 
 ### SYS-027: Capabilities, coverage and the embedding contract
 
-`capabilities` shall advertise per index the embedding model id, version, dimensions, Matryoshka truncation, analyzer configuration and rerankers, `coverage` shall list sources, subsets and product versions, and a client query vector whose declared model, version or dimensions mismatch the index shall be rejected with an explicit protocol error.
+`capabilities` shall advertise per index the embedding model id, revision, quantization, dimensions, Matryoshka truncation, the hash of the query-embedding definition, the analyzer configuration and the rerankers; `coverage` shall list sources, subsets and product versions. `search` shall take query text only: the hub embeds it (SYS-071), and a request that carries a query vector shall be rejected with an explicit protocol error, whatever model it claims. This follows the owner's decision of 2026-11-18 on `vig-os/scitadel#316`, which replaces the client-side default and the tagged client vector of XADR-SCITADEL-008 §7 and §14.
 
-- **Quantified:** 100 % of mismatching vectors rejected; 0 silent re-embeddings; `coverage` updated on every delta or release.
+- **Quantified:** 100 % of requests carrying a vector rejected with the documented error; 0 client vectors used; `capabilities` names the query-embedding definition hash for 100 % of vector indexes; `coverage` updated on every delta or release.
 - **Derives from:** REQ-004, REQ-011
-- **Source:** XADR-SCITADEL-008 §7; §14
+- **Source:** XADR-SCITADEL-008 §7; §14; [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316) (owner, 2026-11-18)
 - **Verified by:** TEST-047
 - **Delivered by:** [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316)
 
@@ -367,7 +377,7 @@ The project shall publish CC0 conformance vectors and a verifier, and the refere
 
 ### SYS-031: Fall-through and unchanged client
 
-The hub source adapter shall ask the hub only what `coverage` declares and shall fall through to the live source on a miss, an error or a bounded timeout, recording `answered_by`; with no hub configured, client behaviour shall be unchanged.
+The hub source adapter shall ask the hub only what `coverage` declares and shall fall through to the live source on a miss, an error or a bounded timeout, recording `answered_by`; with no hub configured, client behaviour shall be unchanged. The fall-through to live sources is BM25 and keyword search only; the client ships and loads no embedding model (SYS-071).
 
 - **Quantified:** Added latency on hub failure ≤ 3 s p95 *(estimate)* (OUT-014); 0 differences in the client suite with no hub.
 - **Derives from:** REQ-011
@@ -387,7 +397,7 @@ The hub source adapter shall ask the hub only what `coverage` declares and shall
 
 ### SYS-033: Local-subset routing
 
-A detached topic subset with its own indexes shall answer local queries, the client shall route a query to a covering local subset before the remote hub, and the answer shall report `answered_by: local-subset:<id>`.
+A detached topic subset with its own indexes shall answer local queries (BM25, filters and neighbours; vector search on query text needs the hub's embedder, SYS-071, because the client ships no embedding model), the client shall route a query to a covering local subset before the remote hub, and the answer shall report `answered_by: local-subset:<id>`.
 
 - **Quantified:** A 50,000-paper subset with indexes ≤ 3 GB and local query p95 ≤ 100 ms on a laptop *(estimate)* (OUT-015).
 - **Derives from:** REQ-013
@@ -542,6 +552,16 @@ An empty host shall be restorable to a serving hub from backup, rebuilding the d
 - **Source:** XADR-SCITADEL-008 §8; `gerchowl/g-fleet#1263`; `gerchowl/g-fleet#1363`
 - **Verified by:** TEST-067
 - **Delivered by:** `gerchowl/g-fleet#1263`, `gerchowl/g-fleet#1363`
+
+### SYS-072: The off-anvil copy gates keep-everything
+
+Because the hot and warm tiers share anvil as one failure domain (SYS-015), the keep-everything policy of SYS-014 shall be backed by the cold mirror of SYS-016 as a gate, not as a best effort. Corpus ingest into the raw and intermediate store, anything beyond the CC0 fixture corpus, shall not start until the first restic backup of `scitadel-hub-keep` has completed and a restore from cold has passed. The ingest scheduler shall start no new run that writes raw inputs or intermediates while the newest successful backup is older than 48 h; that pauses ingest with an alert and deletes nothing. The cutover to the warm store shall not flip the hub's endpoint until a restore from cold of the migrated set has passed. A restore from cold restores objects from the Storage Box onto a scratch volume and verifies each one's blake3 hash against the ledger.
+
+- **Quantified:** 0 corpus-ingest runs started before the first backup and restore pass; 0 raw-writing runs started while the newest backup is older than 48 h *(estimate)*; 0 deletions caused by the gate; a monthly restore of 1,000 randomly sampled objects plus every object of one complete run, with 100 % restored and matching their recorded hash and 0 missing; 0 warm cutovers without a passed restore.
+- **Derives from:** REQ-005, REQ-007, REQ-018
+- **Source:** XADR-SCITADEL-008 §8 (stage 0: warm tier on anvil, cold tier); §12 (raw retention: keep everything); `gerchowl/g-fleet#1438` (restore-drill gate); `gerchowl/g-fleet#1649` (O-9)
+- **Verified by:** TEST-092
+- **Delivered by:** `gerchowl/g-fleet#1649`, `gerchowl/g-fleet#1438`
 
 ## GPU job usage
 
@@ -701,7 +721,7 @@ The hub shall accept the output of a GPU job only after it has checked, in this 
 
 ### SYS-063: Explicit corpus slice transfer to ksb
 
-Corpus data shall reach the ksb batch host only by an explicit transfer of a named, versioned slice (`ksb-slice-<id>`: a manifest of paths, sizes and hashes plus the files) built by the hub from the stage-0 slice, verified against the manifest on arrival, read-only on ksb, limited to CC0, CC-BY and public-domain content, and deleted when the task ends. Tests that name the stage-0 corpus on ksb mean this slice.
+Corpus data shall reach the ksb batch host only by an explicit transfer of a named, versioned slice (`ksb-slice-<id>`: a manifest of paths, sizes and hashes plus the files) built by the hub from the stage-0 slice, verified against the manifest on arrival, read-only on ksb, limited to CC0, CC-BY and public-domain content, and deleted when the task ends. Tests that name the stage-0 corpus on ksb mean this slice, or a subset built from it and recorded in its manifest (the 50,000-paper subset of TEST-053). A ksb task has no network path to the stage-0 hub, the gateway or the backup set; a test that needs any of them runs on anvil.
 
 - **Quantified:** 0 files on ksb that are not in a manifest; 100 % of transferred files verified by hash; a flipped byte detected in 100 % of attempts; slice ≤ 250 GiB *(estimate)*, ksb capacity confirmed before the first transfer.
 - **Derives from:** REQ-018
@@ -745,9 +765,9 @@ Any vision tier (T1 OCR and layout, T2 math OCR, T3, T4) shall be re-runnable on
 
 ### SYS-067: Service registry
 
-Every extraction tier and job kind (T1 to T4, embedding, figure description, rerank, re-embedding) shall run through a service definition held in a versioned, content-hashed service registry, which is configuration and not code. A definition names the tier or job kind; the executor (a `gpu_submit` queue on anvil, sage, the Opus API or a CPU pool) with its limits (declared VRAM, maximum runtime, priority, chunk size); the model (id, revision, quantization, weights hash) and the runtime with its version; the budget cap; the escalation target; and the licence classes it may process. A definition is immutable: a change is a new version with a new hash, and every version stays resolvable from the hash in `scitadel-hub-keep`. The registry shall refuse a definition that is incomplete, that has a gpu_submit executor without declared VRAM and low priority (SYS-048), that has a T3 or T4 tier without a budget cap, that lets T4 process a class outside CC-BY, CC0 and public domain, or whose escalation targets form a cycle. The stage-0 definition of T3 targets the shared 5090 through `gpu_submit`, so page images stay local. The same registry backs the `capabilities` response.
+Every extraction tier and job kind (T1 to T4, embedding, query embedding, figure description, rerank, re-embedding) shall run through a service definition held in a versioned, content-hashed service registry, which is configuration and not code. A definition names the tier or job kind; the executor (a `gpu_submit` queue on anvil, sage, the Opus API or a CPU pool) with its limits (declared VRAM, maximum runtime, priority, chunk size); the model (id, revision, quantization, weights hash) and the runtime with its version; the budget cap; the escalation target; and the licence classes it may process. A definition is immutable: a change is a new version with a new hash, and every version stays resolvable from the hash in `scitadel-hub-keep`. The registry shall refuse a definition that is incomplete, that has a gpu_submit executor without declared VRAM and low priority (SYS-048), that has a T3 or T4 tier without a budget cap, that lets T4 process a class outside CC-BY, CC0 and public domain, or whose escalation targets form a cycle. The stage-0 definition of T3 targets the shared 5090 through `gpu_submit`, so page images stay local. The same registry backs the `capabilities` response.
 
-- **Quantified:** 100 % of definitions carry all nine fields and a hash; 0 invalid definitions accepted in a negative suite of ≥ 8 cases; 100 % of tiers resolve to exactly one active definition; the job's weights hash equals the definition's in 100 % of runs.
+- **Quantified:** 100 % of definitions carry all eight fields and a hash; 0 invalid definitions accepted in a negative suite of ≥ 8 cases; 100 % of tiers resolve to exactly one active definition; the job's weights hash equals the definition's in 100 % of runs.
 - **Derives from:** REQ-006, REQ-007, REQ-019
 - **Source:** XADR-SCITADEL-008 §10 (service definitions); §14
 - **Verified by:** TEST-087

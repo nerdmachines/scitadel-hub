@@ -961,9 +961,9 @@
     {
       "id": "SYS-015",
       "kind": "SYS",
-      "title": "Warm tier on the storage host",
+      "title": "Warm tier on anvil's HDD pool",
       "status": "proposed",
-      "source": "vig-os/scitadel ADR-008 §8; §2 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1363"
+      "source": "vig-os/scitadel ADR-008 §8 (stage 0, warm tier, owner 2026-11-18); §2 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1363"
     },
     {
       "id": "SYS-016",
@@ -1026,7 +1026,7 @@
       "kind": "SYS",
       "title": "CPU-only serving",
       "status": "proposed",
-      "source": "vig-os/scitadel ADR-008 §8; §14 (https://github.com/vig-os/scitadel/pull/317)"
+      "source": "vig-os/scitadel ADR-008 §8; §14 (https://github.com/vig-os/scitadel/pull/317); vig-os/scitadel#316 (owner, 2026-11-18)"
     },
     {
       "id": "SYS-025",
@@ -1047,7 +1047,7 @@
       "kind": "SYS",
       "title": "Capabilities, coverage and the embedding contract",
       "status": "proposed",
-      "source": "vig-os/scitadel ADR-008 §7; §14 (https://github.com/vig-os/scitadel/pull/317)"
+      "source": "vig-os/scitadel ADR-008 §7; §14 (https://github.com/vig-os/scitadel/pull/317); vig-os/scitadel#316 (owner, 2026-11-18)"
     },
     {
       "id": "SYS-028",
@@ -1367,7 +1367,7 @@
     {
       "id": "TEST-035",
       "kind": "TEST",
-      "title": "System: Warm tier on the storage host; method: migrate the KC3000 `keep` bucket to the warm box with a checksum-verified copy, compare object listings and hashes, run a scrub and a snapshot",
+      "title": "System: Warm tier on anvil's HDD pool; method: migrate the KC3000 `keep` bucket to the warm store on anvil's HDD pool with a checksum-verified copy, compare object listings and hashes through both gateways, run a scrub and a snapshot, read the pool's usable capacity, and check that a passed restore from cold is on record before the endpoint flips",
       "status": "proposed",
       "source": "gerchowl/g-fleet#1363 system",
       "test_kind": "system"
@@ -1463,7 +1463,7 @@
     {
       "id": "TEST-047",
       "kind": "TEST",
-      "title": "System: Capabilities, coverage and the embedding contract; method: send vectors with a wrong model id, a wrong version and a wrong dimension and a matching one; text input; compare `capabilities` and `coverage` to a recorded snapshot before and after a delta",
+      "title": "System: Capabilities, coverage and the embedding contract; method: send a `search` carrying a query vector tagged with the index's own model and one tagged with another model, and a text-only `search`; compare `capabilities` and `coverage` to a recorded snapshot before and after a delta",
       "status": "proposed",
       "source": "vig-os/scitadel#316 system",
       "test_kind": "system"
@@ -1511,7 +1511,7 @@
     {
       "id": "TEST-053",
       "kind": "TEST",
-      "title": "System: Local-subset routing; method: build a 50,000-paper reference subset and measure size and 500 local queries; route a covered and an uncovered query",
+      "title": "System: Local-subset routing; method: build a 50,000-paper reference subset from the SYS-063 slice and measure size and 500 local queries; route a covered and an uncovered query",
       "status": "proposed",
       "source": "vig-os/scitadel#316 system",
       "test_kind": "system"
@@ -1903,11 +1903,41 @@
       "source": "vig-os/scitadel ADR-008 §10 (https://github.com/vig-os/scitadel/pull/317)"
     },
     {
+      "id": "SYS-071",
+      "kind": "SYS",
+      "title": "Hub-side query embedding",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 (owner decision, 2026-11-18); vig-os/scitadel ADR-008 §10; §14 (https://github.com/vig-os/scitadel/pull/317)"
+    },
+    {
+      "id": "SYS-072",
+      "kind": "SYS",
+      "title": "The off-anvil copy gates keep-everything",
+      "status": "proposed",
+      "source": "vig-os/scitadel ADR-008 §8; §12 (https://github.com/vig-os/scitadel/pull/317); gerchowl/g-fleet#1438; gerchowl/g-fleet#1649"
+    },
+    {
       "id": "TEST-090",
       "kind": "TEST",
       "title": "System: Sage overflow data path (only if an overflow definition targets sage); method: with no sage definition enabled, audit credentials and connections; with an overflow definition enabled in a fixture, fetch a payload as the T3 worker, attempt a cross-prefix read, return a result with a bad manifest and a good one, and list sage after acceptance",
       "status": "proposed",
       "source": "vig-os/scitadel#319 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-091",
+      "kind": "TEST",
+      "title": "System: Hub-side query embedding; method: contract, mismatch, fallback and client tests on fixtures, a benchmark of candidate query-embedding definitions on the serving CPU and on the 5090 through gpu_submit (p95 and recall@10 on the golden queries), and a 20-user hybrid load test on the CPU path",
+      "status": "proposed",
+      "source": "vig-os/scitadel#316 system",
+      "test_kind": "system"
+    },
+    {
+      "id": "TEST-092",
+      "kind": "TEST",
+      "title": "System: The off-anvil copy gates keep-everything; method: gate-logic tests for corpus ingest without a backup, a raw-writing run with a 49-hour-old backup and a warm flip without a restore, then a restore from cold of 1,000 sampled objects plus one complete run onto a scratch volume, verified against the ledger, and an integrity check of the newest state dump",
+      "status": "proposed",
+      "source": "gerchowl/g-fleet#1649 system",
       "test_kind": "system"
     }
   ]
