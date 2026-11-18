@@ -60,13 +60,13 @@ The hub shall offer lexical (BM25), vector and hybrid (rank-fused) search with m
 
 ## REQ-004: Query-embedding contract
 
-The hub shall advertise, per index, the embedding model id, version, output dimensions, Matryoshka truncation, BM25 analyzer configuration and available rerankers, and shall reject a client-supplied query vector whose declared model, version or dimensions do not match the target index, with an explicit protocol error. It never silently re-embeds under another model. Hub-side query embedding from text shall remain available for thin clients and for the window after a re-embedding. Which path is the default is an open owner question (see L0).
+The hub shall advertise, per index, the embedding model id, version, output dimensions, Matryoshka truncation, BM25 analyzer configuration and available rerankers, and the hash of the query-embedding service definition. Clients send query text only (D-009): the hub embeds it with the service definition that embedded the index generation being queried, and when that definition does not match, it refuses the vector leg with an explicit protocol error instead of mixing vectors from two models. It never silently re-embeds under another model. The hash of the definition used appears in the response's provenance. A request that carries a query vector is rejected with an explicit protocol error. Without a hub, a client falls through to BM25 and keyword search only and ships no embedding model.
 
-- **Derives from:** PRIN-008, PRIN-010
-- **Source:** XADR-SCITADEL-008 §7; §14; [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316)
+- **Derives from:** PRIN-008, PRIN-010, D-009
+- **Source:** XADR-SCITADEL-008 §7; §14; [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316) (owner decision, 2026-11-18)
 - **Stories:** US-017
 - **Outcomes:** OUT-011
-- **Acceptance stub:** TEST-004, model mismatch is explicit, method: protocol contract tests where a vector with a wrong model id, version or dimension is rejected with the documented error, a matching vector is accepted, text input is embedded hub-side, and the capabilities response matches a recorded snapshot
+- **Acceptance stub:** TEST-004, query embedding is hub-side and a mismatch is explicit, method: protocol contract tests where a text query is embedded hub-side and the response provenance carries the definition hash, an index generation whose embedding definition differs from the active one is refused for vector search with the documented error, any request carrying a query vector is rejected with the documented error (a vector tagged with the index's own model is no exception), a client with no hub answers BM25 only, and the capabilities response matches a recorded snapshot
 - **Delivered by:** [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316)
 
 ## REQ-005: Document model
@@ -159,7 +159,7 @@ Hubs shall support layered knowledge: a global hub holds the licence-clean corpu
 
 ## REQ-013: Offline use and detach
 
-A client shall work offline-first on a personal machine with local storage. `detach` shall pull full copies of the user's own tracked works into local storage, checking the licence per artefact, and may emit a per-paper product whose provenance points at the hub shard's seal. A detached topic subset with its own indexes gives local search, and the client shall route a query to a covering local subset before the remote hub and report `answered_by: local-subset:<id>`. Bulk export of the processed corpus is not offered.
+A client shall work offline-first on a personal machine with local storage. `detach` shall pull full copies of the user's own tracked works into local storage, checking the licence per artefact, and may emit a per-paper product whose provenance points at the hub shard's seal. A detached topic subset with its own indexes gives local BM25 and keyword search (the client ships no embedding model, so vector search needs the hub, D-009), and the client shall route a query to a covering local subset before the remote hub and report `answered_by: local-subset:<id>`. Bulk export of the processed corpus is not offered.
 
 - **Derives from:** PRIN-002, PRIN-006, D-003
 - **Source:** XADR-SCITADEL-008 §12; §14; §17

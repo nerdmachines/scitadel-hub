@@ -138,9 +138,11 @@ The hub, deploy and cloud repositories live under the owner's `nerdmachines` org
 
 *Source:* XADR-SCITADEL-008 §1 (repository table and creation note)
 
-## Open owner question (not a decision)
+### D-009: Query embeddings are computed hub-side (2026-11-18)
 
-**Where is the query embedded by default?** The source decision record says client-side, with hub-side embedding as the fallback. A product review recommends the inverse: the hub embeds by default, client-supplied vectors become an explicit option, and offline and detached-subset use stays client-side. The reasons are that thin web and mobile clients and MCP agents have no local embedder, and that a hub model upgrade should not force coordinated client releases; the cost is query-time embedding compute on the hub, against the CPU-serving model of PRIN-010. Both paths and the explicit mismatch rejection are requirements either way (REQ-004); only the default is open. It is tracked in [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316) and is deliberately not recorded as a `D` node until the owner rules.
+Clients send query text only. The hub embeds the text with the service definition that embedded the index generation being queried, and on a mismatch of that definition's model, revision, quantization, weights hash, dimensions or truncation it refuses the vector leg rather than mix vectors from two models. The hash of the definition used goes into the response's provenance. A client-supplied query vector is rejected. Without a hub, the client's live-API fall-through and a detached local subset answer BM25 and keyword search only; a client ships no embedding model. The model and its placement are chosen by a benchmark on anvil's RTX 5090 and on the serving CPU. This replaces the client-side default of XADR-SCITADEL-008 §7 and §14, and rules the question that the earlier drafts of this level left open.
+
+*Source:* [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316) (owner decision, comment of 2026-11-18)
 
 ## What this level does not contain
 

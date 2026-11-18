@@ -3284,6 +3284,46 @@
       "from": "TEST-092",
       "to": "gerchowl/g-fleet#1649",
       "kind": "delivered_by"
+    },
+    {
+      "from": "REQ-002",
+      "to": "SYS-073",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "REQ-018",
+      "to": "SYS-073",
+      "kind": "decomposes_into"
+    },
+    {
+      "from": "SYS-073",
+      "to": "TEST-093",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-073",
+      "to": "vig-os/scitadel#320",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-073",
+      "to": "gerchowl/g-fleet#1363",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-093",
+      "to": "vig-os/scitadel#320",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "D-009",
+      "to": "vig-os/scitadel#316",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-016",
+      "to": "gerchowl/g-fleet#1649",
+      "kind": "delivered_by"
     }
   ]
 }

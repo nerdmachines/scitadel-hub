@@ -22,7 +22,7 @@ What the system and its infrastructure shall do to meet each [L1 requirement](L1
 | Backup and restore | SYS-045, SYS-046, SYS-047, SYS-072 |
 | GPU job usage | SYS-048, SYS-049, SYS-050, SYS-051 |
 | Licence and TDM gating | SYS-052, SYS-053, SYS-054, SYS-055, SYS-056 |
-| ETL orchestration and run ledger | SYS-057, SYS-058, SYS-059, SYS-060, SYS-061, SYS-062, SYS-063 |
+| ETL orchestration and run ledger | SYS-057, SYS-058, SYS-059, SYS-060, SYS-061, SYS-062, SYS-063, SYS-073 |
 | Image processing from kept originals | SYS-064, SYS-065, SYS-066 |
 | Service registry | SYS-067, SYS-068, SYS-069, SYS-070 |
 
@@ -33,7 +33,7 @@ Every requirement decomposes into at least one system requirement.
 | Requirement | Decomposes into |
 |---|---|
 | REQ-001 | SYS-001, SYS-002, SYS-034 |
-| REQ-002 | SYS-002, SYS-003, SYS-004, SYS-005, SYS-017, SYS-021, SYS-040, SYS-043, SYS-057, SYS-058, SYS-060, SYS-061 |
+| REQ-002 | SYS-002, SYS-003, SYS-004, SYS-005, SYS-017, SYS-021, SYS-040, SYS-043, SYS-057, SYS-058, SYS-060, SYS-061, SYS-073 |
 | REQ-003 | SYS-005, SYS-012, SYS-018, SYS-019, SYS-020, SYS-021, SYS-022, SYS-023, SYS-025, SYS-065, SYS-071 |
 | REQ-004 | SYS-019, SYS-027, SYS-071 |
 | REQ-005 | SYS-002, SYS-008, SYS-014, SYS-032, SYS-072 |
@@ -49,7 +49,7 @@ Every requirement decomposes into at least one system requirement.
 | REQ-015 | SYS-038, SYS-039 |
 | REQ-016 | SYS-041, SYS-042 |
 | REQ-017 | SYS-055 |
-| REQ-018 | SYS-003, SYS-006, SYS-011, SYS-013, SYS-015, SYS-016, SYS-017, SYS-039, SYS-040, SYS-041, SYS-043, SYS-044, SYS-045, SYS-046, SYS-047, SYS-057, SYS-059, SYS-060, SYS-061, SYS-063, SYS-069, SYS-070, SYS-072 |
+| REQ-018 | SYS-003, SYS-006, SYS-011, SYS-013, SYS-015, SYS-016, SYS-017, SYS-039, SYS-040, SYS-041, SYS-043, SYS-044, SYS-045, SYS-046, SYS-047, SYS-057, SYS-059, SYS-060, SYS-061, SYS-063, SYS-069, SYS-070, SYS-072, SYS-073 |
 | REQ-019 | SYS-011, SYS-012, SYS-013, SYS-022, SYS-024, SYS-044, SYS-048, SYS-049, SYS-050, SYS-051, SYS-062, SYS-065, SYS-067, SYS-071 |
 | REQ-020 | SYS-026, SYS-030, SYS-056 |
 
@@ -213,9 +213,9 @@ The cold tier shall mirror the warm tier (and, before the warm tier exists, the 
 
 - **Quantified:** Backup lag ≤ 24 h; `restic check` pass monthly; 0 plaintext objects on the box; 0 objects of the warm tier missing from the mirror after a nightly run.
 - **Derives from:** REQ-018
-- **Source:** XADR-SCITADEL-008 §8; `gerchowl/g-fleet#1363`; `gerchowl/g-fleet#1438`
+- **Source:** XADR-SCITADEL-008 §8; `gerchowl/g-fleet#1363`; `gerchowl/g-fleet#1438`; `gerchowl/g-fleet#1649` (O-9)
 - **Verified by:** TEST-036
-- **Delivered by:** `gerchowl/g-fleet#1363`, `gerchowl/g-fleet#1438`
+- **Delivered by:** `gerchowl/g-fleet#1363`, `gerchowl/g-fleet#1438`, `gerchowl/g-fleet#1649`
 
 ### SYS-017: Retention policy
 
@@ -699,6 +699,16 @@ A candidate generation (base or delta) shall be promoted only after its QC gate 
 - **Verified by:** TEST-080
 - **Delivered by:** [vig-os/scitadel#320](https://github.com/vig-os/scitadel/issues/320), [vig-os/scitadel#321](https://github.com/vig-os/scitadel/issues/321)
 
+### SYS-073: Compaction waits for the pin on a retired base to expire
+
+At most three base generations shall occupy a tier at any time: the current one, the previous one and the candidate, where a retired base counts as the previous one for as long as snapshots still pin it. The scheduler shall start no candidate base build (a compaction, a QC retry or a re-derive under SYS-069 that produces a base) while that count would exceed three. It shall instead wait until the pin expires, computing the expiry from the snapshot schedule, record the wait and its expected end in the run ledger (SYS-057), and raise an alert if the wait exceeds the longest snapshot retention. The wait pauses the build and deletes nothing. This bounds the warm-tier compaction peak at 3.1 B and the stage-0 `keep` quota at 3.1 B (`docs/vmodel/L2-infrastructure.md`, sections 2.4 and 3.1).
+
+- **Quantified:** 0 candidate builds started while a retired base is still pinned and three bases already occupy the tier; peak base occupancy of the warm tier ≤ 3.1 B and of `keep` at stage 0 ≤ 3.1 B *(estimate)*; the computed start time equals the snapshot expiry to within 1 minute; 100 % of waits recorded in the ledger with their expected end.
+- **Derives from:** REQ-002, REQ-018
+- **Source:** XADR-SCITADEL-008 §2; §8; `gerchowl/g-fleet#1363` (warm snapshot policy)
+- **Verified by:** TEST-093
+- **Delivered by:** [vig-os/scitadel#320](https://github.com/vig-os/scitadel/issues/320), `gerchowl/g-fleet#1363`
+
 ### SYS-061: Crash-resume of a run
 
 A run shall be a sequence of idempotent steps, each recorded in the ledger as started and completed with the hashes of its outputs. After a crash, a kill or a restart the orchestrator shall resume at the first incomplete step, skip completed steps whose recorded outputs still verify, redo the rest and discard partial outputs. A resume shall not double-count credits or budget spend, and a run that stops at a quota (SYS-014) shall be resumable once space exists.
@@ -765,9 +775,9 @@ Any vision tier (T1 OCR and layout, T2 math OCR, T3, T4) shall be re-runnable on
 
 ### SYS-067: Service registry
 
-Every extraction tier and job kind (T1 to T4, embedding, query embedding, figure description, rerank, re-embedding) shall run through a service definition held in a versioned, content-hashed service registry, which is configuration and not code. A definition names the tier or job kind; the executor (a `gpu_submit` queue on anvil, sage, the Opus API or a CPU pool) with its limits (declared VRAM, maximum runtime, priority, chunk size); the model (id, revision, quantization, weights hash) and the runtime with its version; the budget cap; the escalation target; and the licence classes it may process. A definition is immutable: a change is a new version with a new hash, and every version stays resolvable from the hash in `scitadel-hub-keep`. The registry shall refuse a definition that is incomplete, that has a gpu_submit executor without declared VRAM and low priority (SYS-048), that has a T3 or T4 tier without a budget cap, that lets T4 process a class outside CC-BY, CC0 and public domain, or whose escalation targets form a cycle. The stage-0 definition of T3 targets the shared 5090 through `gpu_submit`, so page images stay local. The same registry backs the `capabilities` response.
+Every extraction tier and job kind (T1 to T4, embedding, query embedding, figure description, rerank, re-embedding) shall run through a service definition held in a versioned, content-hashed service registry, which is configuration and not code. A definition names the tier or job kind; the executor (a `gpu_submit` queue on anvil, sage, the Opus API or a CPU pool) with its limits (declared VRAM, maximum runtime, priority, chunk size); the model (id, revision, quantization, weights hash and, for an embedding model, dimensions and Matryoshka truncation) and the runtime with its version; the budget cap; the escalation target; and the licence classes it may process. A definition is immutable: a change is a new version with a new hash, and every version stays resolvable from the hash in `scitadel-hub-keep`. The registry shall refuse a definition that is incomplete, that has a gpu_submit executor without declared VRAM and low priority (SYS-048), that has a T3 or T4 tier without a budget cap, that lets T4 process a class outside CC-BY, CC0 and public domain, or whose escalation targets form a cycle. The stage-0 definition of T3 targets the shared 5090 through `gpu_submit`, so page images stay local. The same registry backs the `capabilities` response.
 
-- **Quantified:** 100 % of definitions carry all eight fields and a hash; 0 invalid definitions accepted in a negative suite of ≥ 8 cases; 100 % of tiers resolve to exactly one active definition; the job's weights hash equals the definition's in 100 % of runs.
+- **Quantified:** 100 % of definitions carry all eight fields and a hash; 0 invalid definitions accepted in a negative suite of ≥ 9 cases; 100 % of tiers resolve to exactly one active definition; the job's weights hash equals the definition's in 100 % of runs.
 - **Derives from:** REQ-006, REQ-007, REQ-019
 - **Source:** XADR-SCITADEL-008 §10 (service definitions); §14
 - **Verified by:** TEST-087
