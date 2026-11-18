@@ -1973,7 +1973,7 @@
     {
       "id": "TEST-094",
       "kind": "TEST",
-      "title": "Integration: workspace check (backend dependents; who requests and who reaches the composition-root and backend-impl features, through any dependency; no dependency on hub-compose; every other crate builds alone), error-kind mapping, compile-fail capability cases and the authority suite over faulty stores; method: cargo metadata, cargo tree -e features -i hub-boundary --all-features --target all and cargo check -p per crate, an ErrorKind mapping test per backend, trybuild cases with pinned error codes, mutant stores",
+      "title": "Integration: workspace check (backend dependents; who requests and who reaches the composition-root and backend-impl features, through any dependency; no dependency on hub-compose; every other crate builds alone with all its targets), error-kind mapping, compile-fail capability cases and the authority suite over faulty stores; method: cargo metadata, cargo tree -e features -i hub-boundary --all-features --target all --no-dedupe and cargo check -p --all-targets per crate, an ErrorKind mapping test per backend, trybuild cases with pinned error codes, mutant stores",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
@@ -2021,7 +2021,7 @@
     {
       "id": "TEST-097",
       "kind": "TEST",
-      "title": "Integration: KeyedRefs conformance suite; method: resolve, duplicate, superseded and dangling-reference cases on the fixture generation",
+      "title": "Integration: KeyedRefs conformance suite; method: resolve, duplicate, superseded and dangling-reference cases, and held_paid_stamp_after_cycle_flip_is_stale on the fixture generation",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
@@ -2053,7 +2053,7 @@
     {
       "id": "TEST-099",
       "kind": "TEST",
-      "title": "Integration: VectorIndex conformance suite; method: exact scan against brute force, ANN recall@10 on fixtures, mixed-definition refusal, ksb timing on the SYS-063 slice",
+      "title": "Integration: VectorIndex conformance suite; method: exact scan against brute force, ANN recall@10 on fixtures, mixed-definition refusal, held_paid_stamp_after_cycle_flip_is_stale, ksb timing on the SYS-063 slice",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
@@ -2069,7 +2069,7 @@
     {
       "id": "TEST-100",
       "kind": "TEST",
-      "title": "Integration: TextIndex conformance suite; method: score comparison against the reference backend, delta refresh and stale-stamp cases, ksb timing on the slice",
+      "title": "Integration: TextIndex conformance suite; method: score comparison against the reference backend, delta refresh and stale-stamp cases including held_paid_stamp_after_cycle_flip_is_stale and refresh_after_cycle_flip_is_stale, ksb timing on the slice",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
@@ -2085,7 +2085,7 @@
     {
       "id": "TEST-101",
       "kind": "TEST",
-      "title": "Integration: GraphIndex conformance suite; method: depth-1 and depth-2 neighbours by kind and direction on fixture edge tables, ksb timing on the slice",
+      "title": "Integration: GraphIndex conformance suite; method: depth-1 and depth-2 neighbours by kind and direction on fixture edge tables, held_paid_stamp_after_cycle_flip_is_stale, ksb timing on the slice",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
