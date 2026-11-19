@@ -1,5 +1,5 @@
 //! Paid read model probe (#28): a sync, dependency-free sketch of tessera-boundary.md section 1.2.
-//! `Policy::R3` is the normative rule of section 1.2; R1 and R2 are the rules of review rounds 1 and 2, and `old` is
+//! `Policy::R4` is the normative rule of section 1.2; R1 to R3 are the rules of review rounds 1 to 3, and `old` is
 //! the round-6 shape, kept so that every historical case can be run before and after.
 //! Stand-ins: std's DefaultHasher for blake3, Vec<Row> for Arrow batches, a row-count `statistics()` for DataFusion's.
 use std::cell::{Cell, RefCell};
@@ -46,8 +46,8 @@ impl Steps {
     pub fn allow(&self, cycle: u32, src: Src) { self.cur.set(cycle); self.append(Ev::Allow { cycle, src }); }
     pub fn opt_out(&self, cycle: u32, src: Src) { self.cur.set(cycle); self.append(Ev::OptedOut { cycle, src }); }
     pub fn complete(&self, cycle: u32) { self.append(Ev::Cycle { cycle }); }
-    /// An item verdict, in the cycle of the current run; item 10 is A's, every other item B's.
-    pub fn item(&self, item: u32, reserved: bool) { self.append(Ev::Item { cycle: self.cur.get(), src: if item == 10 { "A" } else { "B" }, item, reserved }); }
+    /// An item verdict, in the cycle of the current run; items 10 and 15 are A's, every other item B's.
+    pub fn item(&self, item: u32, reserved: bool) { self.append(Ev::Item { cycle: self.cur.get(), src: if item == 10 || item == 15 { "A" } else { "B" }, item, reserved }); }
 }
 fn checked_log(l: &MemLedger, head: (u64, u64)) -> HubResult<Vec<Recorded>> {
     let log = l.log();
@@ -86,14 +86,33 @@ fn newest(log: &[Recorded]) -> (HashMap<Src, bool>, HashMap<u32, bool>) {
 fn admission_pos(log: &[Recorded], g: u32) -> HubResult<usize> {
     log.iter().rposition(|r| matches!(r.body, Ev::Admission { g: x, .. } if x == g)).ok_or(ErrorKind::Refused)
 }
-fn parent(log: &[Recorded], pos: usize) -> Option<usize> {
-    match log[pos].body { Ev::Admission { parent: Some(p), .. } => log.iter().position(|r| r.seq == p), _ => None }
+/// The admission's parent: `None` for a build; a named seq that is not in the log is `Integrity`, never a build.
+fn parent(log: &[Recorded], pos: usize) -> HubResult<Option<usize>> {
+    match log[pos].body {
+        Ev::Admission { parent: Some(p), .. } => log.iter().position(|r| r.seq == p).map(Some).ok_or(ErrorKind::Integrity),
+        _ => Ok(None),
+    }
+}
+/// Section 1.2, "settled": every verdict names the current cycle. A source verdict names the open cycle (the newest
+/// opened, not yet completed); an item verdict names no cycle the log has not opened. Anything else is `Integrity`.
+fn check_cycles(log: &[Recorded]) -> HubResult<()> {
+    let (mut newest, mut done) = (0, HashSet::new());
+    for r in log {
+        match r.body {
+            Ev::Allow { cycle, .. } | Ev::OptedOut { cycle, .. } if cycle < newest || done.contains(&cycle) => return Err(ErrorKind::Integrity),
+            Ev::Item { cycle, .. } if cycle > newest => return Err(ErrorKind::Integrity),
+            Ev::Allow { cycle, .. } | Ev::OptedOut { cycle, .. } => newest = cycle,
+            Ev::Cycle { cycle } => { done.insert(cycle); newest = newest.max(cycle); }
+            _ => {}
+        }
+    }
+    Ok(())
 }
 /// Section 1.2: admitted(g) at the admission at `pos`. A build admits x when its newest verdict before E is an allow and
 /// the newest completed cycle allowed it (items: newest verdict Clear). A refresh is its parent minus every x with a
 /// withdrawal recorded between the two admissions; it never adds.
 fn admitted_r3(log: &[Recorded], pos: usize) -> (HashSet<Src>, HashSet<u32>) {
-    match parent(log, pos) {
+    match parent(log, pos).unwrap_or(None) { // round 3 read a dangling parent as a build
         None => {
             let pre = &log[..pos];
             let (ns, ni) = newest(pre);
@@ -110,7 +129,7 @@ fn admitted_r3(log: &[Recorded], pos: usize) -> (HashSet<Src>, HashSet<u32>) {
     }
 }
 /// Round 4 (section 1.2 as it stands): verdicts must be settled (recorded in a cycle completed before E); a refresh needs
-/// g's newest admission as its parent, drops sources a completed cycle did not allow, and adds items first seen after the
+/// g's newest admission as its parent, drops sources a completed cycle did not allow before E, and adds items first seen after the
 /// parent (the delta's) whose newest verdict is a settled Clear, of a kept, unwithdrawn source, never Reserved.
 fn admitted_r4(log: &[Recorded], g: u32, pos: usize) -> HubResult<(HashSet<Src>, HashSet<u32>)> {
     let pre = &log[..pos];
@@ -118,7 +137,7 @@ fn admitted_r4(log: &[Recorded], g: u32, pos: usize) -> HubResult<(HashSet<Src>,
     let (mut ns, mut ni): (HashMap<Src, (bool, u32)>, HashMap<u32, (bool, u32, Src)>) = (HashMap::new(), HashMap::new());
     for r in pre { match r.body { Ev::Allow { cycle, src } => { ns.insert(src, (false, cycle)); } Ev::OptedOut { cycle, src } => { ns.insert(src, (true, cycle)); }
                                   Ev::Item { cycle, src, item, reserved } => { ni.insert(item, (reserved, cycle, src)); } _ => {} } }
-    match parent(log, pos) {
+    match parent(log, pos)? {
         None => {
             let last = newest_cycle(pre);
             let srcs = ns.iter().filter(|(_, (o, c))| !o && Some(*c) == last && done.contains(c)).map(|(s, _)| *s).collect();
@@ -133,7 +152,7 @@ fn admitted_r4(log: &[Recorded], g: u32, pos: usize) -> HubResult<(HashSet<Src>,
                 match r.body {
                     Ev::OptedOut { src, .. } => { srcs.remove(src); }
                     Ev::Item { item, reserved: true, .. } => { items.remove(&item); }
-                    Ev::Cycle { cycle } => { srcs.retain(|s| log.iter().any(|x| matches!(x.body, Ev::Allow { cycle: c, src } if c == cycle && src == *s))); }
+                    Ev::Cycle { cycle } => { srcs.retain(|s| pre.iter().any(|x| matches!(x.body, Ev::Allow { cycle: c, src } if c == cycle && src == *s))); }
                     _ => {}
                 }
             }
@@ -156,7 +175,7 @@ fn derive(policy: Policy, log: &[Recorded], g: u32) -> HubResult<Pred> {
         // keeps its parent's sources), withdrawals counted only after the newest admission.
         Policy::R2 => {
             let pos = admission_pos(log, g)?;
-            let mut root = pos; while let Some(p) = parent(log, root) { root = p; }
+            let mut root = pos; while let Some(p) = parent(log, root).unwrap_or(None) { root = p; }
             let srcs = allows(&log[..root], newest_cycle(&log[..root]));
             // the parent's items, plus the delta's own (first seen after the root admission) with a Clear before this one
             let root_items = newest(&log[..root]).1;
@@ -170,6 +189,7 @@ fn derive(policy: Policy, log: &[Recorded], g: u32) -> HubResult<Pred> {
         // Section 1.2: admitted(g) and not withdrawn(now), and not withdrawn since g's admission.
         Policy::R3 | Policy::R4 => {
             let pos = admission_pos(log, g)?;
+            if policy == Policy::R4 { check_cycles(log)?; }
             let (srcs, items) = if policy == Policy::R3 { admitted_r3(log, pos) } else { admitted_r4(log, g, pos)? };
             let mut w_src: HashSet<Src> = ns.into_iter().filter(|(_, o)| *o).map(|(s, _)| s).collect();
             let mut w_items: HashSet<u32> = ni.into_iter().filter(|(_, r)| *r).map(|(i, _)| i).collect();
@@ -377,4 +397,23 @@ pub mod old {
     }
     /// A crop rendered from the kept artefact by key, without the gate.
     pub fn crop(w: &World, key: u32) -> HubResult<Row> { merged(&w.data).into_iter().find(|r| r.key == key).ok_or(ErrorKind::NotFound) }
+}
+
+// ------------------------------------------------------------------ cases on admitted(g) itself (no read path shows them)
+#[cfg(test)]
+mod admitted {
+    use super::*;
+    /// admitted(1) at g's newest admission, over the raw log (no chain or cycle check).
+    fn at_newest(w: &World) -> (HashSet<Src>, HashSet<u32>) {
+        let log = w.ledger.log(); let pos = admission_pos(&log, 1).unwrap(); admitted_r4(&log, 1, pos).unwrap()
+    }
+    #[test] fn late_allow_after_refresh_does_not_readmit_dropped_source() {
+        let w = World::new(); w.steps.allow(2, "B"); w.steps.complete(2); w.paid.refresh(1).unwrap(); // cycle 2 dropped A
+        w.steps.append(Ev::Allow { cycle: 2, src: "A" }); // after E2; the read path also rejects it as a stray verdict
+        assert!(!at_newest(&w).0.contains("A"));
+    }
+    #[test] fn refresh_never_adds_first_seen_item_of_dropped_source() {
+        let w = World::new(); w.steps.allow(2, "B"); w.steps.complete(2); w.steps.item(15, false); w.paid.refresh(1).unwrap();
+        let (srcs, items) = at_newest(&w); assert!(!srcs.contains("A") && !items.contains(&15));
+    }
 }

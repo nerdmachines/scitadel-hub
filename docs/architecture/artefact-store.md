@@ -37,7 +37,7 @@ Where heavy originals and intermediates live, how the storage tiers relate, and 
 - **Snapshots.** btrfs subvolumes are snapshotted read-only: `state` hourly, `keep` and `research` daily, derived subvolumes minimally (SYS-045).
 - **Off-box backup.** The non-rebuildable data (`keep`, `research`, state dumps) is backed up client-side encrypted with `restic` to the Storage Box; keys only in the fleet's sops; research data additionally goes to the separate fleet's target (SYS-046, SYS-016).
 - **The mirror gates ingest.** Because hot and warm are one failure domain, no run that writes raw inputs starts until the first backup has completed and a restore from cold has passed, and none starts while the newest backup is older than 48 h; that pauses with an alert and deletes nothing (SYS-072, gate 1 of [DES-020](adapters-and-pool.md)).
-- **Restore from an empty host** brings back `keep` objects first and verifies each object's blake3 against the ledger, then the ledger, then the catalog pointers; a restored rollback that forgets a reservation or an opt-out cycle is C-007 (SYS-047, [DES-012](tessera-boundary.md)).
+- **Restore from an empty host** brings back `keep` objects first and verifies each object's blake3 against the ledger, then the ledger, then the catalog pointers; it runs only through `hub restore`, which opens a restore epoch and holds base permits and paid search until its checks pass ([DES-059](tessera-boundary.md), SYS-047, [C-007 ruling](https://github.com/nerdmachines/scitadel-hub/issues/27#issuecomment-6995801449)).
 - **Owner actions** (g-fleet issues, not hub code): `gerchowl/g-fleet#1363`, `gerchowl/g-fleet#1438`, `gerchowl/g-fleet#1263` and `gerchowl/g-fleet#1649`.
 
 ## 3. Verification

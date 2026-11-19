@@ -14,7 +14,7 @@ with graph nodes and edges stored as JSON and checked during development.
 | L2 | System and infrastructure requirements | `SYS` | System tests |
 | L3 | Architecture, design and interfaces, including ADRs | `DES`, `ADR`, `XADR` | Integration tests |
 | L4 | Detailed design and technical questions | `DES`, `S`, `C` | Unit tests |
-| Cross-level | Risks | `RISK` | Mitigations in designs or tests |
+| Cross-level | Risks ([register](../vmodel/risks.md)) | `RISK` | Mitigations in designs or tests |
 | Verification | Test specifications | `TEST` | Test execution in subsequent slices |
 
 The schema in [schema.json](../traceability/schema.json) owns identifiers:

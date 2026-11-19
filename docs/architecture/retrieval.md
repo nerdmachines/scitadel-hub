@@ -2,7 +2,7 @@
 
 How BM25, vector and graph retrieval combine into one candidate set. Source: XADR-SCITADEL-008 §4 (retrieval: BM25, vectors, graph), with the fusion step of §14. The three indexes are the hub-owned traits `TextIndex`, `VectorIndex` and `GraphIndex` of [the tessera boundary](tessera-boundary.md) ([DES-007](tessera-boundary.md), [DES-006](tessera-boundary.md), [DES-008](tessera-boundary.md)); this file adds the pipeline above them.
 
-> **Source legend.** As in [the tessera boundary](tessera-boundary.md). Every DES below is `proposed`. Where XADR-SCITADEL-008 §4 says "Vortex fixed-size-list columns" for embeddings, the interim differs (C-001); where it says "IVF-flat in the products", C-005 applies.
+> **Source legend.** As in [the tessera boundary](tessera-boundary.md). Every DES below is `proposed`. Where XADR-SCITADEL-008 §4 says "Vortex fixed-size-list columns" for embeddings, the vectors are fp16 blob blocks inside `.tsra` until vig-os/tessera#768 ([C-001 ruling](https://github.com/nerdmachines/scitadel-hub/issues/19#issuecomment-6995798717)); the IVF-flat index is a local file under `index/ann/`, never in a bucket ([C-005 ruling](https://github.com/nerdmachines/scitadel-hub/issues/24#issuecomment-6995800161)).
 
 | DES | Title | Realises | Uses |
 |---|---|---|---|

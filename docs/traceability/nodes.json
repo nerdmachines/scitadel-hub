@@ -727,7 +727,7 @@
     {
       "id": "TEST-004",
       "kind": "TEST",
-      "title": "Acceptance: query embedding is hub-side and a mismatch is explicit; method: protocol contract tests where a text query is embedded hub-side and the response provenance carries the definition hash, an index generation whose embedding definition differs from the active one is refused for vector search with the documented error, any request carrying a query vector is rejected with the documented error, a client with no hub answers BM25 only, and the capabilities response matches a recorded snapshot",
+      "title": "Acceptance: query embedding is hub-side and a mismatch is explicit; method: protocol contract tests where a text query is embedded hub-side and the response provenance carries the definition hash, an index generation whose embedding definition differs from the active one is refused for vector search with the documented error, any request carrying a query vector is rejected with the documented error (a vector tagged with the index's own model is no exception), a client with no hub answers BM25 only, and the capabilities response matches a recorded snapshot",
       "status": "proposed",
       "source": "vig-os/scitadel#316 acceptance",
       "test_kind": "acceptance"
@@ -1285,7 +1285,7 @@
     {
       "id": "TEST-023",
       "kind": "TEST",
-      "title": "System: OpenAlex delta sync within the free-key budget; method: replay seven days of daily jobs against recorded API responses including a merged and a deleted ID, with a metered fake of the credit header",
+      "title": "System: OpenAlex delta sync within the free-key budget; method: replay seven days of daily jobs against recorded API responses including a merged and a deleted ID, with a metered fake of the credit header; every list call at per_page 100 from the service definition",
       "status": "proposed",
       "source": "vig-os/scitadel#315 system",
       "test_kind": "system"
@@ -1964,7 +1964,7 @@
     {
       "id": "TEST-093",
       "kind": "TEST",
-      "title": "System: Compaction waits for the pin on a retired base to expire; method: scheduler logic with an injected clock and a simulated snapshot schedule, a QC retry and a re-derive requested while a retired base is pinned and after its expiry, base occupancy recorded at every step, and a mutation that disables the wait which must fail the test",
+      "title": "System: Compaction waits for the pin on a retired base to expire; method: scheduler logic with an injected clock and a simulated snapshot schedule, a QC retry, a re-derive and a scheduled compaction requested while a retired base is pinned and after its expiry, a fourth base refused on keep, base occupancy recorded at every step, and a mutation that disables the wait which must fail the test",
       "status": "proposed",
       "source": "vig-os/scitadel#320 system",
       "test_kind": "system"
@@ -2347,28 +2347,28 @@
       "id": "C-001",
       "kind": "C",
       "title": "Embeddings as tessera blob blocks until tessera#768, versus Vortex fixed-size lists (L2 infrastructure 5)",
-      "status": "proposed",
+      "status": "done",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#19"
     },
     {
       "id": "C-002",
       "kind": "C",
       "title": "Parquet staging internal only, versus the 'Parquet-in-object-store' example of #5",
-      "status": "proposed",
+      "status": "done",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#20"
     },
     {
       "id": "C-003",
       "kind": "C",
       "title": "OpenAlex per_page 200 (SYS-003) versus a documented maximum of 100",
-      "status": "proposed",
+      "status": "done",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#21"
     },
     {
       "id": "C-004",
       "kind": "C",
       "title": "PatentRef 504 GB snapshot versus the 380 GiB stage-0 raw budget",
-      "status": "proposed",
+      "status": "done",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#22"
     },
     {
@@ -2382,21 +2382,21 @@
       "id": "C-005",
       "kind": "C",
       "title": "IVF-flat in the products (SYS-019, L2 infrastructure 2.4) versus 0 index bytes on S3 (SYS-012)",
-      "status": "proposed",
+      "status": "done",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#24"
     },
     {
       "id": "C-006",
       "kind": "C",
       "title": "Candidate products in scitadel-hub-runs (L2 infrastructure 4) versus keep-first for every sealed shard (SYS-059)",
-      "status": "proposed",
+      "status": "done",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#25"
     },
     {
       "id": "C-007",
       "kind": "C",
       "title": "A consistent rollback of slot log and ledger after a restore (SYS-047) can grant a fourth base (SYS-073) or serve a forgotten opt-out cycle (SYS-055)",
-      "status": "proposed",
+      "status": "done",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#27"
     },
     {
@@ -3014,14 +3014,14 @@
       "id": "C-008",
       "kind": "C",
       "title": "The hub never serves PDF bytes (D-007) versus entitled colleagues getting an uploaded artefact from the hub (XADR-SCITADEL-008 §12)",
-      "status": "proposed",
+      "status": "done",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#35"
     },
     {
       "id": "C-009",
       "kind": "C",
       "title": "Patent scope: pre-grant publications a later option (XADR-SCITADEL-008 §6) versus folded into the first patent product (§15)",
-      "status": "proposed",
+      "status": "done",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#36"
     },
     {
@@ -3044,6 +3044,107 @@
       "title": "Graph expansion bounds: is there a maximum neighbours depth or result size, and what happens above it?",
       "status": "proposed",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#40"
+    },
+    {
+      "id": "RISK-001",
+      "kind": "RISK",
+      "title": "General-purpose AI assistants add native grounding in the scientific literature",
+      "status": "proposed",
+      "source": "docs/vmodel/risks.md"
+    },
+    {
+      "id": "RISK-002",
+      "kind": "RISK",
+      "title": "A TDM opt-out is missed or a withdrawal is still served",
+      "status": "proposed",
+      "source": "docs/vmodel/risks.md"
+    },
+    {
+      "id": "RISK-003",
+      "kind": "RISK",
+      "title": "A GDPR or profiling error: a reading history or author profile is kept, or an erasure is not honoured",
+      "status": "proposed",
+      "source": "docs/vmodel/risks.md"
+    },
+    {
+      "id": "RISK-004",
+      "kind": "RISK",
+      "title": "Tessera features land late",
+      "status": "proposed",
+      "source": "docs/vmodel/risks.md"
+    },
+    {
+      "id": "RISK-005",
+      "kind": "RISK",
+      "title": "Single-GPU throughput cannot keep up with the cascade and embedding sweeps",
+      "status": "proposed",
+      "source": "docs/vmodel/risks.md"
+    },
+    {
+      "id": "RISK-006",
+      "kind": "RISK",
+      "title": "Solo-maintainer bus factor",
+      "status": "proposed",
+      "source": "docs/vmodel/risks.md"
+    },
+    {
+      "id": "RISK-007",
+      "kind": "RISK",
+      "title": "Extraction quality regresses after a model, tool or definition change",
+      "status": "proposed",
+      "source": "docs/vmodel/risks.md"
+    },
+    {
+      "id": "RISK-008",
+      "kind": "RISK",
+      "title": "A licence is misclassified, so content is used beyond its licence",
+      "status": "proposed",
+      "source": "docs/vmodel/risks.md"
+    },
+    {
+      "id": "RISK-009",
+      "kind": "RISK",
+      "title": "Data loss on stage-0 hardware (one pool; hot and warm share anvil)",
+      "status": "proposed",
+      "source": "docs/vmodel/risks.md"
+    },
+    {
+      "id": "RISK-010",
+      "kind": "RISK",
+      "title": "A consistent rollback of both authority stores grants a fourth base or serves a forgotten withdrawal",
+      "status": "proposed",
+      "source": "docs/vmodel/risks.md"
+    },
+    {
+      "id": "DES-059",
+      "kind": "DES",
+      "title": "Hardened restore: hub restore opens an epoch in slot log and ledger, the base count includes snapshot-pinned bases with a conservative wait, paid search refused until gate 2 re-runs",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §1.1; nerdmachines/scitadel-hub#27",
+      "level": "L4"
+    },
+    {
+      "id": "TEST-153",
+      "kind": "TEST",
+      "title": "Integration: hardened restore; method: both stores rolled back consistently with three bases (one snapshot-pinned), an unreadable snapshot listing, mismatched epochs and a restore before gate 2 re-runs",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#27 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-154",
+      "kind": "TEST",
+      "title": "System: maintainer handover drill; method: a second operator installs, restores from cold, runs one ingest run and a release dry run from the docs alone",
+      "status": "proposed",
+      "source": "docs/vmodel/risks.md",
+      "test_kind": "system"
+    },
+    {
+      "id": "S-012",
+      "kind": "S",
+      "title": "A rebuild during an open gate-2 cycle drops re-verdicted sources until the next rebuild",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#42"
     }
   ]
 }

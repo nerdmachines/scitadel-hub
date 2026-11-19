@@ -77,21 +77,21 @@ Ingest shall build the phase-1 sources (US patent grants from 1976, the disambig
 
 ### SYS-003: OpenAlex delta sync within the free-key budget
 
-The hub shall run daily OpenAlex subscription jobs (publication-date lookback, `per_page=200`, cursor paging) and a rolling refresh in batches of 100 IDs, shall log the credits used per response, and shall stop before the daily allowance is exhausted.
+The hub shall run daily OpenAlex subscription jobs (publication-date lookback, `per_page=100`, the documented maximum, set in the adapter's service definition rather than relying on the live API's acceptance of 200 ([C-003 ruling](https://github.com/nerdmachines/scitadel-hub/issues/21#issuecomment-6995799465)), cursor paging) and a rolling refresh in batches of 100 IDs, shall log the credits used per response, and shall stop before the daily allowance is exhausted.
 
 - **Quantified:** Credits used ≤ 100 % of the free key's daily allowance (10,000 list calls) on each of 7 consecutive days; works searchable ≤ 24 h after publication for subscribed topics *(estimate)*.
 - **Derives from:** REQ-002, REQ-018
-- **Source:** XADR-SCITADEL-008 §5
+- **Source:** XADR-SCITADEL-008 §5 (amended to `per_page` 100)
 - **Verified by:** TEST-023
 - **Delivered by:** [vig-os/scitadel#315](https://github.com/vig-os/scitadel/issues/315), [vig-os/scitadel#320](https://github.com/vig-os/scitadel/issues/320)
 
 ### SYS-004: Weekly patent-grant delta
 
-The hub shall ingest each weekly USPTO grant release as a delta product, mapping claims, citations and CPC to the same model and edges as the base.
+The hub shall ingest each weekly USPTO grant release as a delta product, mapping claims, citations and CPC to the same model and edges as the base. Pre-grant publications are a second product of the same adapter, switched on after the grant product passes QC and the warm tier exists, and after a size check on one year of pre-grant bulk data ([C-009 ruling](https://github.com/nerdmachines/scitadel-hub/issues/36#issuecomment-6995802389)).
 
 - **Quantified:** Grants searchable ≤ 7 days after the weekly release *(estimate)* (OUT-007).
 - **Derives from:** REQ-002
-- **Source:** XADR-SCITADEL-008 §6
+- **Source:** XADR-SCITADEL-008 §6 (amended to match §15)
 - **Verified by:** TEST-024
 - **Delivered by:** [vig-os/scitadel#314](https://github.com/vig-os/scitadel/issues/314)
 
@@ -189,7 +189,7 @@ The hub shall use the buckets `scitadel-hub-scratch` (48 h), `scitadel-hub-runs`
 
 ### SYS-014: Raw and intermediate store: keep everything
 
-Every raw input (open-access PDFs, JATS, TEI and USPTO XML, bulk snapshots) and every cascade tier's intermediate output (T1 OCR and layout, T2 math OCR, T3 vision-language output, T4 results) shall be kept in a content-addressed store keyed by blake3 hash, with its provenance, in `scitadel-hub-keep` on the KC3000 until the warm tier exists and on the warm tier from then on. Nothing shall be deleted automatically. Raw XML and PDF bytes shall never enter a product, and PDF bytes shall never be served. In stage 0 the store has an explicit budget; when it is reached, ingest shall pause with an alert. The only class an operator may drop by hand is a re-fetchable open-access PDF whose hash and URL are recorded. Because the hot and warm tiers share anvil as one failure domain, the policy rests on the off-anvil cold copy and is gated on it (SYS-072).
+Every raw input (open-access PDFs, JATS, TEI and USPTO XML, bulk snapshots) and every cascade tier's intermediate output (T1 OCR and layout, T2 math OCR, T3 vision-language output, T4 results) shall be kept in a content-addressed store keyed by blake3 hash, with its provenance, in `scitadel-hub-keep` on the KC3000 until the warm tier exists and on the warm tier from then on. Nothing shall be deleted automatically. Raw XML and PDF bytes shall never enter a product, and PDF bytes shall never be served. In stage 0 the store has an explicit budget; when it is reached, ingest shall pause with an alert. The only class an operator may drop by hand is a re-fetchable open-access PDF whose hash and URL are recorded. Internal Parquet staging is not a kept class: it is a parse of kept raw inputs, lives only in `staging/parquet/`, never in a bucket, and is dropped once tessera wave 1 lands ([C-002 ruling](https://github.com/nerdmachines/scitadel-hub/issues/20#issuecomment-6995799107)). Bulk data comes from first-party sources only; there is no PatentRef bulk snapshot ([C-004 ruling](https://github.com/nerdmachines/scitadel-hub/issues/22#issuecomment-6995799805)). Because the hot and warm tiers share anvil as one failure domain, the policy rests on the off-anvil cold copy and is gated on it (SYS-072).
 
 - **Quantified:** 100 % of the raw inputs and tier outputs of a completed run present in the store, each with hash, tool, model, version and input hash; 0 automatic deletions (audit of delete calls); alert at 80 % and ingest paused at 90 % of the stage-0 raw budget, with 0 data lost when the budget is reached; a hand-drop is refused for any object without a recorded hash and URL; 0 PDF bytes served (D-007); a re-fetch is verified against the recorded hash; kept TEI about 8 to 10 GB zstd per 2,000,000 papers *(estimate)*.
 - **Derives from:** REQ-005, REQ-007, REQ-008
@@ -241,7 +241,7 @@ The hub shall serve lexical search from a tantivy index over a declared text col
 
 ### SYS-019: Vector index
 
-The hub shall serve vector search by exact scan, IVF-flat stored in Vortex or an optional HNSW cache, with the choice recorded in `capabilities`.
+The hub shall serve vector search by exact scan, IVF-flat or an optional HNSW cache, with the choice recorded in `capabilities`. The IVF-flat index is a Vortex-encoded `.tsra` file under `index/ann/`, local and rebuildable, never in `keep` or cold (SYS-012, [C-005 ruling](https://github.com/nerdmachines/scitadel-hub/issues/24#issuecomment-6995800161)). Until vig-os/tessera#768 the vectors are row-aligned fp16 blob blocks inside the embeddings `.tsra`, then re-sealed bit-exact to native fixed-size-list columns ([C-001 ruling](https://github.com/nerdmachines/scitadel-hub/issues/19#issuecomment-6995798717)).
 
 - **Quantified:** ANN recall against exact search ≥ 0.95 *(estimate)* (OUT-011); ANN step p95 ≤ 20 ms *(estimate)*; 50,000,000 chunks at 512 dimensions in fp16 is about 51 GB *(estimate)*.
 - **Derives from:** REQ-003, REQ-004
@@ -545,9 +545,9 @@ The non-rebuildable data (`keep` with its raw inputs and intermediates, `researc
 
 ### SYS-047: Restore from empty host
 
-An empty host shall be restorable to a serving hub from backup, rebuilding the derived indexes from sealed products.
+An empty host shall be restorable to a serving hub from backup, rebuilding the derived indexes from sealed products. A restore runs only through `hub restore`, which opens a new restore epoch; until its checks pass, no base permit is granted and paid search is refused (DES-059, [C-007 ruling](https://github.com/nerdmachines/scitadel-hub/issues/27#issuecomment-6995801449)).
 
-- **Quantified:** Empty host to a serving hub ≤ 8 h *(estimate)* (OUT-017); 0 sealed products missing against the ledger.
+- **Quantified:** Empty host to a serving hub ≤ 8 h *(estimate)* (OUT-017); 0 sealed products missing against the ledger; after a consistent rollback of both stores, 0 base permits while 3 bases occupy the tier and 0 paid reads before gate 2 re-runs (TEST-153).
 - **Derives from:** REQ-018
 - **Source:** XADR-SCITADEL-008 §8; `gerchowl/g-fleet#1263`; `gerchowl/g-fleet#1363`
 - **Verified by:** TEST-067
@@ -659,6 +659,8 @@ Every release shall carry SPDX expressions and licence files, a third-party NOTI
 
 ## ETL orchestration and run ledger
 
+SYS-073 is grouped here on purpose, after SYS-060: it is a scheduler rule of the run ledger that bounds promotion's base count, so its number is out of sequence but its subject is ETL.
+
 ### SYS-057: ETL run orchestrator and run ledger
 
 Every ingest, delta, base build, extraction batch, embedding sweep, re-derive and index build shall execute as one run under a single orchestrator that writes a run record to the `state` ledger before its first step. The record pins every input by upstream version or snapshot date and by content hash (downloads, the stage-0 slice manifest, the golden-set version, code and configuration versions) and the hash of every service definition the run uses (SYS-067, SYS-068). A run with an unpinned input shall not start, and re-running a record shall reproduce the same output hashes or name the input that differed.
@@ -701,7 +703,7 @@ A candidate generation (base or delta) shall be promoted only after its QC gate 
 
 ### SYS-073: Compaction waits for the pin on a retired base to expire
 
-At most three base generations shall occupy a tier at any time: the current one, the previous one and the candidate, where a retired base counts as the previous one for as long as snapshots still pin it. The scheduler shall start no candidate base build (a compaction, a QC retry or a re-derive under SYS-069 that produces a base) while that count would exceed three. It shall instead wait until the pin expires, computing the expiry from the snapshot schedule, record the wait and its expected end in the run ledger (SYS-057), and raise an alert if the wait exceeds the longest snapshot retention. The wait pauses the build and deletes nothing. This bounds the warm-tier compaction peak at 3.1 B and the stage-0 `keep` quota at 3.1 B (`docs/vmodel/L2-infrastructure.md`, sections 2.4 and 3.1).
+At most three base generations shall occupy a tier at any time: the current one, the previous one and the candidate, where a retired base counts toward the three for as long as snapshots still pin it. After a restore the count includes the bases the snapshot listings still pin, and the scheduler waits conservatively when they cannot be listed (DES-059). The scheduler shall start no candidate base build (a compaction, a QC retry or a re-derive under SYS-069 that produces a base) while that count would exceed three. It shall instead wait until the pin expires, computing the expiry from the snapshot schedule, record the wait and its expected end in the run ledger (SYS-057), and raise an alert if the wait exceeds the longest snapshot retention. The wait pauses the build and deletes nothing. This bounds the warm-tier compaction peak at 3.1 B and the stage-0 `keep` quota at 3.1 B (`docs/vmodel/L2-infrastructure.md`, sections 2.4 and 3.1).
 
 - **Quantified:** 0 candidate builds started while a retired base is still pinned and three bases already occupy the tier; peak base occupancy of the warm tier ≤ 3.1 B and of `keep` at stage 0 ≤ 3.1 B *(estimate)*; the computed start time equals the snapshot expiry to within 1 minute; 100 % of waits recorded in the ledger with their expected end.
 - **Derives from:** REQ-002, REQ-018

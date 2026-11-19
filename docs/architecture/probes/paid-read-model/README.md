@@ -7,17 +7,17 @@ A sync, dependency-free Rust sketch of the paid read gate and [the paid read rul
 CARGO_TARGET_DIR=/elsewhere ./check.sh
 ```
 
-Read with rustc and cargo 1.99.0: 305 checks, all match.
+Read with rustc and cargo 1.99.0: 306 checks, all match.
 
 ## Crates
 
 | Crate | What |
 |---|---|
-| `boundary` | the opt-out log (hash-chained, head in `keep`), the five rules (`old`: round 6; `R1` to `R3`: review rounds 1 to 3; `R4`: section 1.2), `PaidTier` and its guards, the fixture, and `tests/conformance.rs` (28 named cases) |
+| `boundary` | the opt-out log (hash-chained, head in `keep`), the five rules (`old`: round 6; `R1` to `R3`: review rounds 1 to 3; `R4`: section 1.2), `PaidTier` and its guards, the fixture, `tests/conformance.rs` (31 named cases) and two cases on `admitted(g)` itself in `src/lib.rs` |
 | `caller` | `caller <old\|r1\|r2\|r3\|new> <case> [path]`: exit 0 = the case's bad row is served, 3 = not served, 4 = refused with an error; for `*_after_rebuild`, 0 = the re-admitted source is served, as intended |
 | `cf_mint_scope`, `cf_held_stamp`, `cf_session_ctx` | compile-fail: E0624, E0308, E0616 (exit 101) |
 | `compose`, `docforge` | the doctest reach rule R4: `docforge`'s doctest calls `compose` and builds only through workspace feature unification |
-| `paid_serve`, `paid_serve_bad`, `datafusion`, `r5-fixtures/` | rule R5: a paid-serving crate depends on `boundary` only (`datafusion` is an empty stand-in), and `boundary` re-exports only the data-type allowlist (the fixture's crate-root re-export is rejected) |
+| `paid_serve`, `paid_serve_bad`, `datafusion`, `r5-fixtures/` | rule R5: a paid-serving crate depends on `boundary` only (`datafusion` is an empty stand-in), and `boundary` re-exports only the data-type allowlist (the fixtures' crate-root re-export and `pub type` alias are rejected) |
 
 ## Fixture
 
@@ -49,5 +49,7 @@ Per path: `search`, `resolve`, `neighbours`, `table`, `union`, `merged`, `sessio
 | `refresh_source`: A allowed after the admission, then a refresh | — | 3 |
 | `unchecked`: cycle 2 completes with no verdict for A, then a refresh | `r3` 0 on every path | 3 |
 | `stale_parent`: a refresh naming g's older admission as its parent | `r3` 0 on every path | 4 (`Integrity`) |
+
+The final review of #28 added five cases, each failing before its fix: `refresh_from_dangling_parent_is_integrity` (a parent seq not in the log was read as a build), `stray_allow_for_old_cycle_is_integrity` (a verdict naming a cycle other than the current one), `late_allow_after_refresh_does_not_readmit_dropped_source` (the unchecked-source rule read the whole log, not the log before `E2`), and, against the two surviving mutants, `refresh_skips_first_seen_item_with_unsettled_clear` (fails with `done.contains(c)` removed) and `refresh_never_adds_first_seen_item_of_dropped_source` (fails with `srcs.contains(src)` removed).
 
 Not modelled: DataFusion's own planner (only the effect of `children()` and `statistics()` is), HTTP and MCP transport, and blake3.

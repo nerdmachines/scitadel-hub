@@ -2,7 +2,7 @@
 
 How the OpenAlex lab mirror stays fresh on the free key. Source: XADR-SCITADEL-008 §5 (OpenAlex sync strategy). The HTTP work (pacing, credits, retries, resumable downloads) is the shared pool of [adapters and pool](adapters-and-pool.md) ([DES-019](adapters-and-pool.md)); the sync scheduler below decides what to ask it for. The patent counterpart is [patents](patents.md).
 
-> **Source legend.** As in [the tessera boundary](tessera-boundary.md). Dollar budgets of the ADR are not copied: the allowance is a configuration value read from the source's published terms (see [DES-019](adapters-and-pool.md)). The page size is C-003 (SYS-003 says 200, the ADR's own source cites 100). Every DES below is `proposed`.
+> **Source legend.** As in [the tessera boundary](tessera-boundary.md). Dollar budgets of the ADR are not copied: the allowance is a configuration value read from the source's published terms (see [DES-019](adapters-and-pool.md)). The page size is `per_page = 100` from the adapter's service definition (SYS-003, [C-003 ruling](https://github.com/nerdmachines/scitadel-hub/issues/21#issuecomment-6995799465)). Every DES below is `proposed`.
 
 | DES | Title | Realises | Uses |
 |---|---|---|---|
