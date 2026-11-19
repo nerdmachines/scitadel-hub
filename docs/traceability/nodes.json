@@ -2466,7 +2466,7 @@
     {
       "id": "TEST-120",
       "kind": "TEST",
-      "title": "Integration: Hybrid retrieval pipeline: filters, BM25, vector, fusion and masking; method: The golden queries of [DES-043](quality.md) over a fixture slice in each mode, with a stale index, a superseded row, a retracted record and a paid-tier query",
+      "title": "Integration: Hybrid retrieval pipeline: filters, BM25, vector, fusion and masking; method: The golden queries of DES-043 over a fixture slice in each mode, with a stale index, a superseded row, a retracted record and a paid-tier query",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/retrieval.md)",
       "test_kind": "integration"

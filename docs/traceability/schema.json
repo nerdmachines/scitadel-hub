@@ -63,8 +63,10 @@
           ]
         },
         "title": {
+          "description": "Plain text: the issues index renders it, so a Markdown link would resolve against the wrong directory.",
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "^(?![\\s\\S]*\\]\\()"
         },
         "status": {
           "enum": [

@@ -181,6 +181,17 @@ class TraceCheckTests(unittest.TestCase):
                              'issues-index.md: not written; fix the trace files first')
             self.assertFalse((docs / 'issues-index.md').exists())
 
+    def test_titles_are_plain_text(self):
+        def link_in_title(docs):
+            nodes = docs / 'traceability/nodes.json'
+            nodes.write_text(nodes.read_text().replace(
+                '"Example principle', '"See [DES-001](design.md) for the example principle', 1))
+        _, result = self.gate_on_copy('delivered', link_in_title)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("traceability/nodes.json.nodes[0].title: invalid format "
+                      "'See [DES-001](design.md) for the example principle — replace in #3'",
+                      result.stderr.splitlines())
+
     def test_index_rows_link_public_issues_and_quote_private_ones(self):
         render = runpy.run_path(str(GATE))['render_index']
         nodes = [{'id': 'REQ-001', 'kind': 'REQ', 'title': 'A | B', 'status': 'proposed', 'source': ''},

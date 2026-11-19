@@ -92,7 +92,8 @@ Issue [#6](https://github.com/nerdmachines/scitadel-hub/issues/6) switches CI to
 - **Issues index.** `tools/issues-index docs` writes [docs/issues-index.md](../issues-index.md) from
   the graph: every node by level with its delivering issues, their repositories and the node status.
   Issues in private repositories appear in code style. `--strict` requires that file to match the graph,
-  and the gate checks it whenever it exists.
+  and the gate checks it whenever it exists. Node titles are plain text: the schema rejects a Markdown
+  link in a title, which would resolve against the wrong directory once rendered there.
 
 The executable `tools/trace-check <docs-root>` uses Python 3.11 or later and only
 the standard library. It validates the schema's supported keywords, ID formats,
