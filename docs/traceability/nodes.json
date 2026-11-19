@@ -870,7 +870,7 @@
     {
       "id": "XADR-SCITADEL-008",
       "kind": "adr",
-      "title": "scitadel-hub: a lab corpus server (vig-os/scitadel ADR-008)",
+      "title": "scitadel-hub: a lab corpus server (vig-os/scitadel decision record 008)",
       "status": "proposed",
       "source": "https://github.com/vig-os/scitadel/pull/317"
     },

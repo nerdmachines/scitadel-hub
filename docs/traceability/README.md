@@ -15,12 +15,16 @@ The graph needs at least one `REQ`. Keep this directory flat: only `README.md`,
    edges (`decomposes_into` for a requirement, `realised_by` for a system node) are
    required only once the node is past `proposed`, or always with `--strict`: the V
    lands one level per PR, so a level cannot name the level below before it exists.
-3. Before `planned`, add `delivered_by` to an issue such as
-   `nerdmachines/scitadel-hub#3`. It remains required at `in-progress` and `done`.
+3. Add `delivered_by` to the issue that implements the node, in the repository where
+   the work lands, such as `nerdmachines/scitadel-hub#44`
+   ([ADR-0001](../decisions/0001-v-model-and-traceability.md), amendment #6). Without
+   `--strict` it is required from `planned` on; with `--strict` (CI) at every status.
 4. Run `python3 -m unittest discover -s tools/tests -v` and
    `tools/trace-check docs` from the repository root (Python 3.11+).
    `--strict` also requires delivery edges and the downward edges for proposed nodes
-   (CI switches to it in [#6](https://github.com/nerdmachines/scitadel-hub/issues/6)).
+   and a [docs/issues-index.md](../issues-index.md) that matches the graph; CI runs it
+   since [#6](https://github.com/nerdmachines/scitadel-hub/issues/6).
+5. After changing nodes or edges, run `tools/issues-index docs` to regenerate the index.
 
 Local ADR nodes resolve to one decision file with a matching `Status:` line;
 external ADR nodes require a source URL. The gate checks IDs mentioned in Markdown

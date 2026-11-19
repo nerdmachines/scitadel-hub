@@ -4,12 +4,15 @@ import os
 from pathlib import Path
 import re
 import runpy
+import shutil
 import subprocess
+import tempfile
 import unittest
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 GATE = Path(os.environ.get('TRACE_CHECK_GATE', ROOT / 'tools/trace-check'))
+INDEXER = ROOT / 'tools/issues-index'
 FIXTURES = Path(__file__).parent / 'fixtures'
 
 # A rejected nodes document leaves every edge without a source and the fixture README
@@ -127,6 +130,86 @@ class TraceCheckTests(unittest.TestCase):
                 result = self.run_gate('delivered', *flags)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(result.stderr, '')
+
+    def gate_on_copy(self, fixture, edit, *flags):
+        """Run the gate on a copy of a fixture changed by edit(docs); return (docs, result)."""
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        docs = Path(tmp.name) / 'docs'
+        shutil.copytree(FIXTURES / fixture, docs)
+        edit(docs)
+        return docs, subprocess.run([str(GATE), str(docs), *flags], text=True,
+                                    capture_output=True, check=False)
+
+    def test_strict_requires_the_issues_index(self):
+        def remove(docs):
+            (docs / 'issues-index.md').unlink()
+        _, result = self.gate_on_copy('delivered', remove)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        _, result = self.gate_on_copy('delivered', remove, '--strict')
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(result.stderr.splitlines(),
+                         ['issues-index.md: missing or unreadable (run tools/issues-index)'])
+
+    def test_stale_index_fails_and_the_generator_repairs_it(self):
+        def stale(docs):
+            index = docs / 'issues-index.md'
+            index.write_text(index.read_text().replace('| planned |', '| proposed |', 1))
+        for flags in ((), ('--strict',)):
+            with self.subTest(flags=flags):
+                docs, result = self.gate_on_copy('delivered', stale, *flags)
+                self.assertEqual(result.returncode, 1)
+                self.assertEqual(result.stderr.splitlines(),
+                                 ['issues-index.md: out of date with the trace graph (run tools/issues-index)'])
+        generated = subprocess.run([str(INDEXER), str(docs)], text=True,
+                                   capture_output=True, check=False)
+        self.assertEqual(generated.returncode, 0, generated.stderr)
+        self.assertEqual((docs / 'issues-index.md').read_text(),
+                         (FIXTURES / 'delivered/issues-index.md').read_text())
+        result = subprocess.run([str(GATE), str(docs), '--strict'], text=True,
+                                capture_output=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_generator_refuses_invalid_trace_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = Path(tmp) / 'docs'
+            shutil.copytree(FIXTURES / 'malformed-json', docs)
+            result = subprocess.run([str(INDEXER), str(docs)], text=True,
+                                    capture_output=True, check=False)
+            self.assertEqual(result.returncode, 1)
+            self.assertEqual(result.stderr.splitlines()[-1],
+                             'issues-index.md: not written; fix the trace files first')
+            self.assertFalse((docs / 'issues-index.md').exists())
+
+    def test_index_rows_link_public_issues_and_quote_private_ones(self):
+        render = runpy.run_path(str(GATE))['render_index']
+        nodes = [{'id': 'REQ-001', 'kind': 'REQ', 'title': 'A | B', 'status': 'proposed', 'source': ''},
+                 {'id': 'DES-001', 'kind': 'DES', 'level': 'L4', 'title': 'D', 'status': 'planned', 'source': ''}]
+        edges = [{'from': 'REQ-001', 'to': 'vig-os/tessera#12', 'kind': 'delivered_by'},
+                 {'from': 'REQ-001', 'to': 'gerchowl/g-fleet#3', 'kind': 'delivered_by'},
+                 {'from': 'REQ-001', 'to': 'vig-os/tessera#2', 'kind': 'delivered_by'}]
+        lines = render(nodes, edges).splitlines()
+        self.assertIn('| REQ-001 | A \\| B | proposed | `gerchowl/g-fleet#3`, '
+                      '[vig-os/tessera#2](https://github.com/vig-os/tessera/issues/2), '
+                      '[vig-os/tessera#12](https://github.com/vig-os/tessera/issues/12) | '
+                      'gerchowl/g-fleet, vig-os/tessera |', lines)
+        self.assertIn('| DES-001 | D | planned | — | — |', lines)
+        self.assertIn('| `vig-os/tessera` | 2 | 1 |', lines)
+        self.assertEqual(lines[lines.index('## L3') + 2], 'No nodes.')
+
+    def test_repository_graph_passes_strict(self):
+        # #6: every node of the plan has a delivering issue and the index matches.
+        result = subprocess.run([str(GATE), str(ROOT / 'docs'), '--strict'], text=True,
+                                capture_output=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+
+    def test_ci_runs_the_strict_gate(self):
+        # #6 switches CI to --strict; the plain gate would let undelivered nodes through.
+        workflow = (ROOT / '.github/workflows/trace.yml').read_text()
+        runs = re.findall(r'^\s+- run: (.+)$', workflow, re.MULTILINE)
+        self.assertIn('tools/trace-check docs --strict', runs)
+        self.assertNotIn('tools/trace-check docs', runs)
 
     def test_all_prefixes_and_edge_kinds(self):
         result = self.run_gate('all-edge-kinds', '--strict')
