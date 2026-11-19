@@ -32,7 +32,7 @@ The tiered, licence-gated pipeline that turns raw inputs into document-model row
 
 Because every raw input and every tier's intermediate is kept (SYS-014), three jobs start from stored bytes with no upstream fetch:
 
-- **Page renders and region crops** for the extraction-feedback loop: a report on a bad table or formula is shown against its source region and re-extracted from it; a crop shown to a reporting user is a derived image of a licence-clean page, gated like any other content (SYS-064). Renders live in an evictable cache with a hard size cap ([DES-021](adapters-and-pool.md)).
+- **Page renders and region crops** for the extraction-feedback loop: a report on a bad table or formula is shown against its source region and re-extracted from it; a crop shown to a reporting user is a derived image of a licence-clean page, gated like any other content (SYS-064). On the paid tier it is served only through `PaidTier::crop`, which resolves the element through the paid read gate before rendering, so a withdrawn source's or item's crop is never shown ([DES-057](tessera-boundary.md), path 21). Renders live in an evictable cache with a hard size cap ([DES-021](adapters-and-pool.md)).
 - **Image embeddings** of figures and page regions ([DES-037](document-model.md), SYS-065).
 - **Re-running a vision tier** (T1 to T4) on a chosen element, work or batch from stored inputs and intermediates alone. A re-run writes new intermediates keyed by input hash, tool, model, version and definition hash, leaves the old ones intact and passes the golden-set diff and promotion ([DES-044](quality.md), SYS-066).
 

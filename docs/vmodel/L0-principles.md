@@ -148,6 +148,8 @@ Clients send query text only. The hub embeds the text with the service definitio
 
 A recorded withdrawal of a source or an item, read from the ledger and hash-chained, applies at query time at once on every paid read path, re-checked per scan or batch, including held table providers and registered sessions. Rows are physically purged at the next rebuild. A newly allowed source invalidates nothing and appears after the next rebuild. The window is at most one in-flight query deadline, and it is disclosed. The cost is a query-time exclusion set read from the ledger.
 
+*Realisation:* every paid read of a generation `g` returns a row only under `admitted(g) ∧ ¬withdrawn(now)`. `admitted(g)` is the allow-list recorded when `g` was built. `withdrawn(now)` is every `OptedOut` or `Reserved` recorded since then, whether or not its cycle has completed. See DES-057 and DES-058.
+
 *Source:* [nerdmachines/scitadel-hub#28](https://github.com/nerdmachines/scitadel-hub/issues/28) (owner decision, comment of 2026-11-19)
 
 ## What this level does not contain

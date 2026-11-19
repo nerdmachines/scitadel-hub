@@ -2922,7 +2922,7 @@
     {
       "id": "DES-057",
       "kind": "DES",
-      "title": "Paid read gate: PaidTier as the only holder of paid scopes, returning only filtered batches, guarded TableProviders, streams and sessions that re-check the exclusion set per scan and per batch, with one conformance case per paid read path",
+      "title": "Paid read gate: PaidTier as the only holder of paid scopes and PaidServing as the paid service's only input, returning only filtered batches, leaf GuardedExec providers, streams, sessions without DDL and guarded crops, each applying admitted(generation) and not withdrawn(now) per scan and per batch, with one conformance case per paid read path",
       "status": "proposed",
       "source": "docs/architecture/tessera-boundary.md §1.2",
       "level": "L3"
@@ -2930,7 +2930,7 @@
     {
       "id": "DES-058",
       "kind": "DES",
-      "title": "Exclusion view: source and item opt-out verdicts in one hash-chained ledger log with its head in keep, item admission as an allow-list, the ExclusionSet re-derived per scan and reused per batch within the disclosed window",
+      "title": "Exclusion view: source verdicts, item verdicts, cycle completions and per-generation paid admissions in one hash-chained ledger log with its head in keep; admitted(generation) fixed by the admission record, withdrawn(now) every OptedOut or Reserved recorded after it regardless of cycle completion; derived rows inherit source and item",
       "status": "proposed",
       "source": "docs/architecture/tessera-boundary.md §1.2",
       "level": "L4"
