@@ -49,6 +49,7 @@ FAILURES = {
     'dangling-source': ('dangling edge: DES-999 --refines--> DES-001 (unknown source)',),
     'unverified-req': ('REQ-001: missing verified_by',),
     'unverified-sys': ('SYS-001: missing verified_by',),
+    'unverified-des': ('DES-001: missing verified_by',),
     'undelivered-planned': ('PRIN-001: missing delivered_by',),
     'undelivered-in-progress': ('PRIN-001: missing delivered_by',),
     'undelivered-done': ('PRIN-001: missing delivered_by',),
@@ -65,6 +66,7 @@ FAILURES = {
         'traceability: missing valid edges document',
         'REQ-001: missing verified_by',
         'SYS-001: missing verified_by',
+        'DES-001: missing verified_by',
         'RISK-001: missing mitigated_by',
     ),
     'missing-field': ('traceability/nodes.json.nodes[0]: missing title',) + NODES_REJECTED,
@@ -123,6 +125,14 @@ class TraceCheckTests(unittest.TestCase):
                 result = self.run_gate(fixture, '--strict')
                 self.assertEqual(result.returncode, 1)
                 self.assertEqual(result.stderr.splitlines(), [violation])
+
+    def test_design_without_a_test_edge_fails_normal_and_strict(self):
+        # #78: a DES must be verified_by a TEST at every status, like REQ and SYS.
+        for flags in ((), ('--strict',)):
+            with self.subTest(flags=flags):
+                result = self.run_gate('unverified-des', *flags)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn('DES-001: missing verified_by', result.stderr.splitlines())
 
     def test_delivered_nodes_pass_normal_and_strict(self):
         for flags in ((), ('--strict',)):

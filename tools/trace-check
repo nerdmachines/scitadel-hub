@@ -335,7 +335,8 @@ def check(docs, strict=False):
         outgoing[source].add(kind)
     for ident, node in by_id.items():
         required = {'REQ': ('decomposes_into', 'verified_by'),
-                    'SYS': ('realised_by', 'verified_by'), 'RISK': ('mitigated_by',)}.get(node['kind'], ())
+                    'SYS': ('realised_by', 'verified_by'), 'DES': ('verified_by',),
+                    'RISK': ('mitigated_by',)}.get(node['kind'], ())
         staged = node['status'] == 'proposed' and not strict
         for kind in required:
             if kind in outgoing[ident] or (kind in DOWNWARD and staged):
