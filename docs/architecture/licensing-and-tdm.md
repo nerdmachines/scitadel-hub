@@ -12,7 +12,7 @@ Licence classes on every row, the features that are designed but disabled in pha
 
 ## 1. Licence classes and gated features (DES-054)
 
-Every row and every artefact carries a licence class column (SYS-052); the protocol carries it ([DES-033](protocol.md)).
+Every row and every artefact carries a licence class column (SYS-052); the protocol carries it ([DES-033](protocol.md)). **An upload's derived rows inherit its scope:** the structured document derived from an uploaded artefact (upload-on-acquire, [DES-051](client-app.md)) carries the upload's licence class and entitlement, and is served only within that entitlement, recorded in provenance ([C-008 ruling](https://github.com/nerdmachines/scitadel-hub/issues/35#issuecomment-6995802069)).
 
 | Class | Cache and index | Cascade up to | Served to |
 |---|---|---|---|

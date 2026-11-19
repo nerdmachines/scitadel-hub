@@ -6069,6 +6069,236 @@
       "from": "SYS-064",
       "to": "DES-057",
       "kind": "realised_by"
+    },
+    {
+      "from": "RISK-001",
+      "to": "DES-032",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-001",
+      "to": "DES-040",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-001",
+      "to": "DES-047",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-001",
+      "to": "nerdmachines/scitadel-hub#6",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "RISK-002",
+      "to": "DES-020",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-002",
+      "to": "DES-058",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-002",
+      "to": "TEST-075",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-002",
+      "to": "nerdmachines/scitadel-hub#6",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "RISK-003",
+      "to": "DES-055",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-003",
+      "to": "TEST-062",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-003",
+      "to": "nerdmachines/scitadel-hub#6",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "RISK-004",
+      "to": "DES-001",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-004",
+      "to": "DES-017",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-004",
+      "to": "TEST-110",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-004",
+      "to": "nerdmachines/scitadel-hub#6",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "RISK-005",
+      "to": "DES-022",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-005",
+      "to": "DES-038",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-005",
+      "to": "TEST-070",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-005",
+      "to": "nerdmachines/scitadel-hub#6",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "RISK-006",
+      "to": "DES-015",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-006",
+      "to": "TEST-067",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-006",
+      "to": "TEST-154",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-006",
+      "to": "nerdmachines/scitadel-hub#6",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "RISK-007",
+      "to": "DES-043",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-007",
+      "to": "DES-044",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-007",
+      "to": "TEST-027",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-007",
+      "to": "nerdmachines/scitadel-hub#6",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "RISK-008",
+      "to": "DES-054",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-008",
+      "to": "TEST-021",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-008",
+      "to": "TEST-074",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-008",
+      "to": "nerdmachines/scitadel-hub#6",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "RISK-009",
+      "to": "DES-042",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-009",
+      "to": "TEST-092",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-009",
+      "to": "TEST-067",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-009",
+      "to": "nerdmachines/scitadel-hub#6",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "RISK-010",
+      "to": "DES-059",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-010",
+      "to": "TEST-153",
+      "kind": "mitigated_by"
+    },
+    {
+      "from": "RISK-010",
+      "to": "nerdmachines/scitadel-hub#6",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "DES-059",
+      "to": "DES-012",
+      "kind": "refines"
+    },
+    {
+      "from": "DES-059",
+      "to": "TEST-153",
+      "kind": "verified_by"
+    },
+    {
+      "from": "SYS-047",
+      "to": "DES-059",
+      "kind": "realised_by"
+    },
+    {
+      "from": "SYS-073",
+      "to": "DES-059",
+      "kind": "realised_by"
+    },
+    {
+      "from": "DES-059",
+      "to": "nerdmachines/scitadel-hub#27",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-153",
+      "to": "nerdmachines/scitadel-hub#27",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-154",
+      "to": "nerdmachines/scitadel-hub#6",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "S-012",
+      "to": "nerdmachines/scitadel-hub#42",
+      "kind": "delivered_by"
     }
   ]
 }
