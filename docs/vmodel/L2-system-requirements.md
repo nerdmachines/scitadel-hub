@@ -425,7 +425,7 @@ Each tenant shall run in its own hub instance on its own microVM with no shared 
 - **Derives from:** REQ-014
 - **Source:** XADR-SCITADEL-008 §8
 - **Verified by:** TEST-055
-- **Delivered by:** `nerdmachines/scitadel-hub-deploy#1`, [vig-os/scitadel#327](https://github.com/vig-os/scitadel/issues/327)
+- **Delivered by:** `nerdmachines/scitadel-hub-deploy#1`
 
 ### SYS-036: Usage metering
 
@@ -455,7 +455,7 @@ An on-prem hub shall run the same binary and the same sealed shards as the hoste
 - **Derives from:** REQ-015
 - **Source:** XADR-SCITADEL-008 §8; §1
 - **Verified by:** TEST-058
-- **Delivered by:** `nerdmachines/scitadel-hub-deploy#2`, [vig-os/scitadel#328](https://github.com/vig-os/scitadel/issues/328)
+- **Delivered by:** `nerdmachines/scitadel-hub-deploy#2`
 
 ### SYS-039: Stage portability
 
@@ -755,7 +755,7 @@ The hub shall render pages and crop regions on demand from the kept originals (S
 
 ### SYS-065: Image embeddings of figures and page regions
 
-Figures and page regions shall be embedded with Qwen3-VL-Embedding as chunked GPU jobs under SYS-048, SYS-049 and SYS-062, from the stored figures and the kept originals, into a model-versioned embeddings product beside the shards. Each product records the model id, revision, dimension and truncation, and the executor is named by a service definition (SYS-067). The dimension (a Matryoshka truncation, 512 by default) is chosen on the golden set.
+Figures and page regions shall be embedded with the image-embedding model named by the active service definition (SYS-067) as chunked GPU jobs under SYS-048, SYS-049 and SYS-062, from the stored figures and the kept originals, into a model-versioned embeddings product beside the shards. Each product records the model id, revision, dimension and truncation, and the executor is named by a service definition (SYS-067). The dimension (a Matryoshka truncation, 512 by default) is chosen on the golden set. The model is a service-definition choice, not part of this requirement (D-009); TEST-085 benchmarks the candidates on the golden image queries.
 
 - **Quantified:** 100 % of image-embedding products record model, revision, dimension, truncation and definition hash; recall@10 at the chosen dimension within 2 points of the full dimension on the golden image queries *(estimate)*; 100 % of jobs meet SYS-048; throughput measured on a 200,000-figure sample before the full run is scheduled.
 - **Derives from:** REQ-003, REQ-019

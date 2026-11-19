@@ -71,7 +71,7 @@ then L2 ([#4](https://github.com/nerdmachines/scitadel-hub/issues/4)), then L3 a
 graph red until the level below exists, so the plan could never be green level by
 level. The two downward edges therefore follow the same rule as `delivered_by`: they
 are required when the node's status is past `proposed`, and always under `--strict`.
-`verified_by` (every `REQ` and `SYS`) and `mitigated_by` (every `RISK`) stay required at
+`verified_by` (every `REQ`, `SYS` and, since [#78](https://github.com/nerdmachines/scitadel-hub/issues/78), every `DES`) and `mitigated_by` (every `RISK`) stay required at
 every status, so each level ships with its own acceptance or system `TEST` stubs.
 Issue [#6](https://github.com/nerdmachines/scitadel-hub/issues/6) switches CI to
 `--strict`, so the milestone cannot close with an undecomposed requirement.
@@ -95,6 +95,16 @@ Issue [#6](https://github.com/nerdmachines/scitadel-hub/issues/6) switches CI to
   and the gate checks it whenever it exists. Node titles are plain text: the schema rejects a Markdown
   link in a title, which would resolve against the wrong directory once rendered there.
 
+**Amendment (#78, 2026-11-19): every design node is verified.** The epic pairs each V level
+with a verification level: an L3 `DES` is verified by an integration `TEST`, an L4 `DES` by a
+unit `TEST`. The gate had required `verified_by` only on `REQ` and `SYS`, so a `DES` could lose
+its last `TEST` edge and still pass `--strict` (found by the M0 milestone review). A `DES` now
+requires at least one `verified_by` edge to a `TEST` at every status and in `--strict` alike,
+the same as `REQ` and `SYS`; a seeded fixture (`unverified-des`) proves the failure. The schema
+records a `test_kind`, but the kind-to-level rule is **not** enforced yet: 7 of the 8 L4 designs
+(DES-017, DES-019, DES-020, DES-021, DES-022, DES-058, DES-059) are verified only by integration
+tests. Enforcing it needs a decision on those tests, not a relabel; it stays open until that is made.
+
 The executable `tools/trace-check <docs-root>` uses Python 3.11 or later and only
 the standard library. It validates the schema's supported keywords, ID formats,
 unique IDs, edge endpoints and allowed kinds, local ADR files/status, external
@@ -103,7 +113,7 @@ Markdown scanning recognizes only `PRIN`, `D`, `REQ`, `US`, `OUT`, `SYS`, `DES`,
 `RISK`, `TEST`, `S`, `C`, `ADR` and `XADR` numeric identifiers. Unrelated names
 such as UTF-8 and SHA-256 are ignored.
 The graph must contain at least one `REQ` node; an empty graph fails explicitly.
-It also rejects a requirement or system node without verification, a risk without
+It also rejects a requirement, system or design node without verification, a risk without
 mitigation, and missing delivery edges at the applicable statuses. A requirement
 without a system node, or a system node without a design, is rejected once its
 status is past `proposed`, and always under `--strict`. Each violation is one stderr line, with a

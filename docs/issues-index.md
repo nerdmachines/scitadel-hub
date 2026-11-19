@@ -11,7 +11,7 @@ Issues in private repositories are written in code style, because they cannot be
 | `nerdmachines/scitadel-cloud` | 1 | 7 |
 | `nerdmachines/scitadel-hub` | 57 | 138 |
 | `nerdmachines/scitadel-hub-deploy` | 2 | 21 |
-| `vig-os/scitadel` | 22 | 266 |
+| `vig-os/scitadel` | 20 | 262 |
 | `vig-os/tessera` | 15 | 33 |
 
 ## L0
@@ -162,10 +162,10 @@ Issues in private repositories are written in code style, because they cannot be
 | SYS-032 | Detach hands back structured documents, never PDF bytes | proposed | [vig-os/scitadel#318](https://github.com/vig-os/scitadel/issues/318) | vig-os/scitadel |
 | SYS-033 | Local-subset routing | proposed | [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316), [vig-os/scitadel#318](https://github.com/vig-os/scitadel/issues/318) | vig-os/scitadel |
 | SYS-034 | No bulk export | proposed | [vig-os/scitadel#314](https://github.com/vig-os/scitadel/issues/314), [vig-os/scitadel#318](https://github.com/vig-os/scitadel/issues/318) | vig-os/scitadel |
-| SYS-035 | Tenant isolation | proposed | `nerdmachines/scitadel-hub-deploy#1`, [vig-os/scitadel#327](https://github.com/vig-os/scitadel/issues/327) | nerdmachines/scitadel-hub-deploy, vig-os/scitadel |
+| SYS-035 | Tenant isolation | proposed | `nerdmachines/scitadel-hub-deploy#1` | nerdmachines/scitadel-hub-deploy |
 | SYS-036 | Usage metering | proposed | `nerdmachines/scitadel-cloud#1`, `nerdmachines/scitadel-hub-deploy#1` | nerdmachines/scitadel-cloud, nerdmachines/scitadel-hub-deploy |
 | SYS-037 | Annotation layers | proposed | [vig-os/scitadel#311](https://github.com/vig-os/scitadel/issues/311), [vig-os/scitadel#325](https://github.com/vig-os/scitadel/issues/325) | vig-os/scitadel |
-| SYS-038 | On-prem parity | proposed | `nerdmachines/scitadel-hub-deploy#2`, [vig-os/scitadel#328](https://github.com/vig-os/scitadel/issues/328) | nerdmachines/scitadel-hub-deploy, vig-os/scitadel |
+| SYS-038 | On-prem parity | proposed | `nerdmachines/scitadel-hub-deploy#2` | nerdmachines/scitadel-hub-deploy |
 | SYS-039 | Stage portability | proposed | `nerdmachines/scitadel-hub-deploy#1`, `nerdmachines/scitadel-hub-deploy#2` | nerdmachines/scitadel-hub-deploy |
 | SYS-040 | Secrets handling | proposed | `gerchowl/g-fleet#1474`, [vig-os/scitadel#315](https://github.com/vig-os/scitadel/issues/315) | gerchowl/g-fleet, vig-os/scitadel |
 | SYS-041 | Encryption and access control | proposed | `gerchowl/g-fleet#1449`, `nerdmachines/scitadel-hub-deploy#1` | gerchowl/g-fleet, nerdmachines/scitadel-hub-deploy |
@@ -249,7 +249,7 @@ Issues in private repositories are written in code style, because they cannot be
 | DES-044 | Random-sample QC, embedding checks and upgrade diff | proposed | [nerdmachines/scitadel-hub#72](https://github.com/nerdmachines/scitadel-hub/issues/72), [vig-os/scitadel#321](https://github.com/vig-os/scitadel/issues/321) | nerdmachines/scitadel-hub, vig-os/scitadel |
 | DES-045 | Serving placement and latency budget | proposed | [nerdmachines/scitadel-hub#73](https://github.com/nerdmachines/scitadel-hub/issues/73), [vig-os/scitadel#311](https://github.com/vig-os/scitadel/issues/311), [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316) | nerdmachines/scitadel-hub, vig-os/scitadel |
 | DES-046 | Rerank with an unreranked fallback | proposed | [nerdmachines/scitadel-hub#73](https://github.com/nerdmachines/scitadel-hub/issues/73), [vig-os/scitadel#316](https://github.com/vig-os/scitadel/issues/316) | nerdmachines/scitadel-hub, vig-os/scitadel |
-| DES-047 | Tenant instance isolation and stage-portable packaging | proposed | `nerdmachines/scitadel-hub-deploy#1`, `nerdmachines/scitadel-hub-deploy#2`, [vig-os/scitadel#327](https://github.com/vig-os/scitadel/issues/327) | nerdmachines/scitadel-hub-deploy, vig-os/scitadel |
+| DES-047 | Tenant instance isolation and stage-portable packaging | proposed | `nerdmachines/scitadel-hub-deploy#1`, `nerdmachines/scitadel-hub-deploy#2` | nerdmachines/scitadel-hub-deploy |
 | DES-048 | Usage metering seam | proposed | `nerdmachines/scitadel-cloud#1`, `nerdmachines/scitadel-hub-deploy#1` | nerdmachines/scitadel-cloud, nerdmachines/scitadel-hub-deploy |
 | DES-049 | Transport security, access control and secrets | proposed | `gerchowl/g-fleet#1449`, [nerdmachines/scitadel-hub#69](https://github.com/nerdmachines/scitadel-hub/issues/69), `nerdmachines/scitadel-hub-deploy#1` | gerchowl/g-fleet, nerdmachines/scitadel-hub, nerdmachines/scitadel-hub-deploy |
 | DES-050 | Annotation layers | proposed | [vig-os/scitadel#325](https://github.com/vig-os/scitadel/issues/325) | vig-os/scitadel |
@@ -453,7 +453,7 @@ Issues in private repositories are written in code style, because they cannot be
 | TEST-138 | Integration: Random-sample QC, embedding checks and upgrade diff; method: A fixture batch of 300 with one silent error, an embeddings product with a NaN and a duplicate, and a changed extractor version | proposed | [nerdmachines/scitadel-hub#72](https://github.com/nerdmachines/scitadel-hub/issues/72) | nerdmachines/scitadel-hub |
 | TEST-139 | Integration: Serving placement and latency budget; method: The fixture hub in a microVM with no GPU device, 100 hybrid searches on the fixture slice | proposed | [nerdmachines/scitadel-hub#73](https://github.com/nerdmachines/scitadel-hub/issues/73) | nerdmachines/scitadel-hub |
 | TEST-140 | Integration: Rerank with an unreranked fallback; method: The same hub with a rerank stub that is busy, slow and healthy in turn | proposed | [nerdmachines/scitadel-hub#73](https://github.com/nerdmachines/scitadel-hub/issues/73) | nerdmachines/scitadel-hub |
-| TEST-141 | Integration: Tenant instance isolation and stage-portable packaging; method: Two tenant microVMs from the production packaging, each with a distinct fixture corpus and credentials, with cross-tenant read and write attempts and a stage-1 configuration swap | proposed | `nerdmachines/scitadel-hub-deploy#1`, `nerdmachines/scitadel-hub-deploy#2`, [vig-os/scitadel#327](https://github.com/vig-os/scitadel/issues/327) | nerdmachines/scitadel-hub-deploy, vig-os/scitadel |
+| TEST-141 | Integration: Tenant instance isolation and stage-portable packaging; method: Two tenant microVMs from the production packaging, each with a distinct fixture corpus and credentials, with cross-tenant read and write attempts and a stage-1 configuration swap | proposed | `nerdmachines/scitadel-hub-deploy#1`, `nerdmachines/scitadel-hub-deploy#2` | nerdmachines/scitadel-hub-deploy |
 | TEST-142 | Integration: Usage metering seam; method: Fixture calls for two hosted tenants and the same calls through a local-tier hub | proposed | `nerdmachines/scitadel-cloud#1`, `nerdmachines/scitadel-hub-deploy#1` | nerdmachines/scitadel-cloud, nerdmachines/scitadel-hub-deploy |
 | TEST-143 | Integration: Transport security, access control and secrets; method: Port and endpoint scan of a fixture hub, anonymous and wrong-credential requests, a secrets canary in a request | proposed | [nerdmachines/scitadel-hub#69](https://github.com/nerdmachines/scitadel-hub/issues/69) | nerdmachines/scitadel-hub |
 | TEST-144 | Integration: Annotation layers; method: The permission matrix over the four layers: reads, writes and publishes by each of four fixture users | proposed | [vig-os/scitadel#325](https://github.com/vig-os/scitadel/issues/325) | vig-os/scitadel |

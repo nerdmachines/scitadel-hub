@@ -2516,11 +2516,6 @@
       "kind": "delivered_by"
     },
     {
-      "from": "SYS-035",
-      "to": "vig-os/scitadel#327",
-      "kind": "delivered_by"
-    },
-    {
       "from": "TEST-055",
       "to": "nerdmachines/scitadel-hub-deploy#1",
       "kind": "delivered_by"
@@ -2558,11 +2553,6 @@
     {
       "from": "SYS-038",
       "to": "nerdmachines/scitadel-hub-deploy#2",
-      "kind": "delivered_by"
-    },
-    {
-      "from": "SYS-038",
-      "to": "vig-os/scitadel#328",
       "kind": "delivered_by"
     },
     {
@@ -5301,11 +5291,6 @@
       "kind": "delivered_by"
     },
     {
-      "from": "DES-047",
-      "to": "vig-os/scitadel#327",
-      "kind": "delivered_by"
-    },
-    {
       "from": "SYS-036",
       "to": "DES-048",
       "kind": "realised_by"
@@ -6478,11 +6463,6 @@
     {
       "from": "TEST-141",
       "to": "nerdmachines/scitadel-hub-deploy#2",
-      "kind": "delivered_by"
-    },
-    {
-      "from": "TEST-141",
-      "to": "vig-os/scitadel#327",
       "kind": "delivered_by"
     },
     {
