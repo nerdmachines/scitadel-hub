@@ -17,7 +17,7 @@ Read with rustc and cargo 1.99.0: 306 checks, all match.
 | `caller` | `caller <old\|r1\|r2\|r3\|new> <case> [path]`: exit 0 = the case's bad row is served, 3 = not served, 4 = refused with an error; for `*_after_rebuild`, 0 = the re-admitted source is served, as intended |
 | `cf_mint_scope`, `cf_held_stamp`, `cf_session_ctx` | compile-fail: E0624, E0308, E0616 (exit 101) |
 | `compose`, `docforge` | the doctest reach rule R4: `docforge`'s doctest calls `compose` and builds only through workspace feature unification |
-| `paid_serve`, `paid_serve_bad`, `datafusion`, `r5-fixtures/` | rule R5: a paid-serving crate depends on `boundary` only (`datafusion` is an empty stand-in), and `boundary` re-exports only the data-type allowlist (the fixtures' crate-root re-export and `pub type` alias are rejected) |
+| `paid_serve`, `paid_serve_bad`, `datafusion`, `r5-fixtures/` | rule R5: a paid-serving crate depends on `boundary` only (`datafusion` is an empty stand-in), and `boundary` re-exports only the data-type allowlist (the fixtures' crate-root re-export and `pub type` aliases are rejected, including an absolute `::datafusion` path and a provider type inside generics) |
 
 ## Fixture
 
