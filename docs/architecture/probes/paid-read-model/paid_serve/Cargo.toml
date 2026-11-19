@@ -1,0 +1,6 @@
+[package]
+name = "paid_serve"
+version = "0.1.0"
+edition = "2021"
+[dependencies]
+boundary = { path = "../boundary" }
