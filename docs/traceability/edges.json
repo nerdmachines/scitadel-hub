@@ -5954,6 +5954,116 @@
       "from": "S-011",
       "to": "nerdmachines/scitadel-hub#40",
       "kind": "delivered_by"
+    },
+    {
+      "from": "D-010",
+      "to": "nerdmachines/scitadel-hub#28",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-021",
+      "to": "DES-057",
+      "kind": "realised_by"
+    },
+    {
+      "from": "SYS-054",
+      "to": "DES-057",
+      "kind": "realised_by"
+    },
+    {
+      "from": "SYS-055",
+      "to": "DES-057",
+      "kind": "realised_by"
+    },
+    {
+      "from": "XADR-SCITADEL-008",
+      "to": "DES-057",
+      "kind": "justifies"
+    },
+    {
+      "from": "D-010",
+      "to": "DES-057",
+      "kind": "justifies"
+    },
+    {
+      "from": "D-006",
+      "to": "DES-057",
+      "kind": "justifies"
+    },
+    {
+      "from": "DES-057",
+      "to": "DES-001",
+      "kind": "refines"
+    },
+    {
+      "from": "DES-057",
+      "to": "TEST-151",
+      "kind": "verified_by"
+    },
+    {
+      "from": "DES-057",
+      "to": "nerdmachines/scitadel-hub#28",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "SYS-021",
+      "to": "DES-058",
+      "kind": "realised_by"
+    },
+    {
+      "from": "SYS-055",
+      "to": "DES-058",
+      "kind": "realised_by"
+    },
+    {
+      "from": "XADR-SCITADEL-008",
+      "to": "DES-058",
+      "kind": "justifies"
+    },
+    {
+      "from": "D-010",
+      "to": "DES-058",
+      "kind": "justifies"
+    },
+    {
+      "from": "DES-058",
+      "to": "DES-057",
+      "kind": "refines"
+    },
+    {
+      "from": "DES-058",
+      "to": "TEST-152",
+      "kind": "verified_by"
+    },
+    {
+      "from": "DES-058",
+      "to": "nerdmachines/scitadel-hub#28",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-151",
+      "to": "nerdmachines/scitadel-hub#28",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-152",
+      "to": "nerdmachines/scitadel-hub#28",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "DES-003",
+      "to": "nerdmachines/scitadel-hub#28",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "DES-020",
+      "to": "nerdmachines/scitadel-hub#28",
+      "kind": "delivered_by"
+    },
+    {
+      "from": "TEST-113",
+      "to": "nerdmachines/scitadel-hub#28",
+      "kind": "delivered_by"
     }
   ]
 }

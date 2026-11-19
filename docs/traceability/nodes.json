@@ -155,6 +155,13 @@
       "source": "vig-os/scitadel#316 (owner decision, comment of 2026-11-18)"
     },
     {
+      "id": "D-010",
+      "kind": "D",
+      "title": "Opt-out withdrawal: filter now, purge on rebuild (2026-11-19)",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#28 (owner decision, comment of 2026-11-19)"
+    },
+    {
       "id": "REQ-001",
       "kind": "REQ",
       "title": "Licence-clean corpus scope",
@@ -1965,7 +1972,7 @@
     {
       "id": "DES-001",
       "kind": "DES",
-      "title": "Tessera boundary conventions: hub-boundary traits, composition root, async_trait dyn dispatch, one HubError with ErrorKind, Arrow at the boundary, capabilities minted by authorities reachable only through a feature-gated compose over hash-chained records, tier-typed scopes, index stamps carrying tier and opt-out exclusion digest",
+      "title": "Tessera boundary conventions: hub-boundary traits, composition root, async_trait dyn dispatch, one HubError with ErrorKind, Arrow at the boundary, capabilities minted by authorities reachable only through a feature-gated compose over hash-chained records, tier-typed scopes, index stamps carrying tier and the admission digest",
       "status": "proposed",
       "source": "docs/architecture/tessera-boundary.md §1",
       "level": "L3"
@@ -1973,7 +1980,7 @@
     {
       "id": "TEST-094",
       "kind": "TEST",
-      "title": "Integration: workspace check (backend dependents; who requests and who reaches the composition-root and backend-impl features, through any dependency; no dependency on hub-compose; every other crate builds alone with all its targets), error-kind mapping, compile-fail capability cases and the authority suite over faulty stores; method: cargo metadata, cargo tree -e features -i hub-boundary --all-features --target all --no-dedupe and cargo check -p --all-targets per crate, an ErrorKind mapping test per backend, trybuild cases with pinned error codes, mutant stores",
+      "title": "Integration: workspace check (backend dependents; who requests and who reaches the composition-root and backend-impl features, through any dependency; no dependency on hub-compose; every other crate builds alone with all its targets), error-kind mapping, compile-fail capability cases and the authority suite over faulty stores; method: cargo metadata, cargo tree -e features -i hub-boundary --all-features --target all --no-dedupe and cargo check -p --all-targets per crate, cargo test -p --doc per library crate, an ErrorKind mapping test per backend, trybuild cases with pinned error codes, mutant stores",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#5 integration (tessera-boundary.md)",
       "test_kind": "integration"
@@ -2913,6 +2920,22 @@
       "level": "L3"
     },
     {
+      "id": "DES-057",
+      "kind": "DES",
+      "title": "Paid read gate: PaidTier as the only holder of paid scopes, returning only filtered batches, guarded TableProviders, streams and sessions that re-check the exclusion set per scan and per batch, with one conformance case per paid read path",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §1.2",
+      "level": "L3"
+    },
+    {
+      "id": "DES-058",
+      "kind": "DES",
+      "title": "Exclusion view: source and item opt-out verdicts in one hash-chained ledger log with its head in keep, item admission as an allow-list, the ExclusionSet re-derived per scan and reused per batch within the disclosed window",
+      "status": "proposed",
+      "source": "docs/architecture/tessera-boundary.md §1.2",
+      "level": "L4"
+    },
+    {
       "id": "TEST-148",
       "kind": "TEST",
       "title": "Integration: Licence classes and the gated features of phase 1; method: One fixture item of each class through ingest, search and `get` with every gated feature at its phase-1 setting, then with a test-only phase-2 class enabled",
@@ -2934,6 +2957,22 @@
       "title": "Integration: Licence per part, release hygiene and model-weight policy; method: A release dry run on the client tree with an injected GPL dependency; a build of the hub OCI image",
       "status": "proposed",
       "source": "nerdmachines/scitadel-hub#11 integration (docs/architecture/licensing-and-tdm.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-151",
+      "kind": "TEST",
+      "title": "Integration: paid read gate; method: one conformance case per paid read path (index searches, resolve, neighbours, coverage, capabilities, table, union, merged, sessions, media, build and refresh, detach, protocol and MCP) after a source and an item withdrawal, plus compile-fail cases",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#28 integration (tessera-boundary.md)",
+      "test_kind": "integration"
+    },
+    {
+      "id": "TEST-152",
+      "kind": "TEST",
+      "title": "Integration: exclusion view over faulty stores; method: hidden, reordered or corrupted item verdicts, an opt-out log shorter than its keep head, a catalog missing a publish record, an injected clock across the window",
+      "status": "proposed",
+      "source": "nerdmachines/scitadel-hub#28 integration (tessera-boundary.md)",
       "test_kind": "integration"
     },
     {
