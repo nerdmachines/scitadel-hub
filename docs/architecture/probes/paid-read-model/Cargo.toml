@@ -1,0 +1,4 @@
+[workspace]
+resolver = "2"
+members = ["boundary", "compose", "caller", "docforge", "paid_serve", "paid_serve_bad", "datafusion",
+           "cf_mint_scope", "cf_held_stamp", "cf_session_ctx"]

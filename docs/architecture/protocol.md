@@ -28,6 +28,7 @@ The client/hub wire contract, the MCP server on top of it and the conformance ki
 - **The wire carries references, not documents.** IDs, scores and snippets; bytes flow only on `detach` ([DES-051](client-app.md)). The hub never serves PDF bytes (D-007).
 - **Version and transport.** Every response carries the protocol version (SYS-026). HTTP plus JSON first; the types do not assume it. TLS and anonymous access are [DES-049](tenancy-and-layered-hubs.md).
 - **Errors.** The `ErrorKind` of [DES-001](tessera-boundary.md) maps one-to-one to documented protocol errors; no backend type appears on the wire.
+- **Paid tier.** Every call of a paid-tier hub, `detach` included, is answered through the paid read gate ([DES-057](tessera-boundary.md)), so a recorded opt-out withdrawal is filtered at once; `capabilities` reports the window as `opt_out_window` (D-010).
 
 ## 2. Response envelope (DES-033)
 

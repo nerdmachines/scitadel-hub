@@ -1,0 +1,6 @@
+[package]
+name = "compose"
+version = "0.1.0"
+edition = "2021"
+[dependencies]
+boundary = { path = "../boundary", features = ["composition-root"] }
