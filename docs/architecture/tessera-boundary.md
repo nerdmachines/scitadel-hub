@@ -164,7 +164,7 @@ The rule has three parts:
    - **Build.** For a full rebuild, x is admitted iff its newest verdict before `E(g)` is a settled `Allow` or `Clear`, and, for a source, that `Allow` belongs to the newest cycle completed before `E(g)`. The newest verdict counts whatever its cycle's state. So a withdrawal from a running or aborted cycle keeps x out, and so does an `Allow` from a cycle that has not completed.
    - **Refresh.** The refresh's `Admission` names its parent, which must be `g`'s newest admission at `E2`; any other parent, including a sequence number that is not in the log, makes every read of `g` fail with `Integrity` (it is never read as a build). The refresh's set starts from the parent's set, with three changes:
      - **Withdrawn since the parent:** every x with a withdrawal recorded between the two admissions is removed.
-     - **Unchecked sources:** a source that a cycle completed between the two admissions has no `Allow` for before `E2` is removed (a SYS-055 violation; it fails closed by dropping the source, which returns only through a rebuild).
+     - **Unchecked sources:** a source that a cycle completed between the two admissions has no `Allow` for x before `E2` is removed (a SYS-055 violation; it fails closed by dropping the source, which returns only through a rebuild).
      - **First-seen items:** an item first seen in the refresh's delta is added iff three conditions hold: its source is in the resulting set and not withdrawn; its newest verdict is a settled `Clear`; and no `Reserved` has ever been recorded for it.
 
      A refresh never adds a source and never re-adds an item that was ever withdrawn; those return only through a full rebuild.

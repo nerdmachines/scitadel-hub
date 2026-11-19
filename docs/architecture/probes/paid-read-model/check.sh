@@ -54,11 +54,14 @@ r5() { [ "$(cargo tree -q -p "$1" -e normal --prefix none --depth 1 | tail -n +2
 expect 0 "R5 paid_serve depends on boundary only" r5 paid_serve
 expect 1 "R5 paid_serve_bad (datafusion) rejected" r5 paid_serve_bad
 # R5, second half: hub-boundary re-exports only the data-type allowlist, never a crate root or a provider type.
-# A `pub type` alias of a path (`pub type Ctx = datafusion::...`) is a re-export too; a local alias names no path.
-reexports() { ! grep -hE '^\s*pub\s+(use|extern\s+crate|type\s+\w+(<[^>]*>)?\s*=\s*[a-z_]+::)' "$@" \
-  | grep -vE 'pub (use|type \w+ =) [a-z_:]*::(RecordBatch|SchemaRef|ArrayRef|SendableRecordBatchStream);' | grep -q .; }
+# A `pub type` alias naming any path is a re-export too, wherever the path sits: right after `=`, absolute
+# (`= ::datafusion::...`) or inside generics (`= Arc<dyn datafusion::...>`). A local alias names no path.
+reexports() { ! grep -hE '^\s*pub\s+(use|extern\s+crate|type\s+\w+(<[^>]*>)?\s*=.*::)' "$@" \
+  | grep -vE 'pub (use|type \w+ =) (::)?[a-z_:]*::(RecordBatch|SchemaRef|ArrayRef|SendableRecordBatchStream);' | grep -q .; }
 expect 0 "R5 boundary re-exports only the allowlist" reexports boundary/src/*.rs
 expect 1 "R5 a datafusion crate-root re-export rejected" reexports r5-fixtures/reexport_bad.rs
 expect 1 "R5 a pub type alias of a provider type rejected" reexports r5-fixtures/type_alias_bad.rs
+expect 1 "R5 a pub type alias through ::datafusion rejected" reexports r5-fixtures/type_alias_leading_colons_bad.rs
+expect 1 "R5 a provider type inside a pub type's generics rejected" reexports r5-fixtures/type_alias_generic_bad.rs
 [ $fail = 0 ] && echo "all cases match" || echo "MISMATCH"
 exit $fail

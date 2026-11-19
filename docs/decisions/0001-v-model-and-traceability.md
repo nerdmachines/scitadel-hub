@@ -60,8 +60,8 @@ The optional `example: true` marks temporary examples; none remain after #3. Eve
 
 Nodes progress through `proposed` → `planned` → `in-progress` → `done`.
 A node at `planned` or later must have a `delivered_by` edge. `--strict` requires
-that edge for all nodes; [#6](https://github.com/nerdmachines/scitadel-hub/issues/6)
-will enable strict mode later. Issue targets are external references, not nodes.
+that edge for all nodes; CI runs `--strict` since [#6](https://github.com/nerdmachines/scitadel-hub/issues/6)
+(amendment below). Issue targets are external references, not nodes.
 
 **Amendment (#3): downward decomposition is staged by status.** The V lands top-down,
 one level per PR: L1 ([#3](https://github.com/nerdmachines/scitadel-hub/issues/3)),
@@ -75,6 +75,25 @@ are required when the node's status is past `proposed`, and always under `--stri
 every status, so each level ships with its own acceptance or system `TEST` stubs.
 Issue [#6](https://github.com/nerdmachines/scitadel-hub/issues/6) switches CI to
 `--strict`, so the milestone cannot close with an undecomposed requirement.
+
+**Amendment (#6): CI is strict, delivery means implementation, and an index is generated.**
+- **Strict in CI.** The workflow runs `tools/trace-check docs --strict`, so every node needs
+  `delivered_by` at every status, and every requirement and system node its downward edge.
+- **What delivers a node.** A `delivered_by` edge names the issue whose work makes the node true,
+  in the repository where that work lands, not the issue that wrote the node down. A design or its
+  integration test is delivered by an implementation issue; hub-side work is filed in this repository,
+  because issues cannot move across owners (vig-os/scitadel#313). An ADR node is delivered by the issue
+  or pull request that decides it. The M0 documentation issues deliver only the principles, risks, open
+  questions and decisions they record.
+- **Status stays `proposed`.** The schema defines no trigger for `planned` beyond the delivery edge,
+  which `--strict` now requires at every status, and XADR-SCITADEL-008 and this ADR are still
+  proposed. A node moves to `planned` when the record that justifies it is accepted and its delivering
+  issue is scheduled; that transition is a later, explicit change.
+- **Issues index.** `tools/issues-index docs` writes [docs/issues-index.md](../issues-index.md) from
+  the graph: every node by level with its delivering issues, their repositories and the node status.
+  Issues in private repositories appear in code style. `--strict` requires that file to match the graph,
+  and the gate checks it whenever it exists. Node titles are plain text: the schema rejects a Markdown
+  link in a title, which would resolve against the wrong directory once rendered there.
 
 The executable `tools/trace-check <docs-root>` uses Python 3.11 or later and only
 the standard library. It validates the schema's supported keywords, ID formats,

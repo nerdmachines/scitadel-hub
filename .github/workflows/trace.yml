@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: python3 -m unittest discover -s tools/tests -v
-      - run: tools/trace-check docs
+      - run: tools/trace-check docs --strict
   markdown-links:
     runs-on: ubuntu-latest
     timeout-minutes: 10
