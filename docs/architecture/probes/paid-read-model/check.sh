@@ -33,6 +33,16 @@ for p in $PATHS; do
   expect $want "r2  refresh_item $p" "$B" r2 refresh_item "$p"; expect 3 "new refresh_item $p" "$B" new refresh_item "$p"
   expect 0 "r1  reallow $p" "$B" r1 reallow "$p";             expect 3 "new reallow $p" "$B" new reallow "$p"
   expect 0 "new reallow_after_rebuild $p" "$B" new reallow_after_rebuild "$p"
+  # round 4. Item 14 has rows on every path but neighbours and coverage, where "served" cannot occur (3).
+  case $p in neighbours|coverage) i=3 ;; *) i=0 ;; esac
+  expect 0 "r3  x1 $p" "$B" r3 x1 "$p";                       expect 3 "new x1 $p" "$B" new x1 "$p"
+  expect 3 "r3  first_seen $p (SYS-021 missed)" "$B" r3 first_seen "$p"; expect $i "new first_seen $p" "$B" new first_seen "$p"
+  expect 3 "new first_seen_before $p" "$B" new first_seen_before "$p"
+  expect 3 "new readd $p" "$B" new readd "$p";               expect $i "new readd_after_rebuild $p" "$B" new readd_after_rebuild "$p"
+  expect 3 "new refresh_source $p" "$B" new refresh_source "$p"
+  expect 0 "r3  unchecked $p" "$B" r3 unchecked "$p";         expect 3 "new unchecked $p" "$B" new unchecked "$p"
+  expect 0 "r3  stale_parent $p" "$B" r3 stale_parent "$p"
+  expect 4 "new stale_parent $p (Integrity)" "$B" new stale_parent "$p"
 done
 # Named conformance cases, compile-fail cases, the doctest reach rule (R4) and the paid-serving dependency rule (R5).
 expect 0 "libtest conformance cases" cargo test -q -p boundary
@@ -43,5 +53,9 @@ expect 101 "docforge: R4, cargo test -p docforge --doc" cargo test -q -p docforg
 r5() { [ "$(cargo tree -q -p "$1" -e normal --prefix none --depth 1 | tail -n +2 | awk '{print $1}' | sort -u | tr '\n' ' ')" = "boundary " ]; }
 expect 0 "R5 paid_serve depends on boundary only" r5 paid_serve
 expect 1 "R5 paid_serve_bad (datafusion) rejected" r5 paid_serve_bad
+# R5, second half: hub-boundary re-exports only the data-type allowlist, never a crate root or a provider type.
+reexports() { ! grep -hE '^\s*pub\s+(use|extern\s+crate)\b' "$@" | grep -vE 'pub use [a-z_:]*::(RecordBatch|SchemaRef|ArrayRef|SendableRecordBatchStream);' | grep -q .; }
+expect 0 "R5 boundary re-exports only the allowlist" reexports boundary/src/*.rs
+expect 1 "R5 a datafusion crate-root re-export rejected" reexports r5-fixtures/reexport_bad.rs
 [ $fail = 0 ] && echo "all cases match" || echo "MISMATCH"
 exit $fail

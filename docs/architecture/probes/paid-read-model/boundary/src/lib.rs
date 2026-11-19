@@ -21,7 +21,7 @@ pub type HubResult<T> = Result<T, ErrorKind>;
 // ------------------------------------------------------------------ the recorded opt-out log and its head in `keep`
 #[derive(Clone, Debug, Hash)]
 pub enum Ev { Allow { cycle: u32, src: Src }, OptedOut { cycle: u32, src: Src }, Cycle { cycle: u32 },
-              Item { item: u32, reserved: bool }, Admission { g: u32, parent: Option<u64> } }
+              Item { cycle: u32, src: Src, item: u32, reserved: bool }, Admission { g: u32, parent: Option<u64> } }
 #[derive(Clone, Debug)]
 pub struct Recorded { body: Ev, seq: u64, prev: u64, digest: u64 }
 fn digest(b: &Ev, seq: u64, prev: u64) -> u64 { let mut h = DefaultHasher::new(); (b, seq, prev).hash(&mut h); h.finish() }
@@ -34,7 +34,7 @@ pub struct Clock(pub Cell<u64>);
 
 /// The `Steps` authority: the only writer; every append also moves the head kept in `keep`.
 #[derive(Clone)]
-pub struct Steps { ledger: Rc<MemLedger>, head: Rc<Cell<(u64, u64)>> }
+pub struct Steps { ledger: Rc<MemLedger>, head: Rc<Cell<(u64, u64)>>, cur: Rc<Cell<u32>> }
 impl Steps {
     fn append(&self, body: Ev) -> u64 {
         let (seq, prev) = self.ledger.log.borrow().last().map(|r| (r.seq + 1, r.digest)).unwrap_or((1, 0));
@@ -43,10 +43,11 @@ impl Steps {
         self.head.set((seq, d));
         seq
     }
-    pub fn allow(&self, cycle: u32, src: Src) { self.append(Ev::Allow { cycle, src }); }
-    pub fn opt_out(&self, cycle: u32, src: Src) { self.append(Ev::OptedOut { cycle, src }); }
+    pub fn allow(&self, cycle: u32, src: Src) { self.cur.set(cycle); self.append(Ev::Allow { cycle, src }); }
+    pub fn opt_out(&self, cycle: u32, src: Src) { self.cur.set(cycle); self.append(Ev::OptedOut { cycle, src }); }
     pub fn complete(&self, cycle: u32) { self.append(Ev::Cycle { cycle }); }
-    pub fn item(&self, item: u32, reserved: bool) { self.append(Ev::Item { item, reserved }); }
+    /// An item verdict, in the cycle of the current run; item 10 is A's, every other item B's.
+    pub fn item(&self, item: u32, reserved: bool) { self.append(Ev::Item { cycle: self.cur.get(), src: if item == 10 { "A" } else { "B" }, item, reserved }); }
 }
 fn checked_log(l: &MemLedger, head: (u64, u64)) -> HubResult<Vec<Recorded>> {
     let log = l.log();
@@ -61,7 +62,7 @@ fn checked_log(l: &MemLedger, head: (u64, u64)) -> HubResult<Vec<Recorded>> {
 
 // ------------------------------------------------------------------ the read predicate of each rule
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Policy { R1, R2, R3 }
+pub enum Policy { R1, R2, R3, R4 }
 /// served(x) = x in (srcs, items) and not in (w_src, w_items); a row is served when every input is.
 #[derive(Clone, Debug, Default)]
 pub struct Pred { srcs: HashSet<Src>, items: HashSet<u32>, w_src: HashSet<Src>, w_items: HashSet<u32> }
@@ -79,7 +80,7 @@ fn allows(log: &[Recorded], cycle: Option<u32>) -> HashSet<Src> {
 fn newest(log: &[Recorded]) -> (HashMap<Src, bool>, HashMap<u32, bool>) {
     let (mut s, mut i) = (HashMap::new(), HashMap::new());
     for r in log { match r.body { Ev::Allow { src, .. } => { s.insert(src, false); } Ev::OptedOut { src, .. } => { s.insert(src, true); }
-                                  Ev::Item { item, reserved } => { i.insert(item, reserved); } _ => {} } }
+                                  Ev::Item { item, reserved, .. } => { i.insert(item, reserved); } _ => {} } }
     (s, i)
 }
 fn admission_pos(log: &[Recorded], g: u32) -> HubResult<usize> {
@@ -103,8 +104,46 @@ fn admitted_r3(log: &[Recorded], pos: usize) -> (HashSet<Src>, HashSet<u32>) {
         Some(pp) => {
             let (mut srcs, mut items) = admitted_r3(log, pp);
             for r in &log[pp + 1..pos] { match r.body { Ev::OptedOut { src, .. } => { srcs.remove(src); }
-                                                        Ev::Item { item, reserved: true } => { items.remove(&item); } _ => {} } }
+                                                        Ev::Item { item, reserved: true, .. } => { items.remove(&item); } _ => {} } }
             (srcs, items)
+        }
+    }
+}
+/// Round 4 (section 1.2 as it stands): verdicts must be settled (recorded in a cycle completed before E); a refresh needs
+/// g's newest admission as its parent, drops sources a completed cycle did not allow, and adds items first seen after the
+/// parent (the delta's) whose newest verdict is a settled Clear, of a kept, unwithdrawn source, never Reserved.
+fn admitted_r4(log: &[Recorded], g: u32, pos: usize) -> HubResult<(HashSet<Src>, HashSet<u32>)> {
+    let pre = &log[..pos];
+    let done: HashSet<u32> = pre.iter().filter_map(|r| match r.body { Ev::Cycle { cycle } => Some(cycle), _ => None }).collect();
+    let (mut ns, mut ni): (HashMap<Src, (bool, u32)>, HashMap<u32, (bool, u32, Src)>) = (HashMap::new(), HashMap::new());
+    for r in pre { match r.body { Ev::Allow { cycle, src } => { ns.insert(src, (false, cycle)); } Ev::OptedOut { cycle, src } => { ns.insert(src, (true, cycle)); }
+                                  Ev::Item { cycle, src, item, reserved } => { ni.insert(item, (reserved, cycle, src)); } _ => {} } }
+    match parent(log, pos) {
+        None => {
+            let last = newest_cycle(pre);
+            let srcs = ns.iter().filter(|(_, (o, c))| !o && Some(*c) == last && done.contains(c)).map(|(s, _)| *s).collect();
+            let items = ni.iter().filter(|(_, (r, c, _))| !r && done.contains(c)).map(|(i, _)| *i).collect();
+            Ok((srcs, items))
+        }
+        Some(pp) => {
+            let newest_adm = pre.iter().rposition(|r| matches!(r.body, Ev::Admission { g: x, .. } if x == g));
+            if newest_adm != Some(pp) { return Err(ErrorKind::Integrity); }
+            let (mut srcs, mut items) = admitted_r4(log, g, pp)?;
+            for r in &log[pp + 1..pos] {
+                match r.body {
+                    Ev::OptedOut { src, .. } => { srcs.remove(src); }
+                    Ev::Item { item, reserved: true, .. } => { items.remove(&item); }
+                    Ev::Cycle { cycle } => { srcs.retain(|s| log.iter().any(|x| matches!(x.body, Ev::Allow { cycle: c, src } if c == cycle && src == *s))); }
+                    _ => {}
+                }
+            }
+            let seen_before: HashSet<u32> = log[..pp].iter().filter_map(|r| match r.body { Ev::Item { item, .. } => Some(item), _ => None }).collect();
+            let ever_reserved: HashSet<u32> = pre.iter().filter_map(|r| match r.body { Ev::Item { item, reserved: true, .. } => Some(item), _ => None }).collect();
+            for (i, (r, c, src)) in &ni {
+                if !seen_before.contains(i) && !r && done.contains(c) && !ever_reserved.contains(i)
+                    && srcs.contains(src) && ns.get(src).map_or(false, |(o, _)| !o) { items.insert(*i); }
+            }
+            Ok((srcs, items))
         }
     }
 }
@@ -125,17 +164,17 @@ fn derive(policy: Policy, log: &[Recorded], g: u32) -> HubResult<Pred> {
                 .filter(|(i, r)| match root_items.get(i) { Some(rr) => !rr, None => !r }).map(|(i, _)| i).collect();
             let (mut w_src, mut w_items) = (HashSet::new(), HashSet::new());
             for r in &log[pos + 1..] { match r.body { Ev::OptedOut { src, .. } => { w_src.insert(src); }
-                                                      Ev::Item { item, reserved: true } => { w_items.insert(item); } _ => {} } }
+                                                      Ev::Item { item, reserved: true, .. } => { w_items.insert(item); } _ => {} } }
             Ok(Pred { srcs, items, w_src, w_items })
         }
         // Section 1.2: admitted(g) and not withdrawn(now), and not withdrawn since g's admission.
-        Policy::R3 => {
+        Policy::R3 | Policy::R4 => {
             let pos = admission_pos(log, g)?;
-            let (srcs, items) = admitted_r3(log, pos);
+            let (srcs, items) = if policy == Policy::R3 { admitted_r3(log, pos) } else { admitted_r4(log, g, pos)? };
             let mut w_src: HashSet<Src> = ns.into_iter().filter(|(_, o)| *o).map(|(s, _)| s).collect();
             let mut w_items: HashSet<u32> = ni.into_iter().filter(|(_, r)| *r).map(|(i, _)| i).collect();
             for r in &log[pos + 1..] { match r.body { Ev::OptedOut { src, .. } => { w_src.insert(src); }
-                                                      Ev::Item { item, reserved: true } => { w_items.insert(item); } _ => {} } }
+                                                      Ev::Item { item, reserved: true, .. } => { w_items.insert(item); } _ => {} } }
             Ok(Pred { srcs, items, w_src, w_items })
         }
     }
@@ -198,7 +237,7 @@ impl PaidSession {
 }
 pub struct PaidTier { view: Rc<ExclusionView>, data: Rc<Data>, steps: Steps }
 impl PaidTier {
-    fn admission_seq(&self, g: u32) -> Option<u64> {
+    pub fn admission_seq(&self, g: u32) -> Option<u64> {
         self.steps.ledger.log().iter().rev().find(|r| matches!(r.body, Ev::Admission { g: x, .. } if x == g)).map(|r| r.seq)
     }
     /// The full rebuild: commits g's admission (the purge point), then builds the index under it.
@@ -209,8 +248,9 @@ impl PaidTier {
         Ok(IndexStamp { g: sc.g })
     }
     /// A refresh: commits an admission whose parent is g's previous one, then adds the delta segment under it.
-    pub fn refresh(&self, g: u32) -> HubResult<IndexStamp> {
-        let parent = self.admission_seq(g);
+    pub fn refresh(&self, g: u32) -> HubResult<IndexStamp> { self.refresh_from(g, self.admission_seq(g)) }
+    /// A refresh naming an explicit parent admission (C1: anything but g's newest is Integrity).
+    pub fn refresh_from(&self, g: u32, parent: Option<u64>) -> HubResult<IndexStamp> {
         self.steps.append(Ev::Admission { g, parent });
         let sc = Scoped::mint(&self.view, g)?;
         let mut idx = self.data.index.borrow_mut();
@@ -247,18 +287,18 @@ impl PaidTier {
 // ------------------------------------------------------------------ the fixture
 pub struct World { pub steps: Steps, pub paid: PaidTier, pub ledger: Rc<MemLedger>, pub clock: Rc<Clock>, view: Rc<ExclusionView>, pub data: Rc<Data> }
 impl World {
-    pub fn new() -> World { World::with(Policy::R3) }
+    pub fn new() -> World { World::with(Policy::R4) }
     /// Cycle 1 allows A and B; items 10, 11, 12 Clear; item 13 has no verdict; g1 admitted.
     /// Key 4: base row B/bulk v1, delta row B/item 12 v2. Edges: B/item 12 cites key 1 (A/item 10) and key 3 (B/bulk).
     pub fn with(policy: Policy) -> World {
         let ledger = Rc::new(MemLedger::default()); let head = Rc::new(Cell::new((0, 0))); let clock = Rc::new(Clock::default());
-        let steps = Steps { ledger: ledger.clone(), head: head.clone() };
+        let steps = Steps { ledger: ledger.clone(), head: head.clone(), cur: Rc::new(Cell::new(1)) };
         steps.allow(1, "A"); steps.allow(1, "B"); steps.complete(1);
         steps.item(10, false); steps.item(11, false); steps.item(12, false);
         let data = Rc::new(Data {
             base: vec![row(1, 1, &[("A", Some(10))]), row(2, 1, &[("B", Some(11))]), row(3, 1, &[("B", None)]),
                        row(4, 1, &[("B", None)]), row(5, 1, &[("B", Some(13))])],
-            delta: vec![row(4, 2, &[("B", Some(12))])],
+            delta: vec![row(4, 2, &[("B", Some(12))]), row(6, 1, &[("B", Some(14))])], // item 14: first seen in the delta
             edges: vec![row(1, 1, &[("B", Some(12)), ("A", Some(10))]), row(3, 1, &[("B", Some(12)), ("B", None)])],
             index: RefCell::new(vec![]),
         });
@@ -271,6 +311,7 @@ impl World {
     pub fn withdraw(&self) { self.steps.opt_out(2, "A"); self.steps.allow(2, "B"); self.steps.complete(2); self.steps.item(11, true); }
     pub fn tiers_ex(&self) -> &ExclusionView { &self.view }
     pub fn last_seq(&self) -> u64 { self.ledger.log.borrow().len() as u64 }
+    pub fn admission_seq(&self, g: u32) -> Option<u64> { self.paid.admission_seq(g) }
     pub fn has(rows: &[Row], src: Src, item: Option<u32>) -> bool {
         rows.iter().any(|r| r.inputs.iter().any(|(s, i)| *s == src && (item.is_none() || *i == item)))
     }

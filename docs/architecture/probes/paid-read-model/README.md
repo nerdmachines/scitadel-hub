@@ -7,21 +7,21 @@ A sync, dependency-free Rust sketch of the paid read gate and [the paid read rul
 CARGO_TARGET_DIR=/elsewhere ./check.sh
 ```
 
-Read with rustc and cargo 1.99.0: 183 checks, all match.
+Read with rustc and cargo 1.99.0: 305 checks, all match.
 
 ## Crates
 
 | Crate | What |
 |---|---|
-| `boundary` | the opt-out log (hash-chained, head in `keep`), the four rules (`old`: round 6; `R1`, `R2`: review rounds 1 and 2; `R3`: section 1.2), `PaidTier` and its guards, the fixture, and `tests/conformance.rs` (23 named cases) |
-| `caller` | `caller <old\|r1\|r2\|new> <case> [path]`: exit 0 = the case's bad row is served, 3 = not served, 4 = refused with an error; for `*_after_rebuild`, 0 = the re-admitted source is served, as intended |
+| `boundary` | the opt-out log (hash-chained, head in `keep`), the five rules (`old`: round 6; `R1` to `R3`: review rounds 1 to 3; `R4`: section 1.2), `PaidTier` and its guards, the fixture, and `tests/conformance.rs` (28 named cases) |
+| `caller` | `caller <old\|r1\|r2\|r3\|new> <case> [path]`: exit 0 = the case's bad row is served, 3 = not served, 4 = refused with an error; for `*_after_rebuild`, 0 = the re-admitted source is served, as intended |
 | `cf_mint_scope`, `cf_held_stamp`, `cf_session_ctx` | compile-fail: E0624, E0308, E0616 (exit 101) |
 | `compose`, `docforge` | the doctest reach rule R4: `docforge`'s doctest calls `compose` and builds only through workspace feature unification |
-| `paid_serve`, `paid_serve_bad`, `datafusion` | the dependency rule R5: a paid-serving crate depends on `boundary` only; `datafusion` is an empty stand-in |
+| `paid_serve`, `paid_serve_bad`, `datafusion`, `r5-fixtures/` | rule R5: a paid-serving crate depends on `boundary` only (`datafusion` is an empty stand-in), and `boundary` re-exports only the data-type allowlist (the fixture's crate-root re-export is rejected) |
 
 ## Fixture
 
-Cycle 1 allows sources A and B; items 10, 11 and 12 are `Clear`; item 13 has no verdict; generation 1 is admitted. Key 4 has a base row (B, bulk) and a newer delta row (B, item 12). Two edges come from item 12, one to key 1 (A, item 10) and one to key 3. "Withdraw" records A `OptedOut` and completes cycle 2 without A, then records item 11 `Reserved`.
+Cycle 1 allows sources A and B; items 10 (A's), 11 and 12 (B's) are `Clear` in cycle 1; item 13 has no verdict; item 14 has no verdict yet and is first seen in the delta (key 6); generation 1 is admitted. Key 4 has a base row (B, bulk) and a newer delta row (B, item 12). Two edges come from item 12, one to key 1 (A, item 10) and one to key 3. "Withdraw" records A `OptedOut` and completes cycle 2 without A, then records item 11 `Reserved`.
 
 ## Cases and expected exit codes
 
@@ -43,5 +43,11 @@ Per path: `search`, `resolve`, `neighbours`, `table`, `union`, `merged`, `sessio
 | `refresh_src`: A `OptedOut` between the admission and a refresh | `r2` 0 on every path | 3 |
 | `refresh_item`: item 11 `Reserved` between the admission and a refresh | `r2` 0 (`neighbours`, `coverage` 3: no row of item 11 there) | 3 |
 | `reallow`: A withdrawn, then allowed again in a completed cycle, no rebuild | `r1` 0 on every path | 3; `reallow_after_rebuild` 0 |
+| `x1`: A `OptedOut` in aborted cycle 2, `Allow` in running cycle 3, then a rebuild | `r3` 0 on every path | 3 |
+| `first_seen`: item 14 `Clear` in completed cycle 1, then a refresh (SYS-021) | `r3` 3 (never added) | 0 (served; `neighbours`, `coverage` 3: no row of item 14 there); `first_seen_before` 3 |
+| `readd`: item 14 `Reserved`, then `Clear`, then a refresh | — | 3; `readd_after_rebuild` 0 (as `first_seen`) |
+| `refresh_source`: A allowed after the admission, then a refresh | — | 3 |
+| `unchecked`: cycle 2 completes with no verdict for A, then a refresh | `r3` 0 on every path | 3 |
+| `stale_parent`: a refresh naming g's older admission as its parent | `r3` 0 on every path | 4 (`Integrity`) |
 
 Not modelled: DataFusion's own planner (only the effect of `children()` and `statistics()` is), HTTP and MCP transport, and blake3.

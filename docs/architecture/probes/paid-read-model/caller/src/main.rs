@@ -1,4 +1,4 @@
-//! `caller <shape> <case> [path]`. Shapes: `old` (round 6), `r1`, `r2` (review rounds 1 and 2), `new` (section 1.2).
+//! `caller <shape> <case> [path]`. Shapes: `old` (round 6), `r1`, `r2`, `r3` (review rounds 1 to 3), `new` (section 1.2).
 //! Exit 0: the case's bad row is served (a withdrawn row, or a newly allowed source before its rebuild); for the
 //! `*_after_rebuild` cases 0 means the source is served, as intended. 3: not served. 4: refused with an error.
 use boundary::{old, ErrorKind, Policy, Provider, Row, World};
@@ -17,21 +17,22 @@ fn report(r: Result<Vec<Row>, ErrorKind>, bad: &dyn Fn(&[Row]) -> bool) -> ! {
 fn withdrawn(r: &[Row]) -> bool { World::served_withdrawn(r) }
 fn a_rows(r: &[Row]) -> bool { World::has(r, "A", None) }
 fn item11(r: &[Row]) -> bool { World::has(r, "B", Some(11)) }
+fn item14(r: &[Row]) -> bool { World::has(r, "B", Some(14)) }
 
 /// Every paid read path that returns rows, for generation 1.
 fn read(w: &World, path: &str) -> Result<Vec<Row>, ErrorKind> {
     let g = 1;
     match path {
         "search" => w.paid.search(g, "q"),
-        "resolve" => w.paid.resolve(g, &[1, 2, 3, 4, 5]),
+        "resolve" => w.paid.resolve(g, &[1, 2, 3, 4, 5, 6]),
         "neighbours" => { let mut s = w.paid.neighbours(g)?; let mut v = vec![]; while let Some(b) = s.next_batch() { v.extend(b?) } Ok(v) }
         "table" => w.paid.table(g)?.scan(),
         "union" => w.paid.union(g)?.scan(),
         "merged" => w.paid.merged(g)?.scan(),
         "session" => w.paid.session(g)?.sql("SELECT * FROM t"),
         "coverage" => Ok(w.paid.coverage(g)?.into_iter().map(|s| Row { key: 0, ver: 0, inputs: vec![(s, None)] }).collect()),
-        "crop" => Ok([1, 2, 4].iter().filter_map(|k| w.paid.crop(g, *k).ok()).collect()),
-        "detach" => w.paid.detach(g, &[1, 2, 3, 4]),
+        "crop" => { let mut v = vec![]; for k in [1, 2, 4, 6] { match w.paid.crop(g, k) { Ok(r) => v.push(r), Err(ErrorKind::NotFound) => {}, Err(e) => return Err(e) } } Ok(v) }
+        "detach" => w.paid.detach(g, &[1, 2, 3, 4, 6]),
         _ => { eprintln!("unknown path {path}"); exit(2) }
     }
 }
@@ -40,7 +41,7 @@ fn main() {
     let a: Vec<String> = std::env::args().collect();
     let (shape, case) = (a[1].as_str(), a[2].as_str());
     let path = a.get(3).map(String::as_str).unwrap_or("");
-    let policy = match shape { "r1" => Policy::R1, "r2" => Policy::R2, _ => Policy::R3 };
+    let policy = match shape { "r1" => Policy::R1, "r2" => Policy::R2, "r3" => Policy::R3, _ => Policy::R4 };
     let w = World::with(policy);
     let s = &w.steps;
     match (shape, case) {
@@ -61,6 +62,18 @@ fn main() {
             if case == "reallow_after_rebuild" { w.paid.rebuild(1).unwrap(); }
             report(read(&w, path), &a_rows)
         }
+        // round 4: x1 is the reviewer's ordering; cycle 2 aborts, cycle 3 is still running at the rebuild
+        (_, "x1") => { s.opt_out(2, "A"); s.allow(3, "A"); w.paid.rebuild(1).unwrap(); report(read(&w, path), &a_rows) }
+        // item 14, first seen in the delta, Clear in completed cycle 1; exit 0 = served (intended after the refresh)
+        (_, "first_seen" | "first_seen_before") => { s.item(14, false); if case == "first_seen" { w.paid.refresh(1).unwrap(); } report(read(&w, path), &item14) }
+        (_, "readd" | "readd_after_rebuild") => {
+            s.item(14, true); s.item(14, false); w.paid.refresh(1).unwrap();                              // ever Reserved
+            if case == "readd_after_rebuild" { w.paid.rebuild(1).unwrap(); }
+            report(read(&w, path), &item14)
+        }
+        (_, "refresh_source") => { s.allow(2, "B"); s.complete(2); w.paid.rebuild(1).unwrap(); s.allow(3, "A"); s.allow(3, "B"); s.complete(3); w.paid.refresh(1).unwrap(); report(read(&w, path), &a_rows) }
+        (_, "unchecked") => { s.allow(2, "B"); s.complete(2); w.paid.refresh(1).unwrap(); report(read(&w, path), &a_rows) }   // cycle 2 has no verdict for A
+        (_, "stale_parent") => { let first = w.admission_seq(1); w.paid.rebuild(1).unwrap(); w.paid.refresh_from(1, first).unwrap_or_else(|_| boundary::IndexStamp { g: 1 }); report(read(&w, path), &a_rows) }
         // ---- historical cases: the round-6 shape, then the gate
         ("old", "held_stamp") => { let i = old::ItemStore::default(); let st = old::build(&w, &old::paid(&w, &i)); w.withdraw(); report(old::search_stamp(&st), &withdrawn) }
         ("old", "held_scope") => { let i = old::ItemStore::default(); let sc = old::paid(&w, &i); let st = old::build(&w, &sc); w.withdraw(); w.clock.0.set(10); report(old::search_scope(&w, &sc, &st), &withdrawn) }
