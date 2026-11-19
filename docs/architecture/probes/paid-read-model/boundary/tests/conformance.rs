@@ -88,3 +88,15 @@ const PATHS: [&str; 9] = ["search", "resolve", "neighbours", "table", "union", "
     let w = World::new(); let first = w.admission_seq(1); w.paid.rebuild(1).unwrap(); let _ = w.paid.refresh_from(1, first);
     assert_eq!(w.paid.search(1, "q").unwrap_err(), ErrorKind::Integrity);
 }
+#[test] fn refresh_from_dangling_parent_is_integrity() {
+    let w = World::new(); let _ = w.paid.refresh_from(1, Some(w.last_seq() + 100));
+    assert_eq!(w.paid.search(1, "q").unwrap_err(), ErrorKind::Integrity);
+}
+#[test] fn stray_allow_for_old_cycle_is_integrity() {
+    let w = World::new(); w.withdraw(); w.steps.allow(1, "A"); // cycle 1 completed before cycle 2 opened
+    assert_eq!(w.paid.search(1, "q").unwrap_err(), ErrorKind::Integrity);
+}
+#[test] fn refresh_skips_first_seen_item_with_unsettled_clear() {
+    let w = World::new(); w.steps.allow(2, "B"); w.steps.item(14, false); w.paid.refresh(1).unwrap(); // cycle 2 still running
+    for p in PATHS { assert!(!World::has(&read(&w, p), "B", Some(14)), "{p}"); }
+}
