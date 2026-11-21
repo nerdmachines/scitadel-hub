@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article xmlns:xlink="http://www.w3.org/1999/xlink"><front><article-meta><abstract><p>Synthetic abstract about <italic>nothing</italic>.</p></abstract></article-meta></front>
+<body><sec><title>Introduction</title><p>First paragraph with a <xref ref-type="bibr" rid="b1">citation</xref> inside.</p>
+<table-wrap><caption><p>Dropped table caption.</p></caption><table><tr><td>cell</td></tr></table></table-wrap>
+<fig><caption><p>Kept figure caption.</p></caption></fig></sec></body><back><ref-list><ref id="b1"><p>Reference text must not count.</p></ref></ref-list></back></article>

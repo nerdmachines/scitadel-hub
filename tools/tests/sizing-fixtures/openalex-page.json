@@ -1,0 +1,7 @@
+{"results": [
+ {"id": "https://openalex.org/W1", "doi": "https://doi.org/10.1/a", "type": "article", "title": "A", "referenced_works": ["https://openalex.org/W9", "https://openalex.org/W8"],
+  "ids": {"pmcid": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC123"}, "authorships": [{"author": {"id": "A1", "display_name": "X"}, "institutions": [{"id": "I1"}]}],
+  "best_oa_location": {"license": "cc-by", "pdf_url": null, "source": {"id": "S1", "host_organization_name": "PubMed Central"}}},
+ {"id": "https://openalex.org/W2", "type": "article", "ids": {}, "best_oa_location": {"license": "cc0", "pdf_url": "https://e.org/a.pdf", "source": {"id": "S2", "display_name": "Journal Two"}}},
+ {"id": "https://openalex.org/W3", "type": "dataset", "ids": {}, "best_oa_location": {"license": "cc0", "pdf_url": null, "source": null}}
+]}
