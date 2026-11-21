@@ -3145,6 +3145,13 @@
       "title": "A rebuild during an open gate-2 cycle drops re-verdicted sources until the next rebuild",
       "status": "proposed",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#42"
+    },
+    {
+      "id": "S-013",
+      "kind": "S",
+      "title": "Measure the corpus size factors on a 10k-paper sample before the warm and hot storage is sized",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#83"
     }
   ]
 }

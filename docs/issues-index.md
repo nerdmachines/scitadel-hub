@@ -9,7 +9,7 @@ Issues in private repositories are written in code style, because they cannot be
 |---|---|---|
 | `gerchowl/g-fleet` | 8 | 40 |
 | `nerdmachines/scitadel-cloud` | 1 | 7 |
-| `nerdmachines/scitadel-hub` | 57 | 138 |
+| `nerdmachines/scitadel-hub` | 58 | 139 |
 | `nerdmachines/scitadel-hub-deploy` | 2 | 21 |
 | `vig-os/scitadel` | 20 | 262 |
 | `vig-os/tessera` | 15 | 33 |
@@ -284,6 +284,7 @@ Issues in private repositories are written in code style, because they cannot be
 | S-010 | Retrieval-leg timeouts and a partial-answer signal in the protocol | proposed | [nerdmachines/scitadel-hub#39](https://github.com/nerdmachines/scitadel-hub/issues/39) | nerdmachines/scitadel-hub |
 | S-011 | Graph expansion bounds: is there a maximum neighbours depth or result size, and what happens above it? | proposed | [nerdmachines/scitadel-hub#40](https://github.com/nerdmachines/scitadel-hub/issues/40) | nerdmachines/scitadel-hub |
 | S-012 | A rebuild during an open gate-2 cycle drops re-verdicted sources until the next rebuild | proposed | [nerdmachines/scitadel-hub#42](https://github.com/nerdmachines/scitadel-hub/issues/42) | nerdmachines/scitadel-hub |
+| S-013 | Measure the corpus size factors on a 10k-paper sample before the warm and hot storage is sized | proposed | [nerdmachines/scitadel-hub#83](https://github.com/nerdmachines/scitadel-hub/issues/83) | nerdmachines/scitadel-hub |
 | C-001 | Embeddings as tessera blob blocks until tessera#768, versus Vortex fixed-size lists (L2 infrastructure 5) | done | [nerdmachines/scitadel-hub#19](https://github.com/nerdmachines/scitadel-hub/issues/19) | nerdmachines/scitadel-hub |
 | C-002 | Parquet staging internal only, versus the 'Parquet-in-object-store' example of #5 | done | [nerdmachines/scitadel-hub#20](https://github.com/nerdmachines/scitadel-hub/issues/20) | nerdmachines/scitadel-hub |
 | C-003 | OpenAlex per_page 200 (SYS-003) versus a documented maximum of 100 | done | [nerdmachines/scitadel-hub#21](https://github.com/nerdmachines/scitadel-hub/issues/21) | nerdmachines/scitadel-hub |
