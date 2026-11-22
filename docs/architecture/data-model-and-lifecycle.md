@@ -22,7 +22,7 @@ A release is a collection of **shard products** of about 1 to 10 GB *(estimate)*
 - Each product records, through `ProvenanceSink` ([DES-009](tessera-boundary.md), [DES-040](provenance.md)), the upstream release or snapshot date, the filter that defined the subset and the code version that built it.
 - **No per-paper `.tsra` in the hub.** The manifest, seal and footer of a product would exceed a paper's text, tiny blocks compress badly and a corpus-wide query would open millions of objects. A per-paper `.tsra` exists only as the output of a client-side `detach` ([DES-051](client-app.md)).
 - `.tsra` is the only product format. Parquet staging before sealing is internal and never in a bucket ([DES-021](adapters-and-pool.md), [C-002 ruling](https://github.com/nerdmachines/scitadel-hub/issues/20#issuecomment-6995799107)).
-- String-heavy shards seal about 3× larger than Parquet until [vig-os/tessera#628](https://github.com/vig-os/tessera/issues/628) lands; capacity planning uses that factor ([L2 infrastructure](../vmodel/L2-infrastructure.md)).
+- String-heavy shards seal larger than Parquet until [vig-os/tessera#628](https://github.com/vig-os/tessera/issues/628) lands: measured at 1.7× Parquet zstd for the document tables and 1.9× for text, and capacity planning uses the measured sizes of [L2 infrastructure section 2.4](../vmodel/L2-infrastructure.md#24-size-model-measured-on-a-sample-s-013), not a factor.
 
 ## 2. Base, delta and current lifecycle policy (DES-024)
 

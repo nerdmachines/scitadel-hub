@@ -32,4 +32,6 @@ ssh ksb 'ksb wait s015 --timeout 600'      # repeat; then `ksb out s015 --path t
 python3 -m sizing.run recompute data/measurements.json --tsra data/tsra.json   # folds it in, recomputes every size
 ```
 
+`--stage figures` re-runs only the figure stage and the snapshot listing (`figures.json`; `recompute --figures` folds it over the figures of `tsra.json`); `--records <file>` reads the manifest's works from a saved OpenAlex page set instead of the API (the free API budget is per IP and day). Figure files are the figure and table graphics of the article's own JATS (`core.pick_graphic_files`, one rendition each; the rest of the PMC folder is supplementary material, listed by bytes only and not fetched) and, for a PDF, each image object that is a figure once (`core.figure_images`).
+
 `nix run <dir>#py -- script.py` runs a script in the same pinned environment; `vortex-data` is installed into `$VORTEX_DIR` at the first start. `core.py` is tested by `tools/tests`; `tsra.py` and `s015.py` by the run itself.

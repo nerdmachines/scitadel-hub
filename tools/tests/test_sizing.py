@@ -18,8 +18,15 @@ def factors(spread=0.2):
     base = {'chunks_350': 40, 'text_zst_bytes': 8e3, 'text_bytes': 30e3, 'meta_parquet_bytes': 600, 'refs': 40,
             'pdf_bytes': 5e5, 'jats_zst_bytes': 2e4, 'pdf_share': 0.4, 'bm25_ratio': 0.35, 'unresolved_share': 0.25,
             # S-015: tessera bytes per paper, figures, and the encoded-to-raw ratio of a vector
-            'tsra_meta': 1.5e3, 'tsra_doc': 40e3, 'tsra_text': 20e3, 'fig_blob_bytes': 300e3, 'figs_per_paper': 10, 'vec_ratio': 0.9, 'vec_int8_ratio': 0.9}
+            'tsra_meta': 1.5e3, 'tsra_doc': 40e3, 'tsra_text': 20e3, 'jats_share': 0.35, 'fig_blob_jats': 800e3, 'fig_blob_pdf': 300e3, 'figs_jats': 4, 'figs_pdf': 10, 'fig_native_jats': 900e3, 'supp_bytes_jats': 500e3, 'vec_ratio': 0.9, 'vec_int8_ratio': 0.9}
     return {k: {'n': 100, 'mean': v, 'median': v, 'p90': v, 'ci95': [v * (1 - spread), v * (1 + spread)]} for k, v in base.items()}
+
+
+def figures_doc():
+    """The `figures` of a tsra.json that `core.tsra_factors` reads, from the per-route factors of `factors()`."""
+    f = factors()
+    return {'by_route': {r: {'fig_blob_bytes': f[f'fig_blob_{r}'], 'figs': f[f'figs_{r}'], 'native_bytes': f.get(f'fig_native_{r}', f['fig_blob_pdf'])} for r in ('jats', 'pdf')},
+            'supplementary': {'bytes': f['supp_bytes_jats']}}
 
 
 class Sampling(unittest.TestCase):
@@ -114,6 +121,33 @@ class Figures(unittest.TestCase):
         self.assertEqual([core.is_figure(r) for r in core.parse_pdfimages_list(self.LIST)], [True, False, False])
 
 
+class FigureSelection(unittest.TestCase):
+    """The figure term is 89 % of B: what counts as a figure file must be tested. Round 1 counted every file of the PMC folder (53 % of the
+    bytes of 44 sampled articles were supplementary material) and every placement of every image of a PDF."""
+    FILES = [tuple(f) for f in json.loads((FIX / 'pmc-listing.json').read_text())]
+    UNITS = core.jats_blocks((FIX / 'figures.jats.xml').read_bytes())['graphics']
+
+    def test_the_graphic_units_are_the_renditions_of_each_graphic(self):
+        self.assertEqual(self.UNITS, [[('art.g001', False), ('art.g001.thumb', True)], [('art.g001', False)], [('art.t001.png', False)]])
+
+    def test_one_rendition_per_graphic_never_a_thumbnail_each_file_once(self):
+        # art.g001 exists as jpg and gif: the jpg; the thumbnail and the unreferenced art.g009 are not figures; the table graphic is.
+        self.assertEqual(core.pick_graphic_files(self.UNITS, self.FILES), [('art.g001.jpg', 200000), ('art.t001.png', 80000)])
+
+    def test_everything_else_is_supplementary_and_the_jats_pdf_text_are_not(self):
+        chosen = core.pick_graphic_files(self.UNITS, self.FILES)
+        rest = core.other_files(self.FILES, chosen)
+        self.assertEqual(sorted(n for n, _ in rest), ['art.g001.gif', 'art.g001.thumb.jpg', 'art.g009.jpg', 'art.s001.zip', 'art.s002.docx'])
+        self.assertEqual(sum(b for _, b in rest), 30000 + 5000 + 70000 + 3000000 + 400000)
+
+    def test_a_pdf_figure_is_an_object_once_and_not_a_mask_a_stencil_or_an_icon(self):
+        rows = core.parse_pdfimages_list((FIX / 'pdfimages-list.txt').read_text())
+        self.assertEqual(len(rows), 6)  # six placements
+        figs = core.figure_images(rows)
+        self.assertEqual([(f['page'], f['obj']) for f in figs], [(1, ('10', '0')), (3, ('14', '0'))])
+        self.assertEqual(sum(f['bytes'] for f in figs), round(45.2 * 1024) + round(90.0 * 1024))
+
+
 class Tessera(unittest.TestCase):
     G = {'meta': 100e3, 'doc': 600e3, 'jats': 300e3, 'text': 400e3}
 
@@ -127,11 +161,11 @@ class Tessera(unittest.TestCase):
     def test_vector_factor_spans_the_encodings_and_the_plan_shape_is_central(self):
         v = {'n': 10, 'vortex_fsl': {'fp16': {'ratio_to_raw': 1.0}, 'int8': {'ratio_to_raw': 0.99}},
              'tessera_array': {'fp16': {'ratio_to_raw': 0.86}, 'int8': {'ratio_to_raw': 0.94}}, 'parquet_zstd': {'fp16': {'ratio_to_raw': 0.94}, 'int8': {'ratio_to_raw': 0.93}}}
-        t = {'factors': {'tsra_meta': 1}, 'figures': {'fig_blob_bytes': 2, 'figs_per_paper': 3}, 'vectors': {'512': v}}
+        t = {'factors': {'tsra_meta': 1}, 'figures': figures_doc(), 'vectors': {'512': v}}
         f = core.tsra_factors(t)
         self.assertEqual((f['vec_ratio']['mean'], f['vec_ratio']['ci95']), (1.0, [0.86, 1.0]))
         self.assertEqual((f['vec_int8_ratio']['mean'], f['vec_int8_ratio']['ci95']), (0.99, [0.93, 0.99]))
-        self.assertEqual((f['tsra_meta'], f['fig_blob_bytes'], f['figs_per_paper']), (1, 2, 3))
+        self.assertEqual((f['tsra_meta'], f['fig_blob_jats'], f['figs_pdf'], f['fig_native_jats'], f['supp_bytes_jats']), (1, factors()['fig_blob_jats'], factors()['figs_pdf'], factors()['fig_native_jats'], factors()['supp_bytes_jats']))
 
 
 class Snapshots(unittest.TestCase):
@@ -194,16 +228,28 @@ class Extrapolation(unittest.TestCase):
         self.assertAlmostEqual(core.extrapolate(10e6, z, BULK)['central']['B'], 0.012 + 0.125 / 3.5 + 1.0, places=9)
 
     def test_b_adds_each_measured_term_once(self):
-        # 20 million papers, 25 % landing page only, 512 dimensions, vectors at 0.9 of raw: every term by hand, in TB.
-        x, n_cov = core.extrapolate(20e6, factors(0.0), BULK)['central'], 15e6
+        # 20 million papers, 25 % landing page only, 512 dimensions, vectors at 0.9 of raw: every term by hand, in TB. The figure terms
+        # follow the population's route shares (35 % JATS, 40 % PDF), not the covered share: 0.35 * 800 KB + 0.4 * 300 KB per paper.
+        x, n_cov, n = core.extrapolate(20e6, factors(0.0), BULK)['central'], 15e6, 20e6
+        figs = n * (0.35 * 4 + 0.4 * 10)
         self.assertAlmostEqual(x['vec_text'], n_cov * 40 * 512 * 2 * 0.9 / 1e12)
-        self.assertAlmostEqual(x['vec_fig'], n_cov * 10 * 512 * 2 * 0.9 / 1e12)
+        self.assertAlmostEqual(x['vec_fig'], figs * 512 * 2 * 0.9 / 1e12)
         self.assertAlmostEqual(x['doc'], n_cov * 40e3 / 1e12)
-        self.assertAlmostEqual(x['blobs'], n_cov * 300e3 / 1e12)
-        self.assertAlmostEqual(x['meta'], 20e6 * 1.5e3 / 1e12)
+        self.assertAlmostEqual(x['blobs'], n * (0.35 * 800e3 + 0.4 * 300e3) / 1e12)
+        self.assertAlmostEqual(x['meta'], n * 1.5e3 / 1e12)
         self.assertAlmostEqual(x['B'], x['vec'] + x['doc'] + x['meta'] + x['blobs'] + 0.125 / 3.5 + 1.0)
         self.assertAlmostEqual(x['text'], n_cov * 20e3 / 1e12 + 0.125 / 3.5)  # the hot text is a column of `doc`, not an extra term
-        self.assertAlmostEqual(x['idx_parts']['ivf'], n_cov * (40 + 10) * 16 / 1e12)
+        self.assertAlmostEqual(x['idx_parts']['ivf'], (n_cov * 40 + figs) * 16 / 1e12)
+
+    def test_figures_stored_once_are_counted_once_and_graphics_and_supplements_are_apart(self):
+        # #91: one copy of the blobs in the warm tier instead of 2.1 (3.1 at the peak); the JATS graphics as fetched are a raw class of their
+        # own, and the supplementary material, not fetched in phase 1, is in no size.
+        x = core.extrapolate(20e6, factors(0.0), BULK)['central']
+        self.assertAlmostEqual(x['warm_peak'] - x['warm_peak_once'], 2.1 * x['blobs'])
+        self.assertAlmostEqual(x['warm_steady'] - x['warm_steady_once'], 1.1 * x['blobs'])
+        self.assertAlmostEqual(x['jats_graphics_raw'], 20e6 * 0.35 * 900e3 / 1e12)
+        self.assertAlmostEqual(x['supplementary'], 20e6 * 0.35 * 500e3 / 1e12)
+        self.assertAlmostEqual(sum(x['raw'].values()), x['R'])  # neither the graphics nor the supplements are in R
 
     def test_snapshot_class_is_one_generation_plus_deltas(self):
         # R keeps 4 generations of the rest, one full OpenAlex generation and 3 deltas, not 4 full ones.
@@ -228,11 +274,11 @@ class Extrapolation(unittest.TestCase):
 
     def test_recompute_from_a_measurements_document(self):
         snap = {'openalex_jsonl': {'bytes': 7e11, 'works_records': 4e8, 'entities': {'works': 6e11}}, 'openalex_parquet': {'bytes': 8e11}}
-        delta = lambda b: {'2026-07-15': {'delta': b}}  # noqa: E731
-        tsra = {'factors': {k: factors()[k] for k in ('tsra_meta', 'tsra_doc', 'tsra_text')}, 'figures': {k: factors()[k] for k in ('fig_blob_bytes', 'figs_per_paper')},
+        delta = lambda b: {'2026-07-08': {'delta': b}}  # noqa: E731
+        tsra = {'factors': {k: factors()[k] for k in ('tsra_meta', 'tsra_doc', 'tsra_text')}, 'figures': figures_doc(),
                 'snapshot_deltas': {'formats': {'jsonl': delta(5e11), 'parquet': delta(6e11)}},
                 'vectors': {'512': {'n': 1, **{e: {d: {'ratio_to_raw': 0.9} for d in ('fp16', 'int8')} for e in ('vortex_fsl', 'tessera_array', 'parquet_zstd')}}}}
-        doc = {'tsra': tsra, 'population': {'all_types': 4e7, 'papers': 2.3e7, 'article': 2e7}, 'snapshots': snap, 'bases': {b: {'factors': {k: v for k, v in factors().items() if not k.startswith(('tsra', 'fig', 'vec'))}} for b in ('all_types', 'papers', 'article')}}
+        doc = {'tsra': tsra, 'population': {'all_types': 4e7, 'papers': 2.3e7, 'article': 2e7}, 'snapshots': snap, 'bases': {b: {'factors': {k: v for k, v in factors().items() if not k.startswith(('tsra', 'fig', 'vec', 'supp'))}} for b in ('all_types', 'papers', 'article')}}
         run.extrapolations(doc)
         self.assertEqual(set(doc['bases']['article']['extrapolation']), set(core.CASES))
         self.assertGreater(doc['bases']['all_types']['extrapolation']['central']['B'], doc['bases']['article']['extrapolation']['central']['B'])

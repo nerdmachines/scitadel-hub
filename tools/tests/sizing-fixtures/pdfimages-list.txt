@@ -1,0 +1,8 @@
+page   num  type   width height color comp bpc  enc interp  object ID x-ppi y-ppi size ratio
+--------------------------------------------------------------------------------------------
+   1     0 image     800   600  rgb     3   8  jpeg   no        10  0   150   150 45.2K 3.2%
+   1     1 smask     800   600  gray    1   8  image  no        11  0   150   150  1.5M 0.1%
+   1     2 image      32    32  rgb     3   8  flate  no        12  0    72    72  812B 27%
+   2     3 image     800   600  rgb     3   8  jpeg   no        10  0   150   150 45.2K 3.2%
+   2     4 stencil   120   120  -       1   1  ccitt  no        13  0   300   300  2.0K 9%
+   3     5 image     500   400  rgb     3   8  flate  no        14  0   100   100 90.0K 20%

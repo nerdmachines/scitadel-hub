@@ -260,7 +260,10 @@ def snapshots():
     return out
 
 
-QUARTER_SINCE = '2026-07-15'  # the previous quarterly generation of the 2026-10-14 release: its delta is the partitions updated since (S-015)
+# The hub's generations are the scheduled quarterly releases (RELEASE_NOTES.txt: the second Wednesday of January, April, July and October), so the
+# generation before 2026-10-14 is the scheduled one of 2026-07-08, though the notes list no release on that day (06-25, then 09-23). Its delta is the
+# partitions updated since; the deltas since 09-23 and 06-25, the releases the notes do list, are in `tsra.json` too (S-015).
+QUARTER_SINCE = '2026-07-08'
 
 
 def bulk_tb(snap, tsra=None):
@@ -289,6 +292,9 @@ def cmd_recompute(a):
     result = json.loads(path.read_text())
     if a.tsra:
         result['tsra'] = json.loads(Path(a.tsra).read_text())
+    if a.figures:  # the figure stage re-run: replaces the figures and the snapshot listing of the tables run
+        fg = json.loads(Path(a.figures).read_text())
+        result['tsra'].update(figures=fg['figures'], snapshot_deltas=fg['snapshot_deltas'], figures_run={k: fg[k] for k in ('status', 'routes', 'parameters')})
     extrapolations(result)
     path.write_text(json.dumps(result, indent=1) + '\n')
 
@@ -356,13 +362,14 @@ def main(argv=None):
     r.set_defaults(fn=cmd_run)
     t = sub.add_parser('tsra', help='S-015: tessera footprint of the document model, figures and snapshot deltas')
     for flag, kw in (('--out', {'required': True}), ('--scratch', {'required': True}), ('--manifest', {'default': str(Path(__file__).resolve().parents[1] / 'data' / 'manifest.json')}), ('--seed', {'type': int, 'default': 83}),
-                     ('--limit', {'type': int, 'default': 0}), ('--workers', {'type': int, 'default': 48}), ('--rounds', {'type': int, 'default': 10}),
-                     ('--release', {'default': '2026-10-14'}), ('--previous', {'nargs': '+', 'default': ['2026-09-23', '2026-07-15', '2026-06-25']}),
+                     ('--limit', {'type': int, 'default': 0}), ('--workers', {'type': int, 'default': 48}), ('--rounds', {'type': int, 'default': 10}), ('--records', {}), ('--stage', {'choices': ['tsra', 'figures'], 'default': 'tsra'}),
+                     ('--release', {'default': '2026-10-14'}), ('--previous', {'nargs': '+', 'default': ['2026-09-23', '2026-07-08', '2026-06-25']}),
                      ('--tessera-commit', {'default': 'f390528eb2bfa3fc4ea474d9129c242b906e8e0a'})):
         t.add_argument(flag, **kw)
     t.set_defaults(fn=lambda a: __import__('sizing.s015', fromlist=['x']).cmd_tsra(a, tool_versions))
     rc = sub.add_parser('recompute', help='recompute extrapolations of a measurements.json in place')
     rc.add_argument('measurements')
+    rc.add_argument('--figures', help='fold a figures.json (the S-015 figure stage) over the figures of the tsra.json')
     rc.add_argument('--tsra', help='fold a tsra.json (S-015) into the document before recomputing')
     rc.set_defaults(fn=cmd_recompute)
     a = ap.parse_args(argv)

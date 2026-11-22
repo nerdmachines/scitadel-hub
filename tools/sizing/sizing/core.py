@@ -147,7 +147,57 @@ def jats_blocks(xml_bytes):
         bib.append({'id': ref.get('id') or '', 'title': text_of(title),
                     'authors': '; '.join(text_of(c) for c in ref.iter() if _tag(c) == 'surname')[:200],
                     'year': text_of(kids.get('year')), 'doi': doi})
-    return {'elements': els, 'xrefs': xrefs, 'figs': figs, 'tables': cells, 'bib': bib}
+    return {'elements': els, 'xrefs': xrefs, 'figs': figs, 'tables': cells, 'bib': bib, 'graphics': graphic_units(root)}
+
+
+def graphic_units(root):
+    """The graphics of the `<fig>` and `<table-wrap>` elements of an article, one unit per graphic: the renditions listed in one
+    `<alternatives>` are one unit. A unit is a list of `(href, thumbnail)`; a thumbnail is marked by its attributes or its name."""
+    parent = {c: p for p in root.iter() for c in p}
+    units, at = [], {}
+    for el in root.iter():
+        if _tag(el) not in ('fig', 'table-wrap'):
+            continue
+        for g in (x for x in el.iter() if _tag(x) == 'graphic'):
+            attrs = ' '.join((g.get(k) or '') for k in ('content-type', 'specific-use', 'position')).lower()
+            href = g.get(_XLINK) or ''
+            key = parent[g] if _tag(parent[g]) == 'alternatives' else g
+            if key not in at:
+                at[key] = []
+                units.append(at[key])
+            if (href, 'thumb' in attrs or 'small' in attrs or 'thumb' in href.lower()) not in at[key]:
+                at[key].append((href, 'thumb' in attrs or 'small' in attrs or 'thumb' in href.lower()))
+    return units
+
+
+IMAGE_EXT = ('jpg', 'jpeg', 'png', 'gif', 'tif', 'tiff', 'bmp', 'webp', 'svg', 'eps', 'jp2')  # preferred first: the rendition kept
+NOT_GRAPHIC = ('xml', 'json', 'txt', 'pdf')
+
+
+def _base(name):
+    n, _, ext = name.rpartition('.')
+    return n if n and ext.lower() in IMAGE_EXT else name
+
+
+def pick_graphic_files(units, files):
+    """The files of a PMC article that are its figure and table graphics: for each unit of `graphic_units` one rendition, never a
+    thumbnail, the preferred image type first and the larger file on a tie, each file once however often it is referenced.
+    `files` is `[(name, bytes)]` (names without the article's folder). Everything else is supplementary material or an
+    unreferenced rendition (`other_files`)."""
+    chosen = {}
+    for unit in units:
+        want = {_base(h) for h, thumb in unit if not thumb and h}
+        cands = [(n, b) for n, b in files if _base(n) in want and n.rpartition('.')[2].lower() not in NOT_GRAPHIC]
+        if cands:
+            n, b = min(cands, key=lambda f: (IMAGE_EXT.index(f[0].rpartition('.')[2].lower()) if f[0].rpartition('.')[2].lower() in IMAGE_EXT else len(IMAGE_EXT), -f[1]))
+            chosen[n] = b
+    return sorted(chosen.items())
+
+
+def other_files(files, chosen):
+    """Files of the article that are neither the JATS, its text and PDF, nor a chosen graphic: the supplementary material."""
+    keep = {n for n, _ in chosen}
+    return [(n, b) for n, b in files if n not in keep and n.rpartition('.')[2].lower() not in NOT_GRAPHIC]
 
 
 def jats_paragraphs(xml_bytes):
@@ -221,13 +271,24 @@ def parse_pdfimages_list(text):
         f = line.split()
         if len(f) >= 16:
             m = re.fullmatch(r'([\d.]+)([BKMG]?)', f[14])
-            rows.append({'page': int(f[0]), 'type': f[2], 'w': int(f[3]), 'h': int(f[4]), 'enc': f[8],
+            rows.append({'page': int(f[0]), 'type': f[2], 'w': int(f[3]), 'h': int(f[4]), 'enc': f[8], 'obj': (f[10], f[11]),
                          'bytes': round(float(m[1]) * _UNITS[m[2] or 'B']) if m else 0})
     return rows
 
 
 def is_figure(img):
     return img['type'] == 'image' and min(img['w'], img['h']) >= MIN_FIGURE_PX
+
+
+def figure_images(rows):
+    """The figures of a PDF: `is_figure` rows, each image object once (`pdfimages -list` has one row per placement, and a logo or a
+    figure repeated on every page is one object)."""
+    seen, out = set(), []
+    for r in rows:
+        if is_figure(r) and r['obj'] not in seen:
+            seen.add(r['obj'])
+            out.append(r)
+    return out
 
 
 def per_paper(group_bytes, n_works, n_text, n_jats):
@@ -312,7 +373,10 @@ def tsra_factors(t):
     paper, and the encoded-to-raw ratio of a vector (low = the smallest of the encodings measured, central = Vortex's
     fixed_size_list, the shape the plan stores, high = the largest)."""
     f = dict(t['factors'])
-    f.update({k: t['figures'][k] for k in ('fig_blob_bytes', 'figs_per_paper')})
+    for name, key in (('fig_blob', 'fig_blob_bytes'), ('figs', 'figs'), ('fig_native', 'native_bytes')):
+        for route in ('jats', 'pdf'):
+            f[f'{name}_{route}'] = t['figures']['by_route'][route][key]
+    f['supp_bytes_jats'] = t['figures']['supplementary']['bytes']
     v = t['vectors']['512']
     for name, dt in (('vec_ratio', 'fp16'), ('vec_int8_ratio', 'int8')):
         r = [v[e][dt]['ratio_to_raw'] for e in ('vortex_fsl', 'tessera_array', 'parquet_zstd')]
@@ -342,7 +406,10 @@ def extrapolate(n_papers, f, bulk):
         cov = 1 - at_case(f['unresolved_share'], {'low': 'high', 'central': 'central', 'high': 'low'}[c])
         n_cov = n_papers * cov
         chunks = n_cov * v('chunks_350')
-        figs = n_cov * v('figs_per_paper')
+        # The figure terms are per route (JATS, PDF), weighted by the population's route shares, not by the mix of the sample that
+        # happened to yield text: the two routes differ four-fold in figure bytes.
+        by_route = lambda name: n_papers * (v('jats_share') * v(name + '_jats') + v('pdf_share') * v(name + '_pdf'))  # noqa: E731
+        figs = by_route('figs')
         dims = m('dims')
         vec_text = chunks * dims * 2 * v('vec_ratio') / TB
         vec_fig = figs * dims * 2 * v('vec_ratio') / TB
@@ -351,7 +418,7 @@ def extrapolate(n_papers, f, bulk):
         text = n_cov * v('tsra_text') / TB + patent_text  # the hot chunk text: the text column of the elements block
         meta = n_papers * v('tsra_meta') / TB  # works, authorships and citations blocks
         doc = n_cov * v('tsra_doc') / TB  # elements (text included), chunks, figures, table cells, inline references, bibliography
-        blobs = n_cov * v('fig_blob_bytes') / TB  # the figure-blob product: lossless JPEG XL
+        blobs = by_route('fig_blob') / TB  # the figure-blob product: lossless JPEG XL
         b = vec + doc + meta + blobs + patent_text + m('drawings_b_tb')
         bm25 = (n_cov * v('text_bytes') / TB + m('patent_text_tb')) * at_case(f['bm25_ratio'], c)
         ivf = (chunks + figs) * MODEL['ivf_bytes_per_vec'] / TB
@@ -378,6 +445,12 @@ def extrapolate(n_papers, f, bulk):
         out[c]['hot_peak_int8'] = out[c]['hot_peak'] - (2 + d) * (vec - out[c]['vec_int8'])
         out[c]['hot_steady_int8'] = out[c]['hot_steady'] - (1 + d) * (vec - out[c]['vec_int8'])
         out[c]['cold'] = r + 6 * b
+        # Figure blobs stored once, content-addressed and shared by all generations (#91), against once per generation (above): the
+        # warm tier holds one copy of the blobs and 2.1 (3.1 at the peak) of the rest; the JATS graphics kept as fetched are a raw class on top.
+        out[c]['jats_graphics_raw'] = n_papers * v('jats_share') * v('fig_native_jats') / TB
+        out[c]['warm_steady_once'] = r + blobs + (2 + d) * (b - blobs)
+        out[c]['warm_peak_once'] = r + blobs + (3 + d) * (b - blobs)
+        out[c]['supplementary'] = n_papers * v('jats_share') * v('supp_bytes_jats') / TB  # not fetched in phase 1: in no size above
         # The patent-scoped parts of B, R and the index are modelled constants, not per-paper terms: they do not
         # scale with a slice of the papers, a stage-0 slice carries a fixed patent subset of them (2.4).
         out[c]['patent'] = {'b': m('drawings_b_tb') + MODEL['patent_vec_tb'] + patent_text,
