@@ -11,12 +11,14 @@ from sizing import core, run  # noqa: E402
 
 FIX = Path(__file__).parent / 'sizing-fixtures'
 PAGE = json.loads((FIX / 'openalex-page.json').read_text())['results']
-BULK = {'low': 0.4, 'central': 0.5, 'high': 0.8}
+BULK = {c: {'oa': oa, 'oa_delta': oa * 0.5, 'rest': 0.1} for c, oa in (('low', 0.4), ('central', 0.5), ('high', 0.8))}
 
 
 def factors(spread=0.2):
     base = {'chunks_350': 40, 'text_zst_bytes': 8e3, 'text_bytes': 30e3, 'meta_parquet_bytes': 600, 'refs': 40,
-            'pdf_bytes': 5e5, 'jats_zst_bytes': 2e4, 'pdf_share': 0.4, 'bm25_ratio': 0.35, 'unresolved_share': 0.25}
+            'pdf_bytes': 5e5, 'jats_zst_bytes': 2e4, 'pdf_share': 0.4, 'bm25_ratio': 0.35, 'unresolved_share': 0.25,
+            # S-015: tessera bytes per paper, figures, and the encoded-to-raw ratio of a vector
+            'tsra_meta': 1.5e3, 'tsra_doc': 40e3, 'tsra_text': 20e3, 'fig_blob_bytes': 300e3, 'figs_per_paper': 10, 'vec_ratio': 0.9, 'vec_int8_ratio': 0.9}
     return {k: {'n': 100, 'mean': v, 'median': v, 'p90': v, 'ci95': [v * (1 - spread), v * (1 + spread)]} for k, v in base.items()}
 
 
@@ -58,6 +60,98 @@ class Text(unittest.TestCase):
         self.assertGreaterEqual(core.count_chunks(par, 350), core.count_chunks(par, 400))
 
 
+class Blocks(unittest.TestCase):
+    def test_chunk_packing_returns_the_element_span_of_each_chunk(self):
+        self.assertEqual(core.pack_chunks([100, 200, 400, 50], 350), [(0, 1, 300), (2, 2, 350), (2, 3, 100)])
+        self.assertEqual(core.pack_chunks([0, 100, 0, 100], 350), [(1, 3, 200)])
+        self.assertEqual(core.pack_chunks([], 350), [])
+        par = [37, 190, 410, 55, 300, 120, 80, 900]
+        for t in (300, 350, 400):
+            self.assertEqual(sum(c[2] for c in core.pack_chunks(par, t)), sum(par))  # no token is lost or counted twice
+            self.assertEqual(core.count_chunks(par, t), len(core.pack_chunks(par, t)))
+
+    def test_jats_blocks_follow_the_document_model(self):
+        b = core.jats_blocks((FIX / 'blocks.jats.xml').read_bytes())
+        self.assertEqual([(e['kind'], e['parent'], e['text']) for e in b['elements']],
+                         [('paragraph', -1, 'Abstract text.'), ('heading', -1, 'Methods'), ('paragraph', 1, 'We follow Smith and show Figure 1.'),
+                          ('heading', 1, 'Detail'), ('paragraph', 3, 'Nested paragraph.'), ('caption', 1, 'Cell counts.')])
+        self.assertEqual(b['xrefs'], [(2, 10, 15, 'bibr', 'b1'), (2, 25, 33, 'fig', 'f1')])
+        self.assertEqual([(f['id'], f['caption'], f['graphics']) for f in b['figs']], [('f1', 5, ['img-a.jpg', 'img-b.png']), ('f2', -1, ['img-c.jpg'])])
+        self.assertEqual([c[:3] + (c[3], c[4] == c[4] and c[4]) for c in b['tables'][2:]], [(0, 1, 0, '1,250.5', 1250.5), (0, 1, 1, '12', 12.0), (0, 2, 0, 'high', False), (0, 2, 1, '\u22123', -3.0)])
+        self.assertEqual(b['bib'], [{'id': 'b1', 'title': 'On cells', 'authors': 'Smith; Jones', 'year': '2020', 'doi': '10.1/abc'}])
+
+    def test_the_text_of_the_blocks_is_the_text_the_chunker_counted(self):
+        for f in ('sample.jats.xml', 'blocks.jats.xml'):
+            x = (FIX / f).read_bytes()
+            self.assertEqual(core.jats_paragraphs(x), [e['text'] for e in core.jats_blocks(x)['elements']])
+
+    def test_pdf_layout_survives_control_characters_that_xml_forbids(self):
+        # 8 % of the PDFs of the sample made `pdftotext -bbox-layout` emit one: the page was lost, and with it the work's text.
+        x = b'<html><doc><page><flow><block xMin="1" yMin="2" xMax="3" yMax="4"><line><word>a\x0cb</word><word>c&#x1;d</word></line></block></flow></page></doc></html>'
+        self.assertEqual(core.pdf_layout_blocks(x), [(1, (1.0, 2.0, 3.0, 4.0), 'ab cd')])
+
+    def test_pdf_layout_blocks_carry_page_and_box(self):
+        xhtml = (b'<html xmlns="http://www.w3.org/1999/xhtml"><body><doc><page width="612" height="792"><flow>'
+                 b'<block xMin="72" yMin="80" xMax="540" yMax="120"><line><word>Hello</word><word>world</word></line></block>'
+                 b'<block xMin="1" yMin="2" xMax="3" yMax="4"><line><word></word></line></block></flow></page>'
+                 b'<page><flow><block xMin="9" yMin="8" xMax="7" yMax="6"><line><word>Two</word></line></block></flow></page></doc></body></html>')
+        self.assertEqual(core.pdf_layout_blocks(xhtml), [(1, (72.0, 80.0, 540.0, 120.0), 'Hello world'), (2, (9.0, 8.0, 7.0, 6.0), 'Two')])
+
+
+class Figures(unittest.TestCase):
+    LIST = ('page   num  type   width height color comp bpc  enc interp  object ID x-ppi y-ppi size ratio\n'
+            '--------------------------------------------------------------------------------------------\n'
+            '   1     0 image     800   600  rgb     3   8  jpeg   no        10  0   150   150 45.2K 3.2%\n'
+            '   1     1 smask     800   600  gray    1   8  image  no        10  0   150   150  1.5M 0.1%\n'
+            '   2     2 image      32    32  rgb     3   8  flate  no        11  0    72    72  812B 27%\n')
+
+    def test_pdfimages_list_sizes_are_powers_of_1024(self):
+        rows = core.parse_pdfimages_list(self.LIST)
+        self.assertEqual([(r['page'], r['type'], r['w'], r['enc'], r['bytes']) for r in rows],
+                         [(1, 'image', 800, 'jpeg', round(45.2 * 1024)), (1, 'smask', 800, 'image', round(1.5 * 2**20)), (2, 'image', 32, 'flate', 812)])
+
+    def test_a_figure_is_a_real_image_not_a_mask_or_an_icon(self):
+        self.assertEqual([core.is_figure(r) for r in core.parse_pdfimages_list(self.LIST)], [True, False, False])
+
+
+class Tessera(unittest.TestCase):
+    G = {'meta': 100e3, 'doc': 600e3, 'jats': 300e3, 'text': 400e3}
+
+    def test_jats_only_tables_are_spread_over_the_jats_works_and_added_to_every_paper_with_text(self):
+        # 100 works, 60 with text, 20 of them JATS: the JATS-only tables (300 KB) are 15 KB per JATS work and every paper with text carries them
+        # at that rate (the PDF route needs T1, #84); doc is 600 KB / 60 = 10 KB, text 400 KB / 60.
+        p = core.per_paper(self.G, 100, 60, 20)
+        self.assertEqual((p['meta'], p['doc'], p['text']), (1e3, 10e3 + 15e3, 400e3 / 60))
+        self.assertEqual(core.per_paper(self.G, 100, 60, 0)['doc'], 10e3 + 300e3)  # no JATS work: never a division by zero
+
+    def test_vector_factor_spans_the_encodings_and_the_plan_shape_is_central(self):
+        v = {'n': 10, 'vortex_fsl': {'fp16': {'ratio_to_raw': 1.0}, 'int8': {'ratio_to_raw': 0.99}},
+             'tessera_array': {'fp16': {'ratio_to_raw': 0.86}, 'int8': {'ratio_to_raw': 0.94}}, 'parquet_zstd': {'fp16': {'ratio_to_raw': 0.94}, 'int8': {'ratio_to_raw': 0.93}}}
+        t = {'factors': {'tsra_meta': 1}, 'figures': {'fig_blob_bytes': 2, 'figs_per_paper': 3}, 'vectors': {'512': v}}
+        f = core.tsra_factors(t)
+        self.assertEqual((f['vec_ratio']['mean'], f['vec_ratio']['ci95']), (1.0, [0.86, 1.0]))
+        self.assertEqual((f['vec_int8_ratio']['mean'], f['vec_int8_ratio']['ci95']), (0.99, [0.93, 0.99]))
+        self.assertEqual((f['tsra_meta'], f['fig_blob_bytes'], f['figs_per_paper']), (1, 2, 3))
+
+
+class Snapshots(unittest.TestCase):
+    OBJ = [('data/jsonl/works/updated_date=2026-09-22/part_0000.gz', 100), ('data/jsonl/works/updated_date=2026-09-23/part_0000.gz', 10),
+           ('data/jsonl/works/updated_date=2026-10-01/part_0000.gz', 20), ('data/jsonl/authors/updated_date=2026-10-13/part_0000.gz', 5),
+           ('data/jsonl/works/deleted_ids.csv.gz', 7), ('data/jsonl/works/manifest.json', 1)]
+
+    def test_delta_is_the_partitions_on_or_after_the_previous_release_plus_the_whole_files(self):
+        self.assertEqual(core.partition_date(self.OBJ[1][0]), '2026-09-23')
+        self.assertIsNone(core.partition_date('data/jsonl/works/deleted_ids.csv.gz'))
+        g = core.snapshot_generation(self.OBJ, '2026-09-23')
+        self.assertEqual((g['full'], g['delta'], g['whole_each_generation'], g['partitions']), (143, 10 + 20 + 5 + 8, 8, 4))
+        self.assertEqual(core.snapshot_generation(self.OBJ, '2026-10-14')['delta'], 8)  # nothing changed since: only the whole files
+        self.assertEqual(core.snapshot_generation(self.OBJ, '2000-01-01')['delta'], core.snapshot_generation(self.OBJ, '2000-01-01')['full'])
+
+    def test_bulk_per_case_uses_the_format_of_each_case(self):
+        b = core.snapshot_bulk({'jsonl': 8e11, 'parquet': 9e11}, 0.3, {'jsonl': 4e11, 'parquet': 6e11})
+        self.assertEqual((b['central']['oa'], b['central']['oa_delta'], b['high']['oa'], b['high']['oa_delta'], b['low']['rest']), (0.8, 0.4, 0.9, 0.6, 0.3))
+
+
 class Stats(unittest.TestCase):
     def test_summary_is_seeded_and_brackets_the_mean(self):
         s = core.summarize(list(range(1, 101)), rounds=200)
@@ -90,16 +184,33 @@ class Extrapolation(unittest.TestCase):
             self.assertLess(x['hot_steady'], x['warm_steady'])
             self.assertLess(x['hot_peak_int8'], x['hot_peak'])
             self.assertAlmostEqual(sum(x['raw'].values()), x['R'])
-        self.assertAlmostEqual(b['central']['vec_int8'] / b['central']['vec'], 0.5 * (1 + 4 / 1024), places=6)
+        self.assertAlmostEqual(b['central']['vec_int8'] / b['central']['vec'], 516 / 1024, places=6)  # 512 dimensions: 512 bytes and a 4-byte scale against 1,024
 
-    def test_remainder_subtracts_the_first_models_vectors_and_text(self):
-        # No measured text, chunks or metadata and full coverage: B is the modelled remainder, which is the
-        # first model's per-paper size (1.75 TB / 7 M = 250 KB) less its 30 KB of vectors and 20 KB / 3.5 of
-        # text, plus figure vectors (14.6 KB), patent vectors and text, and the drawings.
+    def test_b_is_vectors_tables_and_blobs_with_no_modelled_remainder(self):
+        # Every per-paper term of B is measured (S-015): with all of them zero and full coverage only the patent constants are left:
+        # the vectors 0.012 TB, the text 0.125 / 3.5 TB and the drawings 1.0 TB. The first model's per-paper remainder is gone.
         z = {k: dict(v, mean=0.0, ci95=[0.0, 0.0]) for k, v in factors(0.0).items()}
-        n = 10e6
-        expect = n * (250e3 - 30e3 - 20e3 / 3.5) / 1e12 + n * 14.6e3 / 1e12 + 0.012 + 0.125 / 3.5 + 1.0
-        self.assertAlmostEqual(core.extrapolate(n, dict(z, unresolved_share=z['pdf_share']), BULK)['central']['B'], expect, places=6)
+        z.update(vec_ratio=factors()['vec_ratio'], vec_int8_ratio=factors()['vec_int8_ratio'], unresolved_share=z['pdf_share'])
+        self.assertAlmostEqual(core.extrapolate(10e6, z, BULK)['central']['B'], 0.012 + 0.125 / 3.5 + 1.0, places=9)
+
+    def test_b_adds_each_measured_term_once(self):
+        # 20 million papers, 25 % landing page only, 512 dimensions, vectors at 0.9 of raw: every term by hand, in TB.
+        x, n_cov = core.extrapolate(20e6, factors(0.0), BULK)['central'], 15e6
+        self.assertAlmostEqual(x['vec_text'], n_cov * 40 * 512 * 2 * 0.9 / 1e12)
+        self.assertAlmostEqual(x['vec_fig'], n_cov * 10 * 512 * 2 * 0.9 / 1e12)
+        self.assertAlmostEqual(x['doc'], n_cov * 40e3 / 1e12)
+        self.assertAlmostEqual(x['blobs'], n_cov * 300e3 / 1e12)
+        self.assertAlmostEqual(x['meta'], 20e6 * 1.5e3 / 1e12)
+        self.assertAlmostEqual(x['B'], x['vec'] + x['doc'] + x['meta'] + x['blobs'] + 0.125 / 3.5 + 1.0)
+        self.assertAlmostEqual(x['text'], n_cov * 20e3 / 1e12 + 0.125 / 3.5)  # the hot text is a column of `doc`, not an extra term
+        self.assertAlmostEqual(x['idx_parts']['ivf'], n_cov * (40 + 10) * 16 / 1e12)
+
+    def test_snapshot_class_is_one_generation_plus_deltas(self):
+        # R keeps 4 generations of the rest, one full OpenAlex generation and 3 deltas, not 4 full ones.
+        raw = core.extrapolate(10e6, factors(), BULK)['central']['raw']['bulk']
+        self.assertAlmostEqual(raw, 4 * 0.1 + 0.5 + 3 * 0.25)
+        full = {c: dict(g, oa_delta=g['oa']) for c, g in BULK.items()}
+        self.assertAlmostEqual(core.extrapolate(10e6, factors(), full)['central']['raw']['bulk'], 4 * 0.1 + 4 * 0.5)
 
     def test_hot_peak_adds_a_candidate_and_a_second_index_generation(self):
         x = core.extrapolate(20e6, factors(), BULK)['central']
@@ -117,7 +228,11 @@ class Extrapolation(unittest.TestCase):
 
     def test_recompute_from_a_measurements_document(self):
         snap = {'openalex_jsonl': {'bytes': 7e11, 'works_records': 4e8, 'entities': {'works': 6e11}}, 'openalex_parquet': {'bytes': 8e11}}
-        doc = {'population': {'all_types': 4e7, 'papers': 2.3e7, 'article': 2e7}, 'snapshots': snap, 'bases': {b: {'factors': factors()} for b in ('all_types', 'papers', 'article')}}
+        delta = lambda b: {'2026-07-15': {'delta': b}}  # noqa: E731
+        tsra = {'factors': {k: factors()[k] for k in ('tsra_meta', 'tsra_doc', 'tsra_text')}, 'figures': {k: factors()[k] for k in ('fig_blob_bytes', 'figs_per_paper')},
+                'snapshot_deltas': {'formats': {'jsonl': delta(5e11), 'parquet': delta(6e11)}},
+                'vectors': {'512': {'n': 1, **{e: {d: {'ratio_to_raw': 0.9} for d in ('fp16', 'int8')} for e in ('vortex_fsl', 'tessera_array', 'parquet_zstd')}}}}
+        doc = {'tsra': tsra, 'population': {'all_types': 4e7, 'papers': 2.3e7, 'article': 2e7}, 'snapshots': snap, 'bases': {b: {'factors': {k: v for k, v in factors().items() if not k.startswith(('tsra', 'fig', 'vec'))}} for b in ('all_types', 'papers', 'article')}}
         run.extrapolations(doc)
         self.assertEqual(set(doc['bases']['article']['extrapolation']), set(core.CASES))
         self.assertGreater(doc['bases']['all_types']['extrapolation']['central']['B'], doc['bases']['article']['extrapolation']['central']['B'])

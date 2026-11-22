@@ -73,31 +73,101 @@ def _tag(el):
     return el.tag.rsplit('}', 1)[-1]
 
 
-def _flat(el):
-    if _tag(el) not in _SKIP:
-        yield el.text or ''
+_XLINK = '{http://www.w3.org/1999/xlink}href'
+_NUM = re.compile(r'[-+\u2212]?\d+(?:\.\d+)?')
+
+
+def _flat_marks(el, buf, marks):
+    """Flat text of an element; records `(start, end, ref-type, rid)` of every xref in the raw text."""
+    if _tag(el) in _SKIP:
+        return
+    buf.append(el.text or '')
+    for c in el:
+        start = sum(map(len, buf))
+        _flat_marks(c, buf, marks)
+        if _tag(c) == 'xref':
+            marks.append((start, sum(map(len, buf)), c.get('ref-type') or 'other', c.get('rid') or ''))
+        buf.append(c.tail or '')
+
+
+def jats_blocks(xml_bytes):
+    """The document-model blocks of a JATS document (document-model.md section 1): `elements` (kind, text, parent:
+    the ord of the enclosing section title or -1) of the abstract and body, as the chunker reads them; `xrefs`
+    (element ord, span in the raw text, ref-type, rid); `figs` (id, caption element ord or -1, graphic hrefs);
+    `tables` (cells: table index, row, col, text, number or NaN); `bib` (parsed fields of each reference)."""
+    root = ET.fromstring(xml_bytes)
+    els, xrefs, figs = [], [], []
+
+    def emit(kind, el, parent):
+        buf, marks = [], []
+        _flat_marks(el, buf, marks)
+        text = ' '.join(''.join(buf).split())
+        if not text:
+            return None
+        els.append({'kind': kind, 'text': text, 'parent': parent})
+        xrefs.extend((len(els) - 1, *m) for m in marks)
+        return len(els) - 1
+
+    def walk(el, parent, fig):
+        t = _tag(el)
+        if t in _SKIP:
+            return None
+        if t == 'fig':
+            fig = {'id': el.get('id') or '', 'caption': -1, 'graphics': [g.get(_XLINK) or '' for g in el.iter() if _tag(g) == 'graphic']}
+            figs.append(fig)
+        if t in ('p', 'title', 'caption'):
+            o = emit({'p': 'paragraph', 'title': 'heading', 'caption': 'caption'}[t], el, parent)
+            if o is not None and fig is not None and fig['caption'] < 0:
+                fig['caption'] = o
+            return o
+        cur = parent
         for c in el:
-            yield from _flat(c)
-            yield c.tail or ''
+            r = walk(c, cur, fig)
+            if t == 'sec' and _tag(c) == 'title' and r is not None:
+                cur = r
+        return None
+    for el in root.iter():
+        if _tag(el) in ('abstract', 'body'):
+            walk(el, -1, None)
+
+    def text_of(el):
+        return ' '.join(''.join(el.itertext()).split()) if el is not None else ''
+    cells = []
+    for ti, tw in enumerate(e for e in root.iter() if _tag(e) == 'table-wrap'):
+        for ri, tr in enumerate(e for e in tw.iter() if _tag(e) == 'tr'):
+            for ci, td in enumerate(c for c in tr if _tag(c) in ('td', 'th')):
+                x = text_of(td)
+                num = x.replace(',', '')
+                cells.append((ti, ri, ci, x, float(num.replace('\u2212', '-')) if _NUM.fullmatch(num) else math.nan))
+    bib = []
+    for ref in (e for e in root.iter() if _tag(e) == 'ref'):
+        kids = {_tag(c): c for c in ref.iter()}
+        title = next((kids[k] for k in ('article-title', 'chapter-title', 'source') if k in kids), None)  # not `or`: an Element without children is falsy
+        doi = next((text_of(c) for c in ref.iter() if _tag(c) == 'pub-id' and c.get('pub-id-type') == 'doi'), '')
+        bib.append({'id': ref.get('id') or '', 'title': text_of(title),
+                    'authors': '; '.join(text_of(c) for c in ref.iter() if _tag(c) == 'surname')[:200],
+                    'year': text_of(kids.get('year')), 'doi': doi})
+    return {'elements': els, 'xrefs': xrefs, 'figs': figs, 'tables': cells, 'bib': bib}
 
 
 def jats_paragraphs(xml_bytes):
     """Abstract and body paragraphs, section titles and figure captions of a JATS document;
     tables, back matter and mathematics are not text for the chunker."""
-    out = []
+    return [e['text'] for e in jats_blocks(xml_bytes)['elements']]
 
-    def walk(el):
-        if _tag(el) in _SKIP:
-            return
-        if _tag(el) in ('p', 'title', 'caption'):
-            text = ' '.join(''.join(_flat(el)).split())
-            out.extend([text] if text else [])
-            return
-        for c in el:
-            walk(c)
-    for el in ET.fromstring(xml_bytes).iter():
-        if _tag(el) in ('abstract', 'body'):
-            walk(el)
+
+def pdf_layout_blocks(xhtml):
+    """Text blocks of `pdftotext -bbox-layout` output: `(page, (xmin, ymin, xmax, ymax), text)` per block."""
+    out = []
+    try:
+        root = ET.fromstring(xhtml)
+    except ET.ParseError:  # pdftotext passes control characters of the PDF's text through; XML 1.0 does not allow them
+        root = ET.fromstring(re.sub(rb'[\x00-\x08\x0b\x0c\x0e-\x1f]|&#(?:x0*[0-9a-fA-F]|x0*1[0-9a-fA-F]|0*[0-9]|0*1[0-9]|0*2[0-9]|0*3[01]);', b'', xhtml))
+    for pi, page in enumerate([e for e in root.iter() if _tag(e) == 'page'], 1):
+        for blk in (e for e in page.iter() if _tag(e) == 'block'):
+            text = ' '.join(w.text or '' for w in blk.iter() if _tag(w) == 'word').strip()
+            if text:
+                out.append((pi, tuple(float(blk.get(k)) for k in ('xMin', 'yMin', 'xMax', 'yMax')), text))
     return out
 
 
@@ -105,22 +175,82 @@ def pdf_paragraphs(text):
     return [' '.join(p.split()) for p in re.split(r'\n\s*\n', text) if p.strip()]
 
 
-def count_chunks(par_tokens, target):
-    """Greedy packing of paragraph token counts into chunks of at most `target` tokens: a
-    paragraph joins the open chunk if it fits, otherwise the chunk is flushed; a paragraph longer
-    than the target is split into windows of `target`. Returns the number of chunks."""
-    chunks, fill = 0, 0
-    for n in par_tokens:
+def pack_chunks(par_tokens, target):
+    """Greedy packing of paragraph token counts into chunks of at most `target` tokens: a paragraph joins the
+    open chunk if it fits, otherwise the chunk is flushed; a paragraph longer than the target is split into
+    windows of `target`. Returns one `(first_element, last_element, tokens)` per chunk (indices into the list)."""
+    chunks, fill, first = [], 0, 0
+
+    def flush(last):
+        nonlocal fill
+        chunks.append((first, last, fill))
+        fill = 0
+    for i, n in enumerate(par_tokens):
         if n <= 0:
             continue
         if fill and fill + n > target:
-            chunks, fill = chunks + 1, 0
+            flush(i - 1)
+        if not fill:
+            first = i
         while n > target:
             if fill:
-                chunks, fill = chunks + 1, 0
-            chunks, n = chunks + 1, n - target
+                flush(i - 1)
+                first = i
+            chunks.append((i, i, target))
+            n -= target
+            first = i
         fill += n
-    return chunks + (1 if fill else 0)
+    if fill:
+        flush(len(par_tokens) - 1)
+    return chunks
+
+
+def count_chunks(par_tokens, target):
+    return len(pack_chunks(par_tokens, target))
+
+
+_UNITS = {'B': 1, 'K': 2**10, 'M': 2**20, 'G': 2**30}
+MIN_FIGURE_PX = 64  # an embedded image counts as a figure (a figure row, a figure vector) if it is an image, not a mask, of at least this side
+
+
+def parse_pdfimages_list(text):
+    """Rows of `pdfimages -list`: page, type (image, mask, smask, stencil), width, height, encoding, embedded bytes
+    (the `size` column: K, M, G are powers of 1024)."""
+    rows = []
+    for line in text.splitlines()[2:]:
+        f = line.split()
+        if len(f) >= 16:
+            m = re.fullmatch(r'([\d.]+)([BKMG]?)', f[14])
+            rows.append({'page': int(f[0]), 'type': f[2], 'w': int(f[3]), 'h': int(f[4]), 'enc': f[8],
+                         'bytes': round(float(m[1]) * _UNITS[m[2] or 'B']) if m else 0})
+    return rows
+
+
+def is_figure(img):
+    return img['type'] == 'image' and min(img['w'], img['h']) >= MIN_FIGURE_PX
+
+
+def per_paper(group_bytes, n_works, n_text, n_jats):
+    """Tessera bytes per paper from the bytes of each table group of a shard: `meta` per work (every work has a row),
+    `doc` per work with text, and the JATS-only tables (table cells, inline references, bibliography) per JATS work: PDF-route works need
+    the T1 tier for those (#84), so they are modelled at the JATS-route rate (every work with text carries it)."""
+    return {'meta': group_bytes['meta'] / n_works, 'doc': group_bytes['doc'] / max(1, n_text) + group_bytes['jats'] / max(1, n_jats),
+            'text': group_bytes['text'] / max(1, n_text)}
+
+
+def partition_date(key):
+    m = re.search(r'updated_date=(\d{4}-\d{2}-\d{2})/', key)
+    return m[1] if m else None
+
+
+def snapshot_generation(objects, since):
+    """Bytes of one OpenAlex generation and of its delta from the listing `(key, size)` of one snapshot format. Files in an
+    `updated_date=` partition changed on or after `since` (the previous release date, ISO) are the delta; files outside any
+    partition (deleted_ids, manifests) are whole each generation and count in both."""
+    full = sum(sz for _, sz in objects)
+    whole = sum(sz for k, sz in objects if partition_date(k) is None)
+    changed = sum(sz for k, sz in objects if (partition_date(k) or '') >= since and partition_date(k))
+    return {'full': full, 'delta': changed + whole, 'whole_each_generation': whole, 'partitions': len({partition_date(k) for k, _ in objects} - {None})}
 
 
 def pdf_contributions(rows):
@@ -161,12 +291,10 @@ def at_case(summary, case):
 
 TB = 1e12
 CASES = ('low', 'central', 'high')
-# Modelled per-paper residual and per-class values carried over from the first model, scaled to N.
+GENERATIONS = 4  # quarterly bulk-snapshot generations kept (XADR-SCITADEL-008 section 12)
+# Modelled values that no measurement has replaced (the patent set, #85; the T1 to T4 cascade, #84; the graph, SYS-019).
 MODEL = {'n': {'low': 5e6, 'central': 7e6, 'high': 10e6},
-         'paper_b_tb': {'low': 1.0, 'central': 1.75, 'high': 2.5},
-         'vec_kb': 30.0, 'text_raw_kb': 20.0, 'text_ratio': 3.5,
-         # 100 million figures over 7 million papers, 512 dimensions in fp16 (1,024 in the high case)
-         'figs_per_paper': 14.3, 'fig_vec_kb': {'low': 14.6, 'central': 14.6, 'high': 29.3},
+         'text_ratio': 3.5,
          'drawings_b_tb': {'low': 0.5, 'central': 1.0, 'high': 1.5},
          'patent_text_tb': {'low': 0.10, 'central': 0.125, 'high': 0.15},
          'patent_vec_tb': 0.012, 'patent_xml_tb': {'low': 0.05, 'central': 0.1, 'high': 0.15},
@@ -178,53 +306,81 @@ MODEL = {'n': {'low': 5e6, 'central': 7e6, 'high': 10e6},
          'dims': {'low': 512, 'central': 512, 'high': 1024}, 'delta': 0.1}
 
 
-def extrapolate(n_papers, f, bulk_tb):
+def tsra_factors(t):
+    """The per-paper factors of `extrapolate` that S-015 measured, from a `tsra.json` document: tessera bytes per paper of the
+    metadata, the document-model tables and their text column, the lossless figure bytes and the figure count per covered
+    paper, and the encoded-to-raw ratio of a vector (low = the smallest of the encodings measured, central = Vortex's
+    fixed_size_list, the shape the plan stores, high = the largest)."""
+    f = dict(t['factors'])
+    f.update({k: t['figures'][k] for k in ('fig_blob_bytes', 'figs_per_paper')})
+    v = t['vectors']['512']
+    for name, dt in (('vec_ratio', 'fp16'), ('vec_int8_ratio', 'int8')):
+        r = [v[e][dt]['ratio_to_raw'] for e in ('vortex_fsl', 'tessera_array', 'parquet_zstd')]
+        f[name] = {'n': v['n'], 'mean': v['vortex_fsl'][dt]['ratio_to_raw'], 'ci95': [min(r), max(r)]}
+    return f
+
+
+def snapshot_bulk(manifest_bytes, rest_tb, delta_bytes):
+    """TB of one quarterly OpenAlex generation, of its delta from the previous one, and of the other sources' generation, per case:
+    the whole snapshot in jsonl (low, central) or Parquet (high); `rest_tb` (Crossref, DataCite, the unmeasured) is kept whole
+    each generation, because its files are yearly and carry no `updated_date` partition."""
+    return {c: {'oa': manifest_bytes[fmt] / TB, 'oa_delta': delta_bytes[fmt] / TB, 'rest': rest_tb}
+            for c, fmt in (('low', 'jsonl'), ('central', 'jsonl'), ('high', 'parquet'))}
+
+
+def extrapolate(n_papers, f, bulk):
     """Phase-1 sizes per case from the population count `n_papers` and measured per-paper factors
     `f` (name -> summary; every factor is bytes per paper, zero where it does not apply).
-    Case `low`/`high` use the CI bounds, `central` the mean. Sizes in TB (1e12 bytes)."""
+    Case `low`/`high` use the CI bounds, `central` the mean. Sizes in TB (1e12 bytes). `bulk[case]` is the
+    `snapshot_bulk` dict: R holds one full OpenAlex generation, `GENERATIONS - 1` deltas and `GENERATIONS` copies of the rest."""
     out = {}
     for c in CASES:
         m = lambda key: MODEL[key][c] if isinstance(MODEL[key], dict) else MODEL[key]  # noqa: E731
         v = lambda name: at_case(f[name], c)  # noqa: E731
         # Works whose only open-access location is a landing page carry metadata only (until #86): text,
-        # chunks, vectors and the modelled remainder apply to the covered share; low takes the least coverage.
+        # chunks, vectors and the document tables apply to the covered share; low takes the least coverage.
         cov = 1 - at_case(f['unresolved_share'], {'low': 'high', 'central': 'central', 'high': 'low'}[c])
         n_cov = n_papers * cov
         chunks = n_cov * v('chunks_350')
+        figs = n_cov * v('figs_per_paper')
         dims = m('dims')
-        vec_text = chunks * dims * 2 / TB
-        vec_fig = n_cov * m('fig_vec_kb') * 1e3 / TB
+        vec_text = chunks * dims * 2 * v('vec_ratio') / TB
+        vec_fig = figs * dims * 2 * v('vec_ratio') / TB
         vec = vec_text + vec_fig + MODEL['patent_vec_tb']
-        text = n_cov * v('text_zst_bytes') / TB + m('patent_text_tb') / MODEL['text_ratio']
-        meta = n_papers * v('meta_parquet_bytes') / TB
-        resid_kb = m('paper_b_tb') * TB / m('n') / 1e3 - MODEL['vec_kb'] - MODEL['text_raw_kb'] / MODEL['text_ratio']
-        resid = n_cov * resid_kb * 1e3 / TB
-        b = vec + text + meta + resid + m('drawings_b_tb')
+        patent_text = m('patent_text_tb') / MODEL['text_ratio']
+        text = n_cov * v('tsra_text') / TB + patent_text  # the hot chunk text: the text column of the elements block
+        meta = n_papers * v('tsra_meta') / TB  # works, authorships and citations blocks
+        doc = n_cov * v('tsra_doc') / TB  # elements (text included), chunks, figures, table cells, inline references, bibliography
+        blobs = n_cov * v('fig_blob_bytes') / TB  # the figure-blob product: lossless JPEG XL
+        b = vec + doc + meta + blobs + patent_text + m('drawings_b_tb')
         bm25 = (n_cov * v('text_bytes') / TB + m('patent_text_tb')) * at_case(f['bm25_ratio'], c)
-        ivf = (chunks + n_cov * MODEL['figs_per_paper']) * MODEL['ivf_bytes_per_vec'] / TB
+        ivf = (chunks + figs) * MODEL['ivf_bytes_per_vec'] / TB
         graph_derived = n_papers * v('refs') * 8 / TB  # CSR fwd+rev u32, 8 B per edge
         graph = max(graph_derived, m('graph_gb') / 1e3)  # the modelled whole-graph size is the floor
         idx = bm25 + ivf + graph + m('hnsw_gb') / 1e3
         pdfs = n_papers * v('pdf_share')
+        g = bulk[c]
         raw = {'pdf': n_papers * v('pdf_bytes') / TB,
                'xml': n_papers * v('jats_zst_bytes') / TB + pdfs * MODEL['tei_kb'] * 1e3 / TB + m('patent_xml_tb'),
-               'bulk': 4 * bulk_tb[c], 'drawings': m('raw_drawings_tb'),
+               'bulk': GENERATIONS * g['rest'] + g['oa'] + (GENERATIONS - 1) * g['oa_delta'], 'drawings': m('raw_drawings_tb'),
                't1_t4': pdfs * m('t14_mb') * 1e6 / TB + m('t14_patent_tb')}
         r = sum(raw.values())
         hot_prod = vec + text + meta
         d = MODEL['delta']
-        out[c] = {'B': b, 'R': r, 'raw': raw, 'vec': vec, 'vec_text': vec_text, 'vec_fig': vec_fig, 'covered': cov, 'graph_derived': graph_derived, 'text': text, 'meta': meta, 'idx': idx,
+        out[c] = {'B': b, 'R': r, 'raw': raw, 'vec': vec, 'vec_text': vec_text, 'vec_fig': vec_fig, 'covered': cov, 'graph_derived': graph_derived, 'text': text, 'meta': meta,
+                  'doc': doc, 'blobs': blobs, 'idx': idx,
                   'idx_parts': {'bm25': bm25, 'ivf': ivf, 'graph': graph, 'hnsw': m('hnsw_gb') / 1e3},
                   'products_steady': (2 + d) * b, 'products_peak': (3 + d) * b,
                   'warm_steady': r + (2 + d) * b, 'warm_peak': r + (3 + d) * b,
                   'hot_steady': (1 + d) * hot_prod + idx, 'hot_peak': (2 + d) * hot_prod + 2 * idx,
-                  'vec_int8': vec * (1 + 4 / (2 * dims)) / 2, 'hot_prod': hot_prod}
+                  # one byte per dimension and a 4-byte scale per vector, in the measured encoded-to-raw ratio of each dtype
+                  'vec_int8': vec * (dims + 4) / (2 * dims) * v('vec_int8_ratio') / v('vec_ratio'), 'hot_prod': hot_prod}
         out[c]['hot_peak_int8'] = out[c]['hot_peak'] - (2 + d) * (vec - out[c]['vec_int8'])
         out[c]['hot_steady_int8'] = out[c]['hot_steady'] - (1 + d) * (vec - out[c]['vec_int8'])
         out[c]['cold'] = r + 6 * b
         # The patent-scoped parts of B, R and the index are modelled constants, not per-paper terms: they do not
         # scale with a slice of the papers, a stage-0 slice carries a fixed patent subset of them (2.4).
-        out[c]['patent'] = {'b': m('drawings_b_tb') + MODEL['patent_vec_tb'] + m('patent_text_tb') / MODEL['text_ratio'],
+        out[c]['patent'] = {'b': m('drawings_b_tb') + MODEL['patent_vec_tb'] + patent_text,
                             'raw': m('patent_xml_tb') + m('raw_drawings_tb') + m('t14_patent_tb'),
                             'idx': m('patent_text_tb') * at_case(f['bm25_ratio'], c)}
     return out
