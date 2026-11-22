@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article xmlns:xlink="http://www.w3.org/1999/xlink"><body><sec>
+<p>See <xref ref-type="fig" rid="f1">Figure 1</xref>.</p>
+<fig id="f1"><caption><p>Counts.</p></caption><alternatives><graphic xlink:href="art.g001"/><graphic xlink:href="art.g001.thumb" content-type="thumbnail"/></alternatives></fig>
+<fig id="f1b"><caption><p>Counts again.</p></caption><graphic xlink:href="art.g001"/></fig>
+<table-wrap id="t1"><graphic xlink:href="art.t001.png"/><table><tr><td>1</td></tr></table></table-wrap>
+</sec></body></article>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article xmlns:xlink="http://www.w3.org/1999/xlink"><front><article-meta><abstract><p>Abstract text.</p></abstract></article-meta></front>
+<body><sec><title>Methods</title><p>We follow <xref ref-type="bibr" rid="b1">Smith</xref> and show <xref ref-type="fig" rid="f1">Figure 1</xref>.</p>
+<sec><title>Detail</title><p>Nested paragraph.</p></sec>
+<fig id="f1"><label>Figure 1</label><caption><p>Cell counts.</p></caption><graphic xlink:href="img-a.jpg"/><graphic xlink:href="img-b.png"/></fig>
+<fig id="f2"><graphic xlink:href="img-c.jpg"/></fig>
+<table-wrap id="t1"><caption><p>Dropped.</p></caption><table><tr><th>Dose</th><th>n</th></tr><tr><td>1,250.5</td><td>12</td></tr><tr><td>high</td><td>&#8722;3</td></tr></table></table-wrap></sec></body>
+<back><ref-list><ref id="b1"><element-citation><person-group><name><surname>Smith</surname></name><name><surname>Jones</surname></name></person-group><article-title>On cells</article-title><source>J Cells</source><year>2020</year><pub-id pub-id-type="doi">10.1/abc</pub-id></element-citation></ref></ref-list></back></article>

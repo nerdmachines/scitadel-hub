@@ -61,7 +61,7 @@ def http(url, interval=1.0, cap=None, timeout=60):
                     raise ValueError('too_large')
                 return body
         except urllib.error.HTTPError as e:
-            if e.code in (429, 503) and attempt < 3:
+            if e.code in (429, 500, 502, 503, 504) and attempt < 3:  # 500 to 504: Europe PMC answers transient errors
                 time.sleep(min(int(e.headers.get('Retry-After') or 5), 120))
                 continue
             raise
@@ -260,26 +260,41 @@ def snapshots():
     return out
 
 
-def bulk_tb(snap):
-    """Bytes per generation: the hub keeps the whole OpenAlex snapshot it bootstraps from (jsonl in the
-    low and central case, Parquet in the high one), plus the Crossref and DataCite files and the unmeasured rest."""
+# The hub's generations are the scheduled quarterly releases (RELEASE_NOTES.txt: the second Wednesday of January, April, July and October), so the
+# generation before 2026-10-14 is the scheduled one of 2026-07-08, though the notes list no release on that day (06-25, then 09-23). Its delta is the
+# partitions updated since; the deltas since 09-23 and 06-25, the releases the notes do list, are in `tsra.json` too (S-015).
+QUARTER_SINCE = '2026-07-08'
+
+
+def bulk_tb(snap, tsra=None):
+    """Bytes per generation (S-013: the hub keeps the whole OpenAlex snapshot it bootstraps from, jsonl in the low and central
+    case, Parquet in the high one, plus the Crossref and DataCite files and the unmeasured rest) and, from S-015, the OpenAlex
+    delta of a quarterly generation (`core.snapshot_bulk`). Without `tsra` the delta is the whole generation: no deduplication."""
     rest = PUBLISHED['crossref_public_data_file_2026_gb'] * 1e9 + PUBLISHED['datacite_public_data_file_2025_gib'] * 2**30 + core.MODEL['others_tb'] * core.TB
-    oa_j, oa_p = snap['openalex_jsonl']['bytes'], snap['openalex_parquet']['bytes']
-    return {c: (b + rest) / core.TB for c, b in (('low', oa_j), ('central', oa_j), ('high', oa_p))}
+    man = {'jsonl': snap['openalex_jsonl']['bytes'], 'parquet': snap['openalex_parquet']['bytes']}
+    delta = {f: tsra['snapshot_deltas']['formats'][f][QUARTER_SINCE]['delta'] for f in man} if tsra else man
+    return core.snapshot_bulk(man, rest / core.TB, delta)
 
 
 def extrapolations(result):
-    """(Re)compute every basis's extrapolation from its measured factors; no network."""
-    pops, snap = result['population'], result['snapshots']
-    bulk = bulk_tb(snap)
+    """(Re)compute every basis's extrapolation from its measured factors; no network. The S-015 factors (`result['tsra']`) are
+    the same for every basis: they were measured on the scholarly types."""
+    pops, snap, tsra = result['population'], result['snapshots'], result.get('tsra')
+    bulk = bulk_tb(snap, tsra)
+    extra = core.tsra_factors(tsra) if tsra else {}
     for basis, b in result['bases'].items():
-        b['extrapolation'] = core.extrapolate(pops[basis], b['factors'], bulk)
-    result['model_scope_7M'] = core.extrapolate(7e6, result['bases']['papers']['factors'], bulk)  # the first model's central N, at the planning case's factors
+        b['extrapolation'] = core.extrapolate(pops[basis], {**b['factors'], **extra}, bulk)
+    result['model_scope_7M'] = core.extrapolate(7e6, {**result['bases']['papers']['factors'], **extra}, bulk)  # the first model's central N, at the planning case's factors
 
 
 def cmd_recompute(a):
     path = Path(a.measurements)
     result = json.loads(path.read_text())
+    if a.tsra:
+        result['tsra'] = json.loads(Path(a.tsra).read_text())
+    if a.figures:  # the figure stage re-run: replaces the figures and the snapshot listing of the tables run
+        fg = json.loads(Path(a.figures).read_text())
+        result['tsra'].update(figures=fg['figures'], snapshot_deltas=fg['snapshot_deltas'], figures_run={k: fg[k] for k in ('status', 'routes', 'parameters')})
     extrapolations(result)
     path.write_text(json.dumps(result, indent=1) + '\n')
 
@@ -331,8 +346,7 @@ def cmd_run(a):
         meta = parquet_summary([projected[r['id']] for r in sel])
         bm25 = bm25_ratio(tmp, a.bootstrap_rounds, a.seed, {r['id'] for r in sel})  # per basis: the index of that basis's works
         result['bases'][basis] = {'n': len(sel), 'factors': factors(sel, meta, bm25)}
-    result['by_route'] = by_route(rows)
-    extrapolations(result)
+    result['by_route'] = by_route(rows)  # the sizes follow from `recompute --tsra`, which adds the S-015 factors
     (out / 'measurements.json').write_text(json.dumps(result, indent=1))
     shutil.rmtree(tmp / 'text', ignore_errors=True)
 
@@ -346,8 +360,17 @@ def main(argv=None):
                      ('--bootstrap-rounds', {'type': int, 'default': 10})):
         r.add_argument(flag, **kw)
     r.set_defaults(fn=cmd_run)
+    t = sub.add_parser('tsra', help='S-015: tessera footprint of the document model, figures and snapshot deltas')
+    for flag, kw in (('--out', {'required': True}), ('--scratch', {'required': True}), ('--manifest', {'default': str(Path(__file__).resolve().parents[1] / 'data' / 'manifest.json')}), ('--seed', {'type': int, 'default': 83}),
+                     ('--limit', {'type': int, 'default': 0}), ('--workers', {'type': int, 'default': 48}), ('--rounds', {'type': int, 'default': 10}), ('--records', {}), ('--stage', {'choices': ['tsra', 'figures'], 'default': 'tsra'}),
+                     ('--release', {'default': '2026-10-14'}), ('--previous', {'nargs': '+', 'default': ['2026-09-23', '2026-07-08', '2026-06-25']}),
+                     ('--tessera-commit', {'default': 'f390528eb2bfa3fc4ea474d9129c242b906e8e0a'})):
+        t.add_argument(flag, **kw)
+    t.set_defaults(fn=lambda a: __import__('sizing.s015', fromlist=['x']).cmd_tsra(a, tool_versions))
     rc = sub.add_parser('recompute', help='recompute extrapolations of a measurements.json in place')
     rc.add_argument('measurements')
+    rc.add_argument('--figures', help='fold a figures.json (the S-015 figure stage) over the figures of the tsra.json')
+    rc.add_argument('--tsra', help='fold a tsra.json (S-015) into the document before recomputing')
     rc.set_defaults(fn=cmd_recompute)
     a = ap.parse_args(argv)
     try:

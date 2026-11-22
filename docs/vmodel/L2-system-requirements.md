@@ -69,7 +69,7 @@ Ingest shall determine the licence class of every item from upstream metadata be
 
 Ingest shall build the phase-1 sources (US patent grants from 1976, the disambiguated PatentsView tables, an OpenAlex subset, structured full-text sources) into sealed shard products grouped as `base/<release>`, `delta/<date>` and `current`, each product recording its upstream release and snapshot date.
 
-- **Quantified:** Shards of 1 to 10 GB *(estimate)*; at least 8,000,000 patents and 5,000,000 works *(estimate)* (OUT-023); sealed size about 3× Parquet until tessera#628 *(estimate)*.
+- **Quantified:** Shards of 1 to 10 GB *(estimate)*; at least 8,000,000 patents and 5,000,000 works *(estimate)* (OUT-023); sealed size about 1.7× Parquet zstd for the document tables and 1.9× for text until tessera#628 *(measured in [L2 infrastructure](L2-infrastructure.md#24-size-model-measured-on-a-sample-s-013), S-015)*.
 - **Derives from:** REQ-001, REQ-002, REQ-005
 - **Source:** XADR-SCITADEL-008 §2; §6
 - **Verified by:** TEST-022
