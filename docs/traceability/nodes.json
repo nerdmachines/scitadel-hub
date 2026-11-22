@@ -3152,6 +3152,13 @@
       "title": "Measure the corpus size factors on a 10k-paper sample before the warm and hot storage is sized",
       "status": "proposed",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#83"
+    },
+    {
+      "id": "S-014",
+      "kind": "S",
+      "title": "Which corpus scope does phase 1 ingest: all licence-clean works, articles, or articles with reviews, preprints and conference papers?",
+      "status": "proposed",
+      "source": "docs/open-questions.md; nerdmachines/scitadel-hub#88"
     }
   ]
 }

@@ -16,7 +16,7 @@ BULK = {'low': 0.4, 'central': 0.5, 'high': 0.8}
 
 def factors(spread=0.2):
     base = {'chunks_350': 40, 'text_zst_bytes': 8e3, 'text_bytes': 30e3, 'meta_parquet_bytes': 600, 'refs': 40,
-            'pdf_bytes': 5e5, 'jats_zst_bytes': 2e4, 'pdf_share': 0.4, 'bm25_ratio': 0.35}
+            'pdf_bytes': 5e5, 'jats_zst_bytes': 2e4, 'pdf_share': 0.4, 'bm25_ratio': 0.35, 'unresolved_share': 0.25}
     return {k: {'n': 100, 'mean': v, 'median': v, 'p90': v, 'ci95': [v * (1 - spread), v * (1 + spread)]} for k, v in base.items()}
 
 
@@ -92,9 +92,22 @@ class Extrapolation(unittest.TestCase):
             self.assertAlmostEqual(sum(x['raw'].values()), x['R'])
         self.assertAlmostEqual(b['central']['vec_int8'] / b['central']['vec'], 0.5 * (1 + 4 / 1024), places=6)
 
+    def test_remainder_subtracts_the_first_models_vectors_and_text(self):
+        # No measured text, chunks or metadata and full coverage: B is the modelled remainder, which is the
+        # first model's per-paper size (1.75 TB / 7 M = 250 KB) less its 30 KB of vectors and 20 KB / 3.5 of
+        # text, plus figure vectors (14.6 KB), patent vectors and text, and the drawings.
+        z = {k: dict(v, mean=0.0, ci95=[0.0, 0.0]) for k, v in factors(0.0).items()}
+        n = 10e6
+        expect = n * (250e3 - 30e3 - 20e3 / 3.5) / 1e12 + n * 14.6e3 / 1e12 + 0.012 + 0.125 / 3.5 + 1.0
+        self.assertAlmostEqual(core.extrapolate(n, dict(z, unresolved_share=z['pdf_share']), BULK)['central']['B'], expect, places=6)
+
+    def test_hot_peak_adds_a_candidate_and_a_second_index_generation(self):
+        x = core.extrapolate(20e6, factors(), BULK)['central']
+        self.assertAlmostEqual(x['hot_peak'] - x['hot_steady'], x['hot_prod'] + x['idx'])
+
     def test_recompute_from_a_measurements_document(self):
         snap = {'openalex_jsonl': {'bytes': 7e11, 'works_records': 4e8, 'entities': {'works': 6e11}}, 'openalex_parquet': {'bytes': 8e11}}
-        doc = {'population': {'all_types': 4e7, 'article': 2e7}, 'snapshots': snap, 'bases': {b: {'factors': factors()} for b in ('all_types', 'article')}}
+        doc = {'population': {'all_types': 4e7, 'papers': 2.3e7, 'article': 2e7}, 'snapshots': snap, 'bases': {b: {'factors': factors()} for b in ('all_types', 'papers', 'article')}}
         run.extrapolations(doc)
         self.assertEqual(set(doc['bases']['article']['extrapolation']), set(core.CASES))
         self.assertGreater(doc['bases']['all_types']['extrapolation']['central']['B'], doc['bases']['article']['extrapolation']['central']['B'])

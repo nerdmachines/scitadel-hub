@@ -201,7 +201,7 @@ Every raw input (open-access PDFs, JATS, TEI and USPTO XML, bulk snapshots) and 
 
 Once the warm store of `gerchowl/g-fleet#1363` exists (20+ TB of HDD attached to anvil, ZFS behind its own versitygw; owner, 2026-11-18), the canonical sealed products and their history, every raw input and every cascade intermediate (SYS-014) shall be held on it, served over S3, with scheduled scrubs and snapshots; until then the `keep` bucket on the KC3000 stands in, within its quota. The hot tier stays on the KC3000 NVMe. Hot and warm are different disks in one host and share **one failure domain**: the loss of anvil, of its LUKS keys or a host-level compromise takes both. The cold mirror (SYS-016) is therefore the only off-anvil copy of the raw data, and the cutover to the warm store is gated on a restore from it (SYS-072). No second on-prem host is assumed.
 
-- **Quantified:** Usable capacity after the ZFS layout (raidz2 or mirror) of at least 19.5 TB, so that the central case stays at or below 80 % at its compaction peak *(estimate, size model in L2 infrastructure section 2.4)*: central steady state about 12.7 TB, compaction peak (current, previous and candidate base, 3.1 B) about 15.5 TB; 0 checksum mismatches after migration from the KC3000 buckets; monthly scrub with 0 unrepaired errors; 0 endpoint flips without a passed restore from cold.
+- **Quantified:** Usable capacity after the ZFS layout (raidz2 or mirror) of at least the warm peak of the planning case divided by 0.8, so that it stays at or below 80 % at its compaction peak (current, previous and candidate base, 3.1 B) *(estimate; the figures are derived in [L2 infrastructure section 2.4](L2-infrastructure.md#24-size-model-measured-on-a-sample-s-013) and not restated here)*; 0 checksum mismatches after migration from the KC3000 buckets; monthly scrub with 0 unrepaired errors; 0 endpoint flips without a passed restore from cold.
 - **Derives from:** REQ-018
 - **Source:** XADR-SCITADEL-008 §8 (stage 0, warm tier, owner 2026-11-18); §2; `gerchowl/g-fleet#1363`
 - **Verified by:** TEST-035
@@ -587,7 +587,7 @@ GPU jobs shall read their inputs from the hub's `gpu-io` subvolume as exposed un
 
 ### SYS-050: Embedding throughput
 
-Bulk embedding on the local GPU shall meet the phase-1 budget so that the corpus embeds in one to two GPU-days.
+Bulk embedding on the local GPU shall meet the phase-1 budget so that the phase-1 corpus of the planning case embeds in the GPU-days derived in [L2 infrastructure section 2.4](L2-infrastructure.md#24-size-model-measured-on-a-sample-s-013) at the throughput of OUT-004.
 
 - **Quantified:** ≥ 5,000,000 chunks per GPU-hour *(estimate)* (OUT-004).
 - **Derives from:** REQ-019

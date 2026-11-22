@@ -93,9 +93,12 @@ def oa(params):
 
 
 def populations():
-    out = {}
-    for name, extra in (('all_types', ''), ('article', ',type:article')):
-        out[name] = oa({'filter': FILTER + extra, 'per_page': 1, 'select': 'id'})['meta']['count']
+    """Two API calls: the count of the filter and its split by type; `papers` is the S-014 option of
+    articles, reviews, preprints and conference papers."""
+    out = {'all_types': oa({'filter': FILTER, 'per_page': 1, 'select': 'id'})['meta']['count']}
+    out['by_type'] = {g['key'].rsplit('/', 1)[-1]: g['count'] for g in oa({'filter': FILTER, 'group_by': 'type'})['group_by']}
+    out['article'] = out['by_type']['article']
+    out['papers'] = sum(out['by_type'][t] for t in core.PAPER_TYPES)
     return out
 
 
@@ -177,7 +180,7 @@ def bm25_ratio(tmp, rounds, seed):
 
     def build(sel, name):
         sb = tantivy.SchemaBuilder()
-        sb.add_text_field('body', stored=False, tokenizer_name='en_stem')
+        sb.add_text_field('body', stored=False, tokenizer_name='en_stem', index_option='position')
         d = tmp / name
         d.mkdir()
         w = tantivy.Index(sb.build(), path=str(d)).writer(heap_size=2 * 2**30, num_threads=8)
@@ -206,7 +209,7 @@ def parquet_bytes(rows):
     return buf.tell()
 
 
-def factors(rows, projected, bm25):
+def factors(rows, meta_parquet, bm25):
     """Per-paper factors of a set of rows. Text-derived ones are over works that yielded text;
     byte and share factors are over every work, zero where they do not apply."""
     n, ok = len(rows), [r for r in rows if 'tokens' in r]
@@ -221,12 +224,27 @@ def factors(rows, projected, bm25):
          'bm25_ratio': bm25}
     for k in ('text_bytes', 'text_zst_bytes', 'tokens', 'chunks_350', 'chunks_300', 'chunks_400'):
         f[k] = core.summarize([r[k] for r in ok])
+    zero = core.summarize([r['pdf_bytes'] for r in rows])  # failures as 0: the imputed CI is narrower, so widen its lower end
+    f['pdf_bytes']['ci95'][0] = min(f['pdf_bytes']['ci95'][0], zero['ci95'][0])
     pdf_only = [r for r in rows if r['route'] == 'pdf' and r['pdf_bytes']]
     f['pdf_bytes_per_pdf_only_work'] = core.summarize([r['pdf_bytes'] for r in pdf_only])
-    lo, hi = core.bootstrap_ci(len(projected), lambda ix: parquet_bytes([projected[i] for i in ix]) / len(ix), rounds=60)
-    mean = parquet_bytes(projected) / n
-    f['meta_parquet_bytes'] = {'n': n, 'mean': mean, 'median': None, 'p90': None, 'ci95': [min(mean, lo), max(mean, hi)]}
+    f['meta_parquet_bytes'] = meta_parquet
     return f
+
+
+def parquet_summary(projected):
+    lo, hi = core.bootstrap_ci(len(projected), lambda ix: parquet_bytes([projected[i] for i in ix]) / len(ix), rounds=60)
+    mean = parquet_bytes(projected) / len(projected)
+    return {'n': len(projected), 'mean': mean, 'median': None, 'p90': None, 'ci95': [min(mean, lo), max(mean, hi)]}
+
+
+def by_route(rows):
+    """Text and chunk numbers per extraction route (JATS body text vs pdftotext output)."""
+    out = {}
+    for route in ('jats', 'pdf'):
+        ok = [r for r in rows if r['route'] == route and 'tokens' in r]
+        out[route] = {'works': sum(r['route'] == route for r in rows), **{k: core.summarize([r[k] for r in ok]) for k in ('text_bytes', 'chunks_350')}}
+    return out
 
 
 def snapshots():
@@ -239,18 +257,18 @@ def snapshots():
     return out
 
 
-def bulk_tb(snap, pop_share):
-    """Bytes per generation: OpenAlex works at the population share (low), the whole jsonl (central)
-    or parquet (high) snapshot, plus the Crossref and DataCite files and the unmeasured rest."""
+def bulk_tb(snap):
+    """Bytes per generation: the hub keeps the whole OpenAlex snapshot it bootstraps from (jsonl in the
+    low and central case, Parquet in the high one), plus the Crossref and DataCite files and the unmeasured rest."""
     rest = PUBLISHED['crossref_public_data_file_2026_gb'] * 1e9 + PUBLISHED['datacite_public_data_file_2025_gib'] * 2**30 + core.MODEL['others_tb'] * core.TB
-    oa_j, oa_p = snap['openalex_jsonl'], snap['openalex_parquet']
-    return {c: (b + rest) / core.TB for c, b in (('low', oa_j['entities']['works'] * pop_share), ('central', oa_j['bytes']), ('high', oa_p['bytes']))}
+    oa_j, oa_p = snap['openalex_jsonl']['bytes'], snap['openalex_parquet']['bytes']
+    return {c: (b + rest) / core.TB for c, b in (('low', oa_j), ('central', oa_j), ('high', oa_p))}
 
 
 def extrapolations(result):
     """(Re)compute every basis's extrapolation from its measured factors; no network."""
     pops, snap = result['population'], result['snapshots']
-    bulk = bulk_tb(snap, pops['all_types'] / snap['openalex_jsonl']['works_records'])
+    bulk = bulk_tb(snap)
     for basis, b in result['bases'].items():
         b['extrapolation'] = core.extrapolate(pops[basis], b['factors'], bulk)
     result['model_scope_7M'] = core.extrapolate(7e6, result['bases']['article']['factors'], bulk)  # the first model's central N
@@ -307,8 +325,10 @@ def cmd_run(a):
                              'tools': tool_versions(), 'sample_n': len(rows)},
               'population': pops, 'snapshots': snap, 'routes_actual': {k: sum(r['route'] == k for r in rows) for k in ('jats', 'pdf', 'unresolved')},
               'status': {k: sum(r['status'] == k for r in rows) for k in sorted({r['status'] for r in rows})}, 'bases': {}}
-    for basis, sel in (('all_types', rows), ('article', [r for r in rows if r['type'] == 'article'])):
-        result['bases'][basis] = {'n': len(sel), 'factors': factors(sel, [projected[r['id']] for r in sel if r['id'] in projected], bm25)}
+    for basis, sel in (('all_types', rows), ('papers', [r for r in rows if r['type'] in core.PAPER_TYPES]), ('article', [r for r in rows if r['type'] == 'article'])):
+        meta = parquet_summary([projected[r['id']] for r in sel])
+        result['bases'][basis] = {'n': len(sel), 'factors': factors(sel, meta, bm25)}
+    result['by_route'] = by_route(rows)
     extrapolations(result)
     (out / 'measurements.json').write_text(json.dumps(result, indent=1))
     shutil.rmtree(tmp / 'text', ignore_errors=True)

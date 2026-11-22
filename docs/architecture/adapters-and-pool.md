@@ -90,7 +90,7 @@ Stage 0, on the KC3000 layout of [L2 infrastructure](../vmodel/L2-infrastructure
 | Ledgers | `state/ledger.sqlite` and siblings | `RunLedger` | snapshots hourly; nightly dump to `keep/state-dumps/<UTC date>`, newest 7 kept there |
 | `ksb` slice | `ksb-slice-<id>` manifest and files | orchestrator | deleted when the ksb task ends (SYS-063) |
 
-Quotas, the stage-0 raw budget of 380 GiB and the pause at 90 % are those of L2 infrastructure section 2.4; `ArtefactStore::put` returns `Quota` there and the run waits. Bulk data comes from first-party sources only: there is no PatentRef bulk snapshot, now or later, and PatentRef is used per request only ([C-004 ruling](https://github.com/nerdmachines/scitadel-hub/issues/22#issuecomment-6995799805)). Its raw inputs, like every other, are kept (SYS-014).
+Quotas, the stage-0 raw budget R₀ and the pause at 90 % are those of [L2 infrastructure section 2.4](../vmodel/L2-infrastructure.md#24-size-model-measured-on-a-sample-s-013); `ArtefactStore::put` returns `Quota` there and the run waits. Bulk data comes from first-party sources only: there is no PatentRef bulk snapshot, now or later, and PatentRef is used per request only ([C-004 ruling](https://github.com/nerdmachines/scitadel-hub/issues/22#issuecomment-6995799805)). Its raw inputs, like every other, are kept (SYS-014).
 
 ## 5. GPU jobs: consuming and producing data (DES-022)
 

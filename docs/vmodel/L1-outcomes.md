@@ -9,7 +9,7 @@ The wanted outcomes as measurable targets. A target marked *(estimate)* is a fir
 | OUT-001 | Citation-existence rate of grounded answers | ≥ 99 *(estimate)* | % of cited DOIs and patent numbers that resolve to a record the hub holds | grounding benchmark on a pinned corpus release | REQ-010, REQ-007 |
 | OUT-002 | Citation support rate | ≥ 90 *(estimate)* | % of citations whose cited passage supports the claim | grounding benchmark with a human-labelled sample | REQ-010 |
 | OUT-003 | Licence correctness | 0 | rows served outside the permitted licence class, over the whole test corpus and fuzzed queries | negative test suite plus query fuzzing in CI (an invariant, not a statistic) | REQ-008 |
-| OUT-004 | Ingest throughput per GPU-hour | ≥ 5,000,000 *(estimate)* | text chunks embedded per GPU-hour | job logs of bulk-embedding runs (derived from about 250 M chunks in 1 to 2 days on the local GPU) | REQ-019, REQ-005 |
+| OUT-004 | Ingest throughput per GPU-hour | ≥ 5,000,000 *(estimate)* | text chunks embedded per GPU-hour | job logs of bulk-embedding runs (derived from the phase-1 chunk count of the planning case in [L2 infrastructure section 2.4](L2-infrastructure.md#24-size-model-measured-on-a-sample-s-013)) | REQ-019, REQ-005 |
 | OUT-005 | Query latency on CPU | ≤ 250 *(estimate)* | ms, p95, hybrid search without rerank at lab scale (about 20 users) on a CPU-only host | load test recording p95 per step | REQ-019, REQ-003 |
 | OUT-006 | Delta freshness, literature | ≤ 24 *(estimate)* | hours from publication to searchable, for subscribed topics | freshness report per subscription | REQ-002 |
 | OUT-007 | Delta freshness, patents | ≤ 7 *(estimate)* | days from weekly grant release to searchable | freshness report for the grant delta | REQ-002 |
@@ -61,6 +61,6 @@ The wanted outcomes as measurable targets. A target marked *(estimate)* is a fir
 ## Notes
 
 - Targets state what the programme wants, not what a current system achieves; no measurement exists yet.
-- OUT-004 is derived from the phase-1 embedding budget: about 250 million chunks in one to two GPU-days is 5 to 10 million chunks per GPU-hour, so the target takes the lower end.
+- OUT-004 is derived from the phase-1 embedding budget: the chunk count of the planning case in [L2 infrastructure section 2.4](L2-infrastructure.md#24-size-model-measured-on-a-sample-s-013) divided by the GPU-days the budget allows, so that the target takes the lower end of the range derived there.
 - OUT-010 is the rule of three: a sample of 300 random works per batch with no confirmed error supports an upper bound of 3 / 300 = 1.0 % at 95 % confidence, so the target reads "≤ ~1" (XADR-SCITADEL-008 §13 says "below ~1%"). A smaller sample supports a looser bound only.
 - No outcome here sets a commercial figure (PRIN-013).

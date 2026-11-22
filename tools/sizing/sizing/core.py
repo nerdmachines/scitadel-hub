@@ -8,6 +8,7 @@ import re
 import statistics
 import xml.etree.ElementTree as ET
 
+PAPER_TYPES = ('article', 'review', 'preprint', 'conference-paper')  # the S-014 "papers" option
 CHUNK_TARGETS = (350, 300, 400)  # tokens: central, then the sensitivity bounds
 KEPT = ('id', 'doi', 'title', 'type', 'publication_year', 'publication_date', 'language',
         'authorships', 'primary_topic', 'topics', 'best_oa_location', 'open_access',
@@ -185,17 +186,24 @@ def extrapolate(n_papers, f, bulk_tb):
     for c in CASES:
         m = lambda key: MODEL[key][c] if isinstance(MODEL[key], dict) else MODEL[key]  # noqa: E731
         v = lambda name: at_case(f[name], c)  # noqa: E731
-        chunks = n_papers * v('chunks_350')
+        # Works whose only open-access location is a landing page carry metadata only (until #86): text,
+        # chunks, vectors and the modelled remainder apply to the covered share; low takes the least coverage.
+        cov = 1 - at_case(f['unresolved_share'], {'low': 'high', 'central': 'central', 'high': 'low'}[c])
+        n_cov = n_papers * cov
+        chunks = n_cov * v('chunks_350')
         dims = m('dims')
-        vec = chunks * dims * 2 / TB + n_papers * m('fig_vec_kb') * 1e3 / TB + MODEL['patent_vec_tb']
-        text = n_papers * v('text_zst_bytes') / TB + m('patent_text_tb') / MODEL['text_ratio']
+        vec_text = chunks * dims * 2 / TB
+        vec_fig = n_cov * m('fig_vec_kb') * 1e3 / TB
+        vec = vec_text + vec_fig + MODEL['patent_vec_tb']
+        text = n_cov * v('text_zst_bytes') / TB + m('patent_text_tb') / MODEL['text_ratio']
         meta = n_papers * v('meta_parquet_bytes') / TB
         resid_kb = m('paper_b_tb') * TB / m('n') / 1e3 - MODEL['vec_kb'] - MODEL['text_raw_kb'] / MODEL['text_ratio']
-        resid = n_papers * resid_kb * 1e3 / TB
+        resid = n_cov * resid_kb * 1e3 / TB
         b = vec + text + meta + resid + m('drawings_b_tb')
-        bm25 = (n_papers * v('text_bytes') / TB + m('patent_text_tb')) * at_case(f['bm25_ratio'], c)
-        ivf = (chunks + n_papers * MODEL['figs_per_paper']) * MODEL['ivf_bytes_per_vec'] / TB
-        graph = max(n_papers * v('refs') * 8 / TB, m('graph_gb') / 1e3)  # CSR fwd+rev u32 (8 B per edge); the modelled whole-graph size is the floor
+        bm25 = (n_cov * v('text_bytes') / TB + m('patent_text_tb')) * at_case(f['bm25_ratio'], c)
+        ivf = (chunks + n_cov * MODEL['figs_per_paper']) * MODEL['ivf_bytes_per_vec'] / TB
+        graph_derived = n_papers * v('refs') * 8 / TB  # CSR fwd+rev u32, 8 B per edge
+        graph = max(graph_derived, m('graph_gb') / 1e3)  # the modelled whole-graph size is the floor
         idx = bm25 + ivf + graph + m('hnsw_gb') / 1e3
         pdfs = n_papers * v('pdf_share')
         raw = {'pdf': n_papers * v('pdf_bytes') / TB,
@@ -205,7 +213,7 @@ def extrapolate(n_papers, f, bulk_tb):
         r = sum(raw.values())
         hot_prod = vec + text + meta
         d = MODEL['delta']
-        out[c] = {'B': b, 'R': r, 'raw': raw, 'vec': vec, 'text': text, 'meta': meta, 'idx': idx,
+        out[c] = {'B': b, 'R': r, 'raw': raw, 'vec': vec, 'vec_text': vec_text, 'vec_fig': vec_fig, 'covered': cov, 'graph_derived': graph_derived, 'text': text, 'meta': meta, 'idx': idx,
                   'idx_parts': {'bm25': bm25, 'ivf': ivf, 'graph': graph, 'hnsw': m('hnsw_gb') / 1e3},
                   'products_steady': (2 + d) * b, 'products_peak': (3 + d) * b,
                   'warm_steady': r + (2 + d) * b, 'warm_peak': r + (3 + d) * b,
