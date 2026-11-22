@@ -587,7 +587,7 @@ GPU jobs shall read their inputs from the hub's `gpu-io` subvolume as exposed un
 
 ### SYS-050: Embedding throughput
 
-Bulk embedding on the local GPU shall meet the phase-1 budget so that the phase-1 corpus of the planning case embeds in the GPU-days derived in [L2 infrastructure section 2.4](L2-infrastructure.md#24-size-model-measured-on-a-sample-s-013) at the throughput of OUT-004.
+Bulk embedding on the local GPU shall meet the phase-1 budget at the throughput below, so that the phase-1 corpus embeds in the time [L2 infrastructure section 2.4](L2-infrastructure.md#24-size-model-measured-on-a-sample-s-013) derives from it (the chunks of the planning case divided by this throughput).
 
 - **Quantified:** ≥ 5,000,000 chunks per GPU-hour *(estimate)* (OUT-004).
 - **Derives from:** REQ-019

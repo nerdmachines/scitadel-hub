@@ -105,6 +105,16 @@ class Extrapolation(unittest.TestCase):
         x = core.extrapolate(20e6, factors(), BULK)['central']
         self.assertAlmostEqual(x['hot_peak'] - x['hot_steady'], x['hot_prod'] + x['idx'])
 
+    def test_patent_parts_are_fixed_and_the_rest_scales_with_the_papers(self):
+        # B and R less their patent-scoped constants (and R less the bulk snapshots) are linear in the paper
+        # count: that is what lets a stage-0 slice scale the paper part and carry a fixed patent subset.
+        one, two = (core.extrapolate(n, factors(), BULK)['central'] for n in (10e6, 20e6))
+        self.assertAlmostEqual(two['B'] - two['patent']['b'], 2 * (one['B'] - one['patent']['b']))
+        paper_r = lambda x: x['R'] - x['patent']['raw'] - x['raw']['bulk']  # noqa: E731
+        self.assertAlmostEqual(paper_r(two), 2 * paper_r(one))
+        self.assertEqual(one['patent'], two['patent'])
+        self.assertAlmostEqual(one['patent']['b'], 1.0 + 0.012 + 0.125 / 3.5)
+
     def test_recompute_from_a_measurements_document(self):
         snap = {'openalex_jsonl': {'bytes': 7e11, 'works_records': 4e8, 'entities': {'works': 6e11}}, 'openalex_parquet': {'bytes': 8e11}}
         doc = {'population': {'all_types': 4e7, 'papers': 2.3e7, 'article': 2e7}, 'snapshots': snap, 'bases': {b: {'factors': factors()} for b in ('all_types', 'papers', 'article')}}

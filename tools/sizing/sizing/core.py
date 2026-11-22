@@ -222,4 +222,9 @@ def extrapolate(n_papers, f, bulk_tb):
         out[c]['hot_peak_int8'] = out[c]['hot_peak'] - (2 + d) * (vec - out[c]['vec_int8'])
         out[c]['hot_steady_int8'] = out[c]['hot_steady'] - (1 + d) * (vec - out[c]['vec_int8'])
         out[c]['cold'] = r + 6 * b
+        # The patent-scoped parts of B, R and the index are modelled constants, not per-paper terms: they do not
+        # scale with a slice of the papers, a stage-0 slice carries a fixed patent subset of them (2.4).
+        out[c]['patent'] = {'b': m('drawings_b_tb') + MODEL['patent_vec_tb'] + m('patent_text_tb') / MODEL['text_ratio'],
+                            'raw': m('patent_xml_tb') + m('raw_drawings_tb') + m('t14_patent_tb'),
+                            'idx': m('patent_text_tb') * at_case(f['bm25_ratio'], c)}
     return out

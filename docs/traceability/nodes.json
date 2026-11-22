@@ -2367,7 +2367,7 @@
     {
       "id": "C-004",
       "kind": "C",
-      "title": "PatentRef 504 GB snapshot versus the 380 GiB stage-0 raw budget",
+      "title": "PatentRef 504 GB snapshot versus the stage-0 raw budget R₀ of L2 infrastructure section 2.4",
       "status": "done",
       "source": "docs/open-questions.md; nerdmachines/scitadel-hub#22"
     },

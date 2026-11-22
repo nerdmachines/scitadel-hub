@@ -171,12 +171,12 @@ def process(rec, tok, tmp, zc):
     return row
 
 
-def bm25_ratio(tmp, rounds, seed):
-    """tantivy index bytes / indexed text bytes: the full sample; the CI spans `rounds` random 80 %
+def bm25_ratio(tmp, rounds, seed, ids=None):
+    """tantivy index bytes / indexed text bytes of the works `ids` (default: all with text); the CI spans `rounds` random 80 %
     subsamples without replacement (resampling with replacement duplicates documents and shrinks the ratio)."""
     import random
     import tantivy
-    files = sorted((tmp / 'text').glob('*.txt'))
+    files = sorted(f for f in (tmp / 'text').glob('*.txt') if ids is None or f.stem in ids)
 
     def build(sel, name):
         sb = tantivy.SchemaBuilder()
@@ -233,7 +233,10 @@ def factors(rows, meta_parquet, bm25):
 
 
 def parquet_summary(projected):
-    lo, hi = core.bootstrap_ci(len(projected), lambda ix: parquet_bytes([projected[i] for i in ix]) / len(ix), rounds=60)
+    """Parquet bytes per work: the file of all rows is the mean; the 95 % bootstrap CI (1,000 rounds, as the other factors)
+    is of the bytes per work of files of resampled rows. A resample repeats rows, which compresses better, so the
+    interval sits below the mean; it is widened to include the mean (the exception stated in 2.4)."""
+    lo, hi = core.bootstrap_ci(len(projected), lambda ix: parquet_bytes([projected[i] for i in ix]) / len(ix), rounds=1000)
     mean = parquet_bytes(projected) / len(projected)
     return {'n': len(projected), 'mean': mean, 'median': None, 'p90': None, 'ci95': [min(mean, lo), max(mean, hi)]}
 
@@ -317,7 +320,6 @@ def cmd_run(a):
             rows.append(row)
             if i % 200 == 0:
                 print(f'{len(rows)}/{len(recs)}', flush=True)
-    bm25 = bm25_ratio(tmp, a.bootstrap_rounds, a.seed)
     projected = {r['id'].rsplit('/', 1)[-1]: core.project(r) for r in recs}
     snap = snapshots()
     result = {'parameters': {'seed': a.seed, 'filter': FILTER, 'chunk_targets': core.CHUNK_TARGETS, 'dims': core.MODEL['dims'],
@@ -327,6 +329,7 @@ def cmd_run(a):
               'status': {k: sum(r['status'] == k for r in rows) for k in sorted({r['status'] for r in rows})}, 'bases': {}}
     for basis, sel in (('all_types', rows), ('papers', [r for r in rows if r['type'] in core.PAPER_TYPES]), ('article', [r for r in rows if r['type'] == 'article'])):
         meta = parquet_summary([projected[r['id']] for r in sel])
+        bm25 = bm25_ratio(tmp, a.bootstrap_rounds, a.seed, {r['id'] for r in sel})  # per basis: the index of that basis's works
         result['bases'][basis] = {'n': len(sel), 'factors': factors(sel, meta, bm25)}
     result['by_route'] = by_route(rows)
     extrapolations(result)
