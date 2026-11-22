@@ -1,0 +1,438 @@
+{
+ "n_works": 6246,
+ "n_with_text": 3189,
+ "n_jats_with_text": 1021,
+ "tables": {
+  "works": {
+   "group": "meta",
+   "rows": 6246,
+   "tsra": 1072412,
+   "parquet_zstd": 810614,
+   "raw": 2251942
+  },
+  "authorships": {
+   "group": "meta",
+   "rows": 25562,
+   "tsra": 587407,
+   "parquet_zstd": 556020,
+   "raw": 1176118
+  },
+  "citations": {
+   "group": "meta",
+   "rows": 170024,
+   "tsra": 744880,
+   "parquet_zstd": 1021205,
+   "raw": 2720384
+  },
+  "elements": {
+   "group": "doc",
+   "rows": 683030,
+   "tsra": 90819192,
+   "parquet_zstd": 52234419,
+   "raw": 159885578
+  },
+  "elements.text": {
+   "group": "doc",
+   "rows": 683030,
+   "tsra": 83643310,
+   "parquet_zstd": 43815488,
+   "raw": 127838626
+  },
+  "chunks": {
+   "group": "doc",
+   "rows": 118040,
+   "tsra": 636953,
+   "parquet_zstd": 465574,
+   "raw": 2596880
+  },
+  "figures": {
+   "group": "doc",
+   "rows": 19937,
+   "tsra": 171387,
+   "parquet_zstd": 134406,
+   "raw": 1025222
+  },
+  "table_cells": {
+   "group": "jats",
+   "rows": 189826,
+   "tsra": 2322676,
+   "parquet_zstd": 1357943,
+   "raw": 7825686
+  },
+  "inline_refs": {
+   "group": "jats",
+   "rows": 96486,
+   "tsra": 936906,
+   "parquet_zstd": 600675,
+   "raw": 4094713
+  },
+  "bib": {
+   "group": "jats",
+   "rows": 53940,
+   "tsra": 2868521,
+   "parquet_zstd": 1627388,
+   "raw": 6106011
+  }
+ },
+ "group_bytes": {
+  "meta": 2404699,
+  "doc": 91627532,
+  "jats": 6128103,
+  "text": 83643310
+ },
+ "bytes_per_paper": {
+  "meta": 384.99823887287863,
+  "doc": 34734.43102160985,
+  "text": 26228.695515835687
+ },
+ "factors": {
+  "tsra_meta": {
+   "n": 6246,
+   "mean": 384.99823887287863,
+   "ci95": [
+    382.6052842273819,
+    386.6357085668535
+   ]
+  },
+  "tsra_doc": {
+   "n": 3189,
+   "mean": 34734.43102160985,
+   "ci95": [
+    34522.15990163416,
+    35103.51214729697
+   ]
+  },
+  "tsra_text": {
+   "n": 3189,
+   "mean": 26228.695515835687,
+   "ci95": [
+    25985.39813011297,
+    26432.348699763592
+   ]
+  }
+ },
+ "subset_range_rounds": 10,
+ "chunk_rows_per_paper": 37.01473816243337,
+ "element_rows_per_paper": 214.18312950768265,
+ "vectors": {
+  "512": {
+   "dims": 512,
+   "n": 50000,
+   "raw_bytes_per_vector": {
+    "fp16": 1024.0,
+    "int8": 516.0
+   },
+   "vortex_fsl": {
+    "fp16": {
+     "bytes_per_vector": 1024.29768,
+     "ratio_to_raw": 1.000290703125
+    },
+    "int8": {
+     "bytes_per_vector": 515.10392,
+     "ratio_to_raw": 0.9982634108527132
+    }
+   },
+   "tessera_array": {
+    "fp16": {
+     "bytes_per_vector": 885.11816,
+     "ratio_to_raw": 0.864373203125
+    },
+    "int8": {
+     "bytes_per_vector": 485.65288,
+     "ratio_to_raw": 0.9411877519379845
+    }
+   },
+   "parquet_zstd": {
+    "fp16": {
+     "bytes_per_vector": 965.97122,
+     "ratio_to_raw": 0.94333126953125
+    },
+    "int8": {
+     "bytes_per_vector": 482.8479,
+     "ratio_to_raw": 0.9357517441860466
+    }
+   }
+  },
+  "1024": {
+   "dims": 1024,
+   "n": 50000,
+   "raw_bytes_per_vector": {
+    "fp16": 2048.0,
+    "int8": 1028.0
+   },
+   "vortex_fsl": {
+    "fp16": {
+     "bytes_per_vector": 2048.5372,
+     "ratio_to_raw": 1.0002623046875
+    },
+    "int8": {
+     "bytes_per_vector": 1027.234,
+     "ratio_to_raw": 0.9992548638132296
+    }
+   },
+   "tessera_array": {
+    "fp16": {
+     "bytes_per_vector": 1771.12604,
+     "ratio_to_raw": 0.86480763671875
+    },
+    "int8": {
+     "bytes_per_vector": 958.27494,
+     "ratio_to_raw": 0.9321740661478599
+    }
+   },
+   "parquet_zstd": {
+    "fp16": {
+     "bytes_per_vector": 1927.31202,
+     "ratio_to_raw": 0.941070322265625
+    },
+    "int8": {
+     "bytes_per_vector": 947.95446,
+     "ratio_to_raw": 0.9221346887159533
+    }
+   }
+  }
+ },
+ "overhead": {
+  "tsra_product_one_row": 4196,
+  "vortex_file_one_row": 2264
+ },
+ "blob_vortex": {
+  "blobs": 2000,
+  "payload_bytes": 86302527,
+  "vortex_bytes": 86312856
+ },
+ "figures": {
+  "fig_blob_bytes": {
+   "n": 3189,
+   "mean": 1091371.822201317,
+   "median": 167364,
+   "p90": 1664252.2000000014,
+   "ci95": [
+    884696.4240122295,
+    1310992.6316792099
+   ]
+  },
+  "fig_native_bytes": {
+   "n": 3189,
+   "mean": 1287968.798055817,
+   "median": 216285,
+   "p90": 2188379.000000003,
+   "ci95": [
+    1082674.583223581,
+    1512164.6138836625
+   ]
+  },
+  "fig_embedded_bytes": {
+   "n": 3189,
+   "mean": 1269878.9912198181,
+   "median": 234314,
+   "p90": 2212219.0,
+   "ci95": [
+    1076322.7043430542,
+    1500285.2107322046
+   ]
+  },
+  "images_per_paper": {
+   "n": 3189,
+   "mean": 23.998745688303543,
+   "median": 5,
+   "p90": 24.0,
+   "ci95": [
+    14.34466917529006,
+    36.69188617121355
+   ]
+  },
+  "figs_per_paper": {
+   "n": 3189,
+   "mean": 6.235183443085607,
+   "median": 3,
+   "p90": 14.0,
+   "ci95": [
+    5.795178739416745,
+    6.678613985575415
+   ]
+  },
+  "by_route": {
+   "pdf": {
+    "fig_blob_bytes": {
+     "n": 2168,
+     "mean": 642989.2836715867,
+     "median": 108908.5,
+     "p90": 1460761.9999999995,
+     "ci95": [
+      551240.6880650369,
+      750104.929797048
+     ]
+    },
+    "embedded_bytes": {
+     "n": 2168,
+     "mean": 841780.4829335794,
+     "median": 156234.0,
+     "p90": 2112868.4,
+     "ci95": [
+      755163.7058464022,
+      939223.6938076568
+     ]
+    },
+    "images": {
+     "n": 2168,
+     "mean": 32.41559040590406,
+     "median": 5.0,
+     "p90": 30.299999999999955,
+     "ci95": [
+      18.40919049815498,
+      53.70176429889299
+     ]
+    },
+    "figs": {
+     "n": 2168,
+     "mean": 7.643450184501845,
+     "median": 3.0,
+     "p90": 18.0,
+     "ci95": [
+      7.020099169741697,
+      8.3206065498155
+     ]
+    }
+   },
+   "jats": {
+    "fig_blob_bytes": {
+     "n": 1021,
+     "mean": 2043471.0812928502,
+     "median": 363905,
+     "p90": 2070921.0,
+     "ci95": [
+      1466032.658496572,
+      2721889.9922135156
+     ]
+    },
+    "embedded_bytes": {
+     "n": 1021,
+     "mean": 2178906.96963761,
+     "median": 480484,
+     "p90": 2441299.0,
+     "ci95": [
+      1599762.9104799216,
+      2862057.3347208616
+     ]
+    },
+    "images": {
+     "n": 1021,
+     "mean": 6.1263467189030365,
+     "median": 5,
+     "p90": 12.0,
+     "ci95": [
+      5.711973555337904,
+      6.595519098922625
+     ]
+    },
+    "figs": {
+     "n": 1021,
+     "mean": 3.2448579823702253,
+     "median": 2,
+     "p90": 8.0,
+     "ci95": [
+      3.0362389813907935,
+      3.456439764936337
+     ]
+    }
+   }
+  },
+  "pdf_image_share_of_pdf": 0.6579958876733629,
+  "graphics_miss": 7,
+  "how": {
+   "jxl": 65011,
+   "native": 11521,
+   "missing": 0
+  }
+ },
+ "status": {
+  "fetch_ConnectionResetError": 12,
+  "fetch_HTTPError": 865,
+  "fetch_InvalidURL": 8,
+  "fetch_ParseError": 1,
+  "fetch_URLError": 123,
+  "no_text": 8,
+  "not_pdf": 148,
+  "ok": 3207,
+  "robots": 238,
+  "unresolved": 1636
+ },
+ "routes": {
+  "jats": 1039,
+  "pdf": 3571,
+  "unresolved": 1636
+ },
+ "snapshot_deltas": {
+  "release": "2026-10-14",
+  "previous": [
+   "2026-09-23",
+   "2026-07-15",
+   "2026-06-25"
+  ],
+  "formats": {
+   "jsonl": {
+    "2026-09-23": {
+     "full": 755749312341,
+     "delta": 511923605364,
+     "whole_each_generation": 235359395,
+     "partitions": 401
+    },
+    "2026-07-15": {
+     "full": 755749312341,
+     "delta": 686074589566,
+     "whole_each_generation": 235359395,
+     "partitions": 401
+    },
+    "2026-06-25": {
+     "full": 755749312341,
+     "delta": 704384673558,
+     "whole_each_generation": 235359395,
+     "partitions": 401
+    }
+   },
+   "parquet": {
+    "2026-09-23": {
+     "full": 801128474499,
+     "delta": 545884127585,
+     "whole_each_generation": 235404225,
+     "partitions": 401
+    },
+    "2026-07-15": {
+     "full": 801128474499,
+     "delta": 727845247819,
+     "whole_each_generation": 235404225,
+     "partitions": 401
+    },
+    "2026-06-25": {
+     "full": 801128474499,
+     "delta": 746928743874,
+     "whole_each_generation": 235404225,
+     "partitions": 401
+    }
+   }
+  }
+ },
+ "parameters": {
+  "tessera_commit": "f390528eb2bfa3fc4ea474d9129c242b906e8e0a",
+  "seed": 83,
+  "sample_n": 6246,
+  "manifest_n": 10000,
+  "chunk_target": 350,
+  "tools": {
+   "python": "3.14.10",
+   "tokenizers": "0.23.3",
+   "pyarrow": "24.0.0",
+   "zstandard": "0.25.0",
+   "tantivy": "tantivy v0.26.2, index_format v7",
+   "pdftotext": "pdftotext version 26.11.0",
+   "zstd_level": 3,
+   "tessera_py": "0.1.0a1",
+   "vortex_data": "0.93.0",
+   "cjxl": "cjxl v0.12.0 [AVX3_DL,AVX2,SSE4,SSE2,unsupported but chosen: AVX3_SPR] {GNU 16.2.0}",
+   "pdfimages": "pdfimages version 26.11.0"
+  },
+  "min_figure_px": 64,
+  "extractor": "sizing-s015@0.1 (jats | pdftotext -bbox-layout)"
+ }
+}
