@@ -8,7 +8,7 @@ import re
 import statistics
 import xml.etree.ElementTree as ET
 
-PAPER_TYPES = ('article', 'review', 'preprint', 'conference-paper')  # the S-014 "papers" option
+PAPER_TYPES = ('article', 'review', 'preprint', 'conference-paper')  # scholarly types: the S-014 ruling, the planning case; `type:conference-paper` is OpenAlex's own type
 CHUNK_TARGETS = (350, 300, 400)  # tokens: central, then the sensitivity bounds
 KEPT = ('id', 'doi', 'title', 'type', 'publication_year', 'publication_date', 'language',
         'authorships', 'primary_topic', 'topics', 'best_oa_location', 'open_access',

@@ -1,6 +1,7 @@
 {
 "seed": 83,
 "filter": "best_oa_location.license:cc-by|cc0|public-domain",
+"scholarly_types": {"ruling": "S-014, nerdmachines/scitadel-hub#88, 2026-11-22", "filter": "best_oa_location.license:cc-by|cc0|public-domain,type:article|review|preprint|conference-paper", "types": ["article", "review", "preprint", "conference-paper"], "conference_paper": "type:conference-paper (OpenAlex work type; Crossref proceedings-article is one of its source types), not primary_location.source.type:conference", "meta_count_checks_2026-11-22": {"type:conference-paper": 1337720, "primary_location.source.type:conference": 1134755, "type:conference-paper AND primary_location.source.type:conference": 997812}},
 "date": "2026-11-22",
 "population": {"all_types": 36911825, "by_type": {"article": 19935832, "dataset": 5556229, "other": 4326667, "conference-paper": 1337720, "preprint": 1196458, "review": 769769, "book-chapter": 550020, "peer-review": 546255, "book": 529010, "dissertation": 360666, "conference-abstract": 262345, "paratext": 260506, "supplementary-materials": 252320, "report": 212241, "book-review": 200604, "editorial": 191921, "erratum": 124522, "reference-entry": 115535, "software": 68446, "letter": 43847, "study-registration": 26175, "data-paper": 16578, "retraction": 12549, "standard": 12101, "software-paper": 3509}, "article": 19935832, "papers": 23239779},
 "n": 10000,

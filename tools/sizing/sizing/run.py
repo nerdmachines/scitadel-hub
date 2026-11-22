@@ -93,8 +93,8 @@ def oa(params):
 
 
 def populations():
-    """Two API calls: the count of the filter and its split by type; `papers` is the S-014 option of
-    articles, reviews, preprints and conference papers."""
+    """Two API calls: the count of the filter and its split by type; `papers` is the S-014 ruling (2026-11-22):
+    the scholarly types article, review, preprint and conference-paper (`core.PAPER_TYPES`), the planning case."""
     out = {'all_types': oa({'filter': FILTER, 'per_page': 1, 'select': 'id'})['meta']['count']}
     out['by_type'] = {g['key'].rsplit('/', 1)[-1]: g['count'] for g in oa({'filter': FILTER, 'group_by': 'type'})['group_by']}
     out['article'] = out['by_type']['article']
@@ -271,7 +271,7 @@ def extrapolations(result):
     bulk = bulk_tb(snap)
     for basis, b in result['bases'].items():
         b['extrapolation'] = core.extrapolate(pops[basis], b['factors'], bulk)
-    result['model_scope_7M'] = core.extrapolate(7e6, result['bases']['article']['factors'], bulk)  # the first model's central N
+    result['model_scope_7M'] = core.extrapolate(7e6, result['bases']['papers']['factors'], bulk)  # the first model's central N, at the planning case's factors
 
 
 def cmd_recompute(a):
