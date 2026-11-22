@@ -26,7 +26,7 @@ TEI, JATS, publisher HTML and PDF are **ingest sources** ([DES-013](tessera-boun
 - **Linking.** Within a shard by key: sorting keeps one paper's rows together in every block, so `get` touches a few chunks per block. Declared keyed links (`bib.matched_work_id` → `works.work_id`) and the work_id → product index are `KeyedRefs`; across products by provenance ([DES-040](provenance.md)).
 - **Compression comes from the layout:** sorted keys as runs and deltas, dictionaries for `kind` and section names, typed columns for numbers apart from text (`table_cells.num`, bbox, pages), embeddings as f16 or int8 plus scale.
 - **Rendered views are not storage.** Typst, HTML and Markdown are generated on demand for readers and LLM context; storing them would make a compiler a dependency for reading our own data.
-- **Size.** Per paper about 5 to 8 KB of text, a few KB of tables, 100 KB to 1 MB of lossless figures, about 10 KB of vectors *(estimates)*; figures dominate and the first measured shards replace these numbers.
+- **Size.** Measured, not estimated: the bytes per paper of each block, of a vector and of the lossless figures (which dominate) are in [L2 infrastructure section 2.4](../vmodel/L2-infrastructure.md#24-size-model-measured-on-a-sample-s-013) (S-015), and are not restated here.
 
 ## 2. Derived products, figures and embeddings (DES-037)
 
